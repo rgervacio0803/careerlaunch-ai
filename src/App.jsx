@@ -48,7 +48,7 @@ function App() {
         formData.append("resume", resumeFile);
       }
 
-      const response = await fetch("http://localhost:5000/analyze", {
+      const response = await fetch("https://careerlaunch-ai-api.onrender.com/analyze", {
         method: "POST",
         body: formData,
       });
@@ -197,7 +197,7 @@ function App() {
         formData.append("resume", resumeFile);
       }
 
-      const response = await fetch("http://localhost:5000/rewrite", {
+      const response = await fetch("https://careerlaunch-ai-api.onrender.com/rewrite", {
         method: "POST",
         body: formData,
       });
@@ -276,7 +276,7 @@ function App() {
         formData.append("resume", resumeFile);
       }
 
-      const response = await fetch("http://localhost:5000/interview", {
+      const response = await fetch("https://careerlaunch-ai-api.onrender.com/interview", {
         method: "POST",
         body: formData,
       });
