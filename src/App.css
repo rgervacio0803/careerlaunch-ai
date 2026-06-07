@@ -5,8 +5,12 @@
 body {
   margin: 0;
   font-family: Arial, sans-serif;
-  background: #f5f7fb;
+  background:
+    radial-gradient(circle at top left, rgba(124, 58, 237, 0.35), transparent 35%),
+    radial-gradient(circle at top right, rgba(37, 99, 235, 0.35), transparent 30%),
+    linear-gradient(135deg, #0f172a, #1e1b4b, #172554);
   color: #111827;
+  min-height: 100vh;
 }
 
 .app {
@@ -14,8 +18,29 @@ body {
 }
 
 .hero {
+  width: 90%;
+  max-width: 1000px;
+  margin: 40px auto 30px;
   text-align: center;
-  padding: 60px 20px 30px;
+  padding: 50px 28px;
+
+  background: rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(22px);
+  -webkit-backdrop-filter: blur(22px);
+
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 28px;
+
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.28);
+}
+
+.hero h1,
+.hero p {
+  color: white;
+}
+
+.hero .subtitle {
+  color: #dbeafe;
 }
 
 .eyebrow {
@@ -61,10 +86,10 @@ h1 {
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.06);
 }
 
-label {
-  display: block;
-  font-weight: bold;
-  margin-bottom: 10px;
+label,
+h2,
+h3 {
+  color: white;
 }
 
 textarea {
@@ -379,12 +404,13 @@ button:hover {
 }
 
 .hero-tags span {
-  background: white;
-  color: #2563eb;
+  background: rgba(255, 255, 255, 0.16);
+  color: white;
   padding: 8px 12px;
   border-radius: 999px;
   font-size: 13px;
   font-weight: 700;
+  border: 1px solid rgba(255, 255, 255, 0.22);
 }
 
 .app.dark .hero-tags span {
@@ -433,3 +459,29 @@ button:hover {
   color: #bfdbfe;
 }
 
+.card,
+.result-card {
+  background: rgba(255, 255, 255, 0.10);
+
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+
+  border: 1px solid rgba(255,255,255,0.18);
+
+  border-radius: 20px;
+
+  box-shadow:
+    0 8px 32px rgba(0,0,0,.2);
+
+  color: white;
+}
+
+.card:hover,
+.result-card:hover {
+  transform: translateY(-4px);
+
+  box-shadow:
+    0 20px 40px rgba(0,0,0,.25);
+
+  transition: all .25s ease;
+}
