@@ -14,6 +14,7 @@ function App() {
   const [interviewQuestions, setInterviewQuestions] = useState(null);
   const [jobTitle, setJobTitle] = useState("Target Position");
   const [darkMode, setDarkMode] = useState(false);
+  const [currentStep, setCurrentStep] = useState(1);
 
   const fileInputRef = useRef(null);
 
@@ -48,10 +49,13 @@ function App() {
         formData.append("resume", resumeFile);
       }
 
-      const response = await fetch("https://careerlaunch-ai-api.onrender.com/analyze", {
-        method: "POST",
-        body: formData,
-      });
+      const response = await fetch(
+        "https://careerlaunch-ai-api.onrender.com/analyze",
+        {
+          method: "POST",
+          body: formData,
+        },
+      );
 
       const data = await response.json();
 
@@ -197,10 +201,13 @@ function App() {
         formData.append("resume", resumeFile);
       }
 
-      const response = await fetch("https://careerlaunch-ai-api.onrender.com/rewrite", {
-        method: "POST",
-        body: formData,
-      });
+      const response = await fetch(
+        "https://careerlaunch-ai-api.onrender.com/rewrite",
+        {
+          method: "POST",
+          body: formData,
+        },
+      );
 
       const data = await response.json();
       setRewrittenResume(data.rewrittenResume);
@@ -276,10 +283,13 @@ function App() {
         formData.append("resume", resumeFile);
       }
 
-      const response = await fetch("https://careerlaunch-ai-api.onrender.com/interview", {
-        method: "POST",
-        body: formData,
-      });
+      const response = await fetch(
+        "https://careerlaunch-ai-api.onrender.com/interview",
+        {
+          method: "POST",
+          body: formData,
+        },
+      );
 
       const data = await response.json();
 
@@ -398,6 +408,33 @@ function App() {
           <span>Interview Coach</span>
         </div>
       </header>
+
+      <section className="steps">
+        <div className={currentStep === 1 ? "step active" : "step"}>
+          <span>1</span>
+          <p>Upload</p>
+        </div>
+
+        <div className={currentStep === 2 ? "step active" : "step"}>
+          <span>2</span>
+          <p>Job Match</p>
+        </div>
+
+        <div className={currentStep === 3 ? "step active" : "step"}>
+          <span>3</span>
+          <p>ATS Analysis</p>
+        </div>
+
+        <div className={currentStep === 4 ? "step active" : "step"}>
+          <span>4</span>
+          <p>Optimize</p>
+        </div>
+
+        <div className={currentStep === 5 ? "step active" : "step"}>
+          <span>5</span>
+          <p>Interview Prep</p>
+        </div>
+      </section>
 
       <main className="container">
         <section className="card">
@@ -631,6 +668,15 @@ function App() {
           </section>
         )}
       </main>
+      {loading && (
+  <div className="loading-overlay">
+    <div className="loading-modal">
+      <div className="spinner"></div>
+      <h2>Analyzing your resume...</h2>
+      <p>Please wait while CareerLaunch AI reviews your resume and job description.</p>
+    </div>
+  </div>
+)}
       {toastMessage && <div className="toast">{toastMessage}</div>}
     </div>
   );
