@@ -1,3 +1,13 @@
+:root {
+  --page-bg: #f6f8fb;
+  --card-bg: #ffffff;
+  --primary-blue: #2563eb;
+  --primary-blue-dark: #1d4ed8;
+  --text-dark: #0f172a;
+  --text-muted: #64748b;
+  --border-light: #e5e7eb;
+}
+
 * {
   box-sizing: border-box;
 }
@@ -5,16 +15,14 @@
 body {
   margin: 0;
   font-family: Arial, sans-serif;
-  background:
-    radial-gradient(circle at top left, rgba(124, 58, 237, 0.35), transparent 35%),
-    radial-gradient(circle at top right, rgba(37, 99, 235, 0.35), transparent 30%),
-    linear-gradient(135deg, #0f172a, #1e1b4b, #172554);
-  color: #111827;
+  background: var(--page-bg);
+  color: var(--text-dark);
   min-height: 100vh;
 }
 
 .app {
   min-height: 100vh;
+  background: var(--page-bg);
 }
 
 .hero {
@@ -34,13 +42,15 @@ body {
   box-shadow: 0 25px 60px rgba(0, 0, 0, 0.28);
 }
 
-.hero h1,
+.hero h1 {
+  color: #0f172a;
+}
 .hero p {
-  color: white;
+  color: #64748b;
 }
 
 .hero .subtitle {
-  color: #dbeafe;
+  color: #64748b;
 }
 
 .eyebrow {
@@ -333,68 +343,6 @@ button:hover {
   background: #374151;
 }
 
-.app.dark {
-  background: #0f172a;
-  color: #e5e7eb;
-}
-
-.app.dark .hero {
-  background: #0f172a;
-}
-
-.app.dark .subtitle {
-  color: #cbd5e1;
-}
-
-.app.dark .card,
-.app.dark .result-card,
-.app.dark .rewritten-section {
-  background: #111827;
-  color: #f9fafb;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.35);
-}
-
-.app.dark textarea {
-  background: #020617;
-  color: #f9fafb;
-  border-color: #334155;
-}
-
-.app.dark textarea::placeholder {
-  color: #94a3b8;
-}
-
-.app.dark .upload-box {
-  background: #1e293b;
-  border-color: #38bdf8;
-}
-
-.app.dark .upload-box:hover {
-  background: #334155;
-}
-
-.app.dark .upload-title {
-  color: #f9fafb;
-}
-
-.app.dark .upload-subtitle {
-  color: #cbd5e1;
-}
-
-.app.dark .file-selected {
-  background: #064e3b;
-  color: #d1fae5;
-}
-
-.app.dark .secondary-button {
-  background: #334155;
-  color: white;
-}
-
-.app.dark .secondary-button:hover {
-  background: #475569;
-}
-
 .hero-tags {
   display: flex;
   justify-content: center;
@@ -411,11 +359,6 @@ button:hover {
   font-size: 13px;
   font-weight: 700;
   border: 1px solid rgba(255, 255, 255, 0.22);
-}
-
-.app.dark .hero-tags span {
-  background: #1e293b;
-  color: #93c5fd;
 }
 
 .score-row {
@@ -448,15 +391,6 @@ button:hover {
   background: linear-gradient(90deg, #2563eb, #22c55e);
   border-radius: 999px;
   transition: width 0.6s ease;
-}
-
-.app.dark .progress-track {
-  background: #334155;
-}
-
-.app.dark .score-label {
-  background: #1e3a8a;
-  color: #bfdbfe;
 }
 
 .card,
@@ -568,4 +502,68 @@ button:hover {
   to {
     transform: rotate(360deg);
   }
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 24px;
+}
+
+.job-title-input {
+  width: 100%;
+  padding: 14px;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.15);
+  font-size: 16px;
+}
+
+.start-over-link {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  margin: 16px auto 24px auto;
+
+  background: transparent;
+  border: none;
+
+  color: #64748b;
+  font-size: 14px;
+  font-weight: 600;
+
+  cursor: pointer;
+}
+
+.start-over-link:hover {
+  color: #2563eb;
+  background: transparent;
+}
+
+.start-over-icon {
+  font-size: 18px;
+}
+
+.result-card,
+.result-card h2,
+.result-card h3,
+.result-card h4,
+.result-card p,
+.result-card li,
+.result-card strong {
+  color: #0f172a;
+}
+
+.result-card .score {
+  color: #2563eb;
+}
+
+.result-card pre {
+  color: #0f172a;
+}
+
+.keyword-tag {
+  color: #0f172a;
+  background: #e0ecff;
 }

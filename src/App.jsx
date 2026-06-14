@@ -12,9 +12,10 @@ function App() {
   const [toastMessage, setToastMessage] = useState("");
   const [rewrittenResume, setRewrittenResume] = useState("");
   const [interviewQuestions, setInterviewQuestions] = useState(null);
-  const [jobTitle, setJobTitle] = useState("Target Position");
-  const [darkMode, setDarkMode] = useState(false);
+  const [jobTitle, setJobTitle] = useState("");
   const [currentStep, setCurrentStep] = useState(1);
+  const [resumeProfile, setResumeProfile] = useState(null);
+  const [resumeAnalyzing, setResumeAnalyzing] = useState(false);
 
   const fileInputRef = useRef(null);
 
@@ -43,7 +44,10 @@ function App() {
       const formData = new FormData();
 
       formData.append("resumeText", finalResumeText);
-      formData.append("jobDescription", jobDescription);
+      formData.append(
+        "jobDescription",
+        `Job Title: ${jobTitle}\n\nResponsibilities and Duties:\n${jobDescription}`,
+      );
 
       if (resumeFile) {
         formData.append("resume", resumeFile);
@@ -65,6 +69,7 @@ function App() {
       }
       setResult(data);
       setJobTitle(data.jobTitle || "Target Position");
+      setCurrentStep(3);
     } catch (error) {
       console.error(error);
       setError("Something went wrong. Please check your file or try again.");
@@ -74,20 +79,23 @@ function App() {
   }
 
   function handleReset() {
-    setResumeText("");
-    setResumeFile(null);
-    setJobDescription("");
-    setResult(null);
-    setRewrittenResume("");
-    setToastMessage("");
-    setInterviewQuestions("");
-    setJobTitle("Target Position");
-    setError("");
+  setResumeText("");
+  setResumeFile(null);
+  setJobDescription("");
+  setResult(null);
+  setRewrittenResume("");
+  setToastMessage("");
+  setInterviewQuestions(null);
+  setJobTitle("");
+  setResumeProfile(null);
+  setResumeAnalyzing(false);
+  setCurrentStep(1);
+  setError("");
 
-    if (fileInputRef.current) {
-      fileInputRef.current.value = "";
-    }
+  if (fileInputRef.current) {
+    fileInputRef.current.value = "";
   }
+}
 
   function copyToClipboard(text) {
     navigator.clipboard.writeText(text);
@@ -176,8 +184,8 @@ function App() {
       return;
     }
 
-    if (!jobDescription.trim()) {
-      setError("Please paste the job description.");
+    if (!jobTitle.trim() || !jobDescription.trim()) {
+      setError("Please enter both the job title and responsibilities/duties.");
       return;
     }
 
@@ -389,12 +397,43 @@ function App() {
     doc.save("interview-prep-guide.pdf");
   }
 
+  async function handleResumeUpload(file) {
+    if (!file) return;
+
+    setResumeFile(file);
+    setResumeAnalyzing(true);
+    setError("");
+
+    try {
+      const formData = new FormData();
+      formData.append("resume", file);
+
+      const response = await fetch("http://localhost:5000/parse-resume", {
+        method: "POST",
+        body: formData,
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        setError(data.error || "Unable to analyze resume.");
+        return;
+      }
+
+      setResumeProfile(data);
+      setCurrentStep(2);
+    } catch (error) {
+      console.error(error);
+      setError("Unable to analyze resume. Please try again.");
+    } finally {
+      setResumeAnalyzing(false);
+    }
+  }
+
   return (
-    <div className={darkMode ? "app dark" : "app"}>
+    <div className="app">
       <header className="hero">
-        <button className="theme-toggle" onClick={() => setDarkMode(!darkMode)}>
-          {darkMode ? "☀️ Light Mode" : "🌙 Dark Mode"}
-        </button>
+       
         <p className="eyebrow">Resume • Interview • Career Switch</p>
         <h1 className="eyebrow-1">CareerLaunch AI</h1>
         <p className="subtitle">
@@ -402,6 +441,7 @@ function App() {
           optimized resume rewrite, and interview prep tailored to your target
           role.
         </p>
+
         <div className="hero-tags">
           <span>ATS Analysis</span>
           <span>Resume Rewrite</span>
@@ -436,77 +476,110 @@ function App() {
         </div>
       </section>
 
+      {currentStep > 1 && (
+        <button className="start-over-link" onClick={handleReset}>
+          <span className="start-over-icon">↻</span>
+          Start Over
+        </button>
+      )}
+
       <main className="container">
-        <section className="card">
-          <label>Your Resume</label>
+        {currentStep === 1 && (
+          <section className="card">
+            <label>Your Resume</label>
 
-          <label className="upload-box">
-            <span className="upload-icon">📄</span>
-            <span className="upload-title">Upload Resume</span>
-            <span className="upload-subtitle">PDF, DOCX, or TXT</span>
+            <label className="upload-box">
+              <span className="upload-icon">📄</span>
+              <span className="upload-title">Upload Resume</span>
+              <span className="upload-subtitle">PDF, DOCX, or TXT</span>
 
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept=".pdf,.doc,.docx,.txt"
-              onChange={(e) => setResumeFile(e.target.files[0])}
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept=".pdf,.doc,.docx,.txt"
+                onChange={(e) => handleResumeUpload(e.target.files[0])}
+              />
+            </label>
+
+            {resumeFile && (
+              <div className="file-selected">✅ {resumeFile.name}</div>
+            )}
+
+            <textarea
+              placeholder="Paste your resume text here..."
+              value={resumeText}
+              onChange={(e) => setResumeText(e.target.value)}
             />
-          </label>
+          </section>
+        )}
 
-          {resumeFile && (
-            <div className="file-selected">✅ {resumeFile.name}</div>
-          )}
+        {currentStep === 2 && (
+          <section className="card">
+            <h2>Target Job Details</h2>
 
-          <textarea
-            placeholder="Paste your resume text here..."
-            value={resumeText}
-            onChange={(e) => setResumeText(e.target.value)}
-          />
-        </section>
+            <div className="form-group">
+              <label>Job Title</label>
 
-        <section className="card">
-          <label>Job Description</label>
+              <input
+                className="job-title-input"
+                type="text"
+                placeholder="Example: Frontend Developer"
+                value={jobTitle}
+                onChange={(e) => setJobTitle(e.target.value)}
+              />
+            </div>
 
-          <textarea
-            placeholder="Paste the job description here..."
-            value={jobDescription}
-            onChange={(e) => setJobDescription(e.target.value)}
-          />
-        </section>
+            <div className="form-group">
+              <label>Responsibilities and Duties</label>
 
-        <div className="button-row">
-          <button onClick={handleAnalyze} disabled={loading}>
-            {loading ? "Analyzing..." : "Analyze Resume"}
-          </button>
+              <textarea
+                placeholder="Paste the job responsibilities, requirements, and duties here..."
+                value={jobDescription}
+                onChange={(e) => setJobDescription(e.target.value)}
+              />
+            </div>
 
-          <button
-            className="rewrite-button"
-            onClick={handleRewriteResume}
-            disabled={loading}
-          >
-            Rewrite Resume
-          </button>
+            <button onClick={handleAnalyze} disabled={loading}>
+              {loading ? "Analyzing Match..." : "Analyze Match"}
+            </button>
+          </section>
+        )}
 
-          <button
-            className="interview-button"
-            onClick={handleInterviewCoach}
-            disabled={loading}
-          >
-            Interview Coach
-          </button>
+        {false && (
+          <div className="button-row">
+            <button onClick={handleAnalyze} disabled={loading}>
+              {loading ? "Analyzing..." : "Analyze Resume"}
+            </button>
 
-          <button
-            className="secondary-button"
-            onClick={handleReset}
-            disabled={loading}
-          >
-            Clear / Start Over
-          </button>
-        </div>
+            <button
+              className="rewrite-button"
+              onClick={handleRewriteResume}
+              disabled={loading}
+            >
+              Rewrite Resume
+            </button>
+
+            <button
+              className="interview-button"
+              onClick={handleInterviewCoach}
+              disabled={loading}
+            >
+              Interview Coach
+            </button>
+
+            <button
+              className="secondary-button"
+              onClick={handleReset}
+              disabled={loading}
+            >
+              Clear / Start Over
+            </button>
+          </div>
+        )}
 
         {error && <div className="error-message">{error}</div>}
 
-        {result && (
+        {currentStep === 3 && result && (
           <>
             <button className="download-btn" onClick={downloadReport}>
               Download PDF Report
@@ -669,14 +742,26 @@ function App() {
         )}
       </main>
       {loading && (
-  <div className="loading-overlay">
-    <div className="loading-modal">
-      <div className="spinner"></div>
-      <h2>Analyzing your resume...</h2>
-      <p>Please wait while CareerLaunch AI reviews your resume and job description.</p>
-    </div>
-  </div>
-)}
+        <div className="loading-overlay">
+          <div className="loading-modal">
+            <div className="spinner"></div>
+            <h2>Analyzing your resume...</h2>
+            <p>
+              Please wait while CareerLaunch AI reviews your resume and job
+              description.
+            </p>
+          </div>
+        </div>
+      )}
+      {resumeAnalyzing && (
+        <div className="loading-overlay">
+          <div className="loading-modal">
+            <div className="spinner"></div>
+            <h2>Analyzing your resume...</h2>
+            <p>Extracting skills, experience, and keywords.</p>
+          </div>
+        </div>
+      )}
       {toastMessage && <div className="toast">{toastMessage}</div>}
     </div>
   );

@@ -317,6 +317,74 @@ ${jobDescription}
   }
 });
 
+app.post("/parse-resume", upload.single("resume"), async (req, res) => {
+  try {
+    let { resumeText } = req.body;
+
+    if (req.file) {
+      if (req.file.originalname.endsWith(".docx")) {
+        const extracted = await mammoth.extractRawText({
+          buffer: req.file.buffer,
+        });
+
+        resumeText = extracted.value;
+      } else if (req.file.originalname.endsWith(".pdf")) {
+        resumeText = await extractTextFromPdf(req.file.buffer);
+      } else if (req.file.mimetype === "text/plain") {
+        resumeText = req.file.buffer.toString("utf8");
+      }
+    }
+
+    if (!resumeText || !resumeText.trim()) {
+      return res.status(400).json({
+        error: "Please upload a resume or paste resume text.",
+      });
+    }
+
+    const response = await openai.responses.create({
+      model: "gpt-5.5",
+      input: `
+You are a resume parser and career analyst.
+
+Analyze this resume and extract the candidate's profile.
+
+Return ONLY valid JSON.
+
+Format:
+
+{
+  "candidateTitle": "Most likely professional title",
+  "skills": ["skill1", "skill2"],
+  "experienceSummary": [
+    "summary point 1",
+    "summary point 2"
+  ],
+  "resumeKeywords": ["keyword1", "keyword2"]
+}
+
+Rules:
+- Keep it truthful
+- Do not invent experience
+- Extract only what is supported by the resume
+- Limit skills to 10-15 strong skills
+- Limit resumeKeywords to 10-20 important keywords
+
+Resume:
+${resumeText}
+      `,
+    });
+
+    const parsedResume = JSON.parse(response.output_text);
+
+    res.json(parsedResume);
+  } catch (error) {
+    console.error(error);
+
+    res.status(500).json({
+      error: "Unable to parse resume.",
+    });
+  }
+});
 
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
