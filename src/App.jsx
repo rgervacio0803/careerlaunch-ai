@@ -702,88 +702,128 @@ function App() {
           </section>
         )}
         {currentStep === 4 && rewrittenResume && (
-          <section className="result-card rewritten-section">
-            <button className="download-btn" onClick={downloadRewrittenResume}>
-              Download Rewritten Resume
-            </button>
-            <h2>ATS Optimized Resume</h2>
-            <pre>{rewrittenResume}</pre>
-            <button
-              className="interview-button"
-              onClick={() => {
-                handleInterviewCoach();
-                setCurrentStep(5);
-              }}
-            >
-              Continue to Interview Prep →
-            </button>
+          <section className="optimize-page">
+            <div className="analysis-header">
+              <h2>Optimized Resume</h2>
+              <p>
+                Tailored for: <span>{jobTitle || "Target Position"}</span>
+              </p>
+            </div>
+
+            <div className="optimized-card">
+              <div className="optimized-header">
+                <div>
+                  <h3>ATS Optimized Resume</h3>
+                  <p>Review, copy, or download your rewritten resume.</p>
+                </div>
+
+                <div className="optimized-actions-top">
+                  <button
+                    className="copy-btn"
+                    onClick={() => copyToClipboard(rewrittenResume)}
+                  >
+                    Copy Resume
+                  </button>
+
+                  <button
+                    className="download-btn"
+                    onClick={downloadRewrittenResume}
+                  >
+                    Download PDF
+                  </button>
+                </div>
+              </div>
+
+              <pre className="optimized-resume-text">{rewrittenResume}</pre>
+            </div>
+
+            <div className="analysis-actions">
+              <button
+                className="interview-button"
+                onClick={() => {
+                  handleInterviewCoach();
+                  setCurrentStep(5);
+                }}
+              >
+                Continue to Interview Prep →
+              </button>
+            </div>
           </section>
         )}
         {currentStep === 5 && interviewQuestions && (
-          <section className="result-card rewritten-section">
-            <h2>Interview Coach</h2>
-            <button className="download-btn" onClick={downloadInterviewPrep}>
-              Download Interview Prep
-            </button>
-
-            <div className="interview-section">
-              <h3>Technical Questions</h3>
-
-              {interviewQuestions.technicalQuestions?.map((item, index) => (
-                <div key={index} className="question-card">
-                  <p>
-                    <strong>Question:</strong> {item.question}
-                  </p>
-
-                  <p>
-                    <strong>Suggested Answer:</strong> {item.answer}
-                  </p>
-                </div>
-              ))}
+          <section className="interview-page">
+            <div className="analysis-header">
+              <h2>Interview Prep</h2>
+              <p>
+                Practice answers tailored for:{" "}
+                <span>{jobTitle || "Target Position"}</span>
+              </p>
             </div>
 
-            <div className="interview-section">
-              <h3>Behavioral Questions</h3>
-
-              {interviewQuestions.behavioralQuestions?.map((item, index) => (
-                <div key={index} className="question-card">
-                  <p>
-                    <strong>Question:</strong> {item.question}
-                  </p>
-
-                  <p>
-                    <strong>Suggested Answer:</strong> {item.answer}
-                  </p>
-                </div>
-              ))}
+            <div className="interview-top-actions">
+              <button className="download-btn" onClick={downloadInterviewPrep}>
+                Download Interview Prep
+              </button>
             </div>
 
-            <div className="interview-section">
-              <h3>Career Switch Questions</h3>
+            <div className="interview-grid">
+              <div className="interview-panel">
+                <h3>💻 Technical Questions</h3>
 
-              {interviewQuestions.careerSwitchQuestions?.map((item, index) => (
-                <div key={index} className="question-card">
-                  <p>
-                    <strong>Question:</strong> {item.question}
-                  </p>
+                {interviewQuestions.technicalQuestions?.map((item, index) => (
+                  <div key={index} className="interview-card">
+                    <p className="question-label">Question</p>
+                    <h4>{item.question}</h4>
 
-                  <p>
-                    <strong>Suggested Answer:</strong> {item.answer}
-                  </p>
-                </div>
-              ))}
-            </div>
+                    <p className="answer-label">Suggested Answer</p>
+                    <p>{item.answer}</p>
+                  </div>
+                ))}
+              </div>
 
-            <div className="interview-section">
-              <h3>Questions to Ask the Employer</h3>
+              <div className="interview-panel">
+                <h3>🤝 Behavioral Questions</h3>
 
-              <ul>
-                {interviewQuestions.employerQuestions?.map(
-                  (question, index) => (
-                    <li key={index}>{question}</li>
+                {interviewQuestions.behavioralQuestions?.map((item, index) => (
+                  <div key={index} className="interview-card">
+                    <p className="question-label">Question</p>
+                    <h4>{item.question}</h4>
+
+                    <p className="answer-label">Suggested Answer</p>
+                    <p>{item.answer}</p>
+                  </div>
+                ))}
+              </div>
+
+              <div className="interview-panel">
+                <h3>🔄 Career Switch Questions</h3>
+
+                {interviewQuestions.careerSwitchQuestions?.map(
+                  (item, index) => (
+                    <div key={index} className="interview-card">
+                      <p className="question-label">Question</p>
+                      <h4>{item.question}</h4>
+
+                      <p className="answer-label">Suggested Answer</p>
+                      <p>{item.answer}</p>
+                    </div>
                   ),
                 )}
-              </ul>
+              </div>
+
+              <div className="interview-panel">
+                <h3>🏢 Questions to Ask the Employer</h3>
+
+                <div className="employer-question-list">
+                  {interviewQuestions.employerQuestions?.map(
+                    (question, index) => (
+                      <div key={index} className="employer-question">
+                        {question}
+                      </div>
+                    ),
+                  )}
+                </div>
+              </div>
             </div>
           </section>
         )}

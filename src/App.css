@@ -760,3 +760,155 @@ button:hover {
 .start-over-link:hover {
   background: #f8fafc;
 }
+
+.optimize-page {
+  width: 100%;
+}
+
+.optimized-card {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 18px;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
+  padding: 28px;
+}
+
+.optimized-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  align-items: flex-start;
+  margin-bottom: 24px;
+}
+
+.optimized-header h3 {
+  margin: 0;
+  color: #0f172a;
+}
+
+.optimized-header p {
+  margin: 6px 0 0;
+  color: #64748b;
+}
+
+.optimized-actions-top {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.optimized-resume-text {
+  white-space: pre-wrap;
+  font-family: "Times New Roman", serif;
+  font-size: 15px;
+  line-height: 1.65;
+  color: #0f172a;
+  background: #f8fafc;
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
+  padding: 28px;
+  max-height: 700px;
+  overflow-y: auto;
+}
+
+@media (max-width: 800px) {
+  .optimized-header {
+    flex-direction: column;
+  }
+
+  .optimized-actions-top {
+    width: 100%;
+  }
+
+  .optimized-actions-top button {
+    width: 100%;
+  }
+}
+
+.interview-page {
+  width: 100%;
+}
+
+.interview-top-actions {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 24px;
+}
+
+.interview-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24px;
+}
+
+.interview-panel {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 18px;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
+  padding: 24px;
+}
+
+.interview-panel h3 {
+  margin-top: 0;
+  color: #0f172a;
+  font-size: 20px;
+}
+
+.interview-card {
+  background: #f8fafc;
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
+  padding: 18px;
+  margin-top: 16px;
+}
+
+.interview-card h4 {
+  color: #0f172a;
+  margin: 6px 0 14px;
+  line-height: 1.45;
+}
+
+.interview-card p {
+  color: #334155;
+  line-height: 1.55;
+}
+
+.question-label,
+.answer-label {
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin: 0;
+}
+
+.question-label {
+  color: #2563eb;
+}
+
+.answer-label {
+  color: #16a34a;
+  margin-top: 14px;
+}
+
+.employer-question-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.employer-question {
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  color: #0f172a;
+  padding: 14px 16px;
+  border-radius: 12px;
+  line-height: 1.5;
+}
+
+@media (max-width: 900px) {
+  .interview-grid {
+    grid-template-columns: 1fr;
+  }
+}
