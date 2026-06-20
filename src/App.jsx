@@ -16,7 +16,7 @@ function App() {
   const [currentStep, setCurrentStep] = useState(1);
   const [resumeProfile, setResumeProfile] = useState(null);
   const [resumeAnalyzing, setResumeAnalyzing] = useState(false);
-
+  const [loadingMessage, setLoadingMessage] = useState("");
   const fileInputRef = useRef(null);
 
   async function handleAnalyze() {
@@ -30,6 +30,9 @@ function App() {
       return;
     }
 
+    setLoadingMessage(
+      "Please wait while CareerLaunch AI reviews your resume and job description.",
+    );
     setLoading(true);
     setResult(null);
     setError("");
@@ -79,23 +82,23 @@ function App() {
   }
 
   function handleReset() {
-  setResumeText("");
-  setResumeFile(null);
-  setJobDescription("");
-  setResult(null);
-  setRewrittenResume("");
-  setToastMessage("");
-  setInterviewQuestions(null);
-  setJobTitle("");
-  setResumeProfile(null);
-  setResumeAnalyzing(false);
-  setCurrentStep(1);
-  setError("");
+    setResumeText("");
+    setResumeFile(null);
+    setJobDescription("");
+    setResult(null);
+    setRewrittenResume("");
+    setToastMessage("");
+    setInterviewQuestions(null);
+    setJobTitle("");
+    setResumeProfile(null);
+    setResumeAnalyzing(false);
+    setCurrentStep(1);
+    setError("");
 
-  if (fileInputRef.current) {
-    fileInputRef.current.value = "";
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
   }
-}
 
   function copyToClipboard(text) {
     navigator.clipboard.writeText(text);
@@ -189,6 +192,9 @@ function App() {
       return;
     }
 
+    setLoadingMessage(
+      "Please wait while CareerLaunch AI optimizes your resume for the target role.",
+    );
     setLoading(true);
     setError("");
     setRewrittenResume("");
@@ -271,6 +277,9 @@ function App() {
       return;
     }
 
+    setLoadingMessage(
+      "Please wait while CareerLaunch AI creates your interview prep questions and answers.",
+    );
     setLoading(true);
     setError("");
     setInterviewQuestions("");
@@ -401,6 +410,9 @@ function App() {
     if (!file) return;
 
     setResumeFile(file);
+    setLoadingMessage(
+      "Please wait while CareerLaunch AI analyzes your resume.",
+    );
     setResumeAnalyzing(true);
     setError("");
 
@@ -433,7 +445,6 @@ function App() {
   return (
     <div className="app">
       <header className="hero">
-       
         <p className="eyebrow">Resume • Interview • Career Switch</p>
         <h1 className="eyebrow-1">CareerLaunch AI</h1>
         <p className="subtitle">
@@ -476,12 +487,23 @@ function App() {
         </div>
       </section>
 
-      {currentStep > 1 && (
-        <button className="start-over-link" onClick={handleReset}>
-          <span className="start-over-icon">↻</span>
-          Start Over
-        </button>
-      )}
+      <div className="wizard-nav">
+        {currentStep > 1 && (
+          <button
+            className="back-link"
+            onClick={() => setCurrentStep((prev) => Math.max(prev - 1, 1))}
+          >
+            ← Back
+          </button>
+        )}
+
+        {currentStep > 1 && (
+          <button className="start-over-link" onClick={handleReset}>
+            <span className="start-over-icon">↻</span>
+            Start Over
+          </button>
+        )}
+      </div>
 
       <main className="container">
         {currentStep === 1 && (
@@ -580,51 +602,59 @@ function App() {
         {error && <div className="error-message">{error}</div>}
 
         {currentStep === 3 && result && (
-          <>
-            <button className="download-btn" onClick={downloadReport}>
-              Download PDF Report
-            </button>
-            <div className="results-grid">
-              <div className="result-card">
-                <h2>ATS Score</h2>
+          <section className="analysis-page">
+            <div className="analysis-header">
+              <h2>Analysis Results</h2>
+              <p>
+                For: <span>{jobTitle || "Target Position"}</span>
+              </p>
+            </div>
 
-                <div className="score-row">
-                  <p className="score">{result.atsScore}%</p>
-                  <span className="score-label">
-                    {result.atsScore >= 80
-                      ? "Strong Match"
-                      : result.atsScore >= 60
-                        ? "Moderate Match"
-                        : "Needs Improvement"}
-                  </span>
+            <div className="ats-summary-card">
+              <div className="ats-card-header">
+                <div className="ats-icon">🏅</div>
+                <div>
+                  <h3>ATS Compatibility Score</h3>
+                  <p>How well your resume matches the job</p>
                 </div>
-
-                <div className="progress-track">
-                  <div
-                    className="progress-fill"
-                    style={{ width: `${result.atsScore}%` }}
-                  ></div>
-                </div>
-
-                <ul>
-                  {result.scoreExplanation?.map((item, index) => (
-                    <li key={index}>{item}</li>
-                  ))}
-                </ul>
               </div>
 
-              <div className="result-card">
-                <h2>Missing Keywords</h2>
-                <ul>
+              <div className="ats-score-layout">
+                <div className="ats-score-bullets">
+                  <h4>ATS Score Breakdown</h4>
+
+                  <ul>
+                    {result.scoreExplanation?.map((item, index) => (
+                      <li key={index}>{item}</li>
+                    ))}
+                  </ul>
+                </div>
+
+                <div className="circle-score">
+                  <div className="circle-inner">
+                    <span>{result.atsScore}</span>
+                  </div>
+                  <p>OVERALL</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="analysis-grid">
+              <div className="analysis-card">
+                <h3>❌ Missing Keywords</h3>
+
+                <div className="tag-list">
                   {result.missingKeywords?.map((keyword, index) => (
-                    <li key={index}>{keyword}</li>
+                    <span key={index} className="tag tag-red">
+                      {keyword}
+                    </span>
                   ))}
-                </ul>
+                </div>
               </div>
 
-              <div className="result-card">
+              <div className="analysis-card">
                 <div className="card-header">
-                  <h2>Resume Suggestions</h2>
+                  <h3>📝 Resume Suggestions</h3>
 
                   <button
                     className="copy-btn"
@@ -643,36 +673,53 @@ function App() {
                 </ul>
               </div>
 
-              <div className="result-card">
-                <h2>Career Advice</h2>
+              <div className="analysis-card">
+                <h3>💡 Career Advice</h3>
+
                 <ul>
                   {result.careerAdvice?.map((item, index) => (
                     <li key={index}>{item}</li>
                   ))}
                 </ul>
               </div>
-
-              <div className="result-card">
-                <h2>Interview Questions</h2>
-                <ul>
-                  {result.interviewQuestions?.map((item, index) => (
-                    <li key={index}>{item}</li>
-                  ))}
-                </ul>
-              </div>
             </div>
-          </>
+
+            <div className="analysis-actions">
+              <button className="download-btn" onClick={downloadReport}>
+                Download PDF Report
+              </button>
+
+              <button
+                className="rewrite-button"
+                onClick={() => {
+                  handleRewriteResume();
+                  setCurrentStep(4);
+                }}
+              >
+                Continue to Optimize Resume →
+              </button>
+            </div>
+          </section>
         )}
-        {rewrittenResume && (
+        {currentStep === 4 && rewrittenResume && (
           <section className="result-card rewritten-section">
             <button className="download-btn" onClick={downloadRewrittenResume}>
               Download Rewritten Resume
             </button>
             <h2>ATS Optimized Resume</h2>
             <pre>{rewrittenResume}</pre>
+            <button
+              className="interview-button"
+              onClick={() => {
+                handleInterviewCoach();
+                setCurrentStep(5);
+              }}
+            >
+              Continue to Interview Prep →
+            </button>
           </section>
         )}
-        {interviewQuestions && (
+        {currentStep === 5 && interviewQuestions && (
           <section className="result-card rewritten-section">
             <h2>Interview Coach</h2>
             <button className="download-btn" onClick={downloadInterviewPrep}>
@@ -741,24 +788,12 @@ function App() {
           </section>
         )}
       </main>
-      {loading && (
+      {(loading || resumeAnalyzing) && (
         <div className="loading-overlay">
           <div className="loading-modal">
             <div className="spinner"></div>
-            <h2>Analyzing your resume...</h2>
-            <p>
-              Please wait while CareerLaunch AI reviews your resume and job
-              description.
-            </p>
-          </div>
-        </div>
-      )}
-      {resumeAnalyzing && (
-        <div className="loading-overlay">
-          <div className="loading-modal">
-            <div className="spinner"></div>
-            <h2>Analyzing your resume...</h2>
-            <p>Extracting skills, experience, and keywords.</p>
+            <h2>Working on it...</h2>
+            <p>{loadingMessage}</p>
           </div>
         </div>
       )}
