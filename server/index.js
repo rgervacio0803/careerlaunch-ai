@@ -92,6 +92,11 @@ Format:
     "reason2",
     "reason3"
   ],
+  "resumeStrengths": [
+  "strength1",
+  "strength2",
+  "strength3"
+],
   "missingKeywords": ["keyword1", "keyword2"],
   "resumeSuggestions": [
     "suggestion1",
@@ -108,6 +113,8 @@ Format:
 }
 
 The atsScore must be a realistic number from 0 to 100 based on keyword match, relevant experience, project alignment, and career switch positioning. The scoreExplanation should explain why that score was given.
+
+Identify 3-5 resumeStrengths that show where the resume already matches the job description well.
 
 Extract the most likely job title from the job description and return it as jobTitle. If no clear title exists, return "Target Position".
 

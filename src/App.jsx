@@ -57,7 +57,7 @@ function App() {
       }
 
       const response = await fetch(
-        "https://careerlaunch-ai-api.onrender.com/analyze",
+        "http://localhost:5000/analyze",
         {
           method: "POST",
           body: formData,
@@ -65,6 +65,7 @@ function App() {
       );
 
       const data = await response.json();
+      console.log("Analyze response:", data);
 
       if (!response.ok) {
         setError(data.error || "Something went wrong.");
@@ -640,6 +641,15 @@ function App() {
             </div>
 
             <div className="analysis-grid">
+              <div className="analysis-card">
+                <h3>✅ Resume Strengths</h3>
+
+                <ul>
+                  {result.resumeStrengths?.map((item, index) => (
+                    <li key={index}>{item}</li>
+                  ))}
+                </ul>
+              </div>
               <div className="analysis-card">
                 <h3>❌ Missing Keywords</h3>
 
