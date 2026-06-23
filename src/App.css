@@ -912,3 +912,8 @@ button:hover {
     grid-template-columns: 1fr;
   }
 }
+
+.question-card {
+  max-width: 550px;
+  margin: 0 auto;
+}
