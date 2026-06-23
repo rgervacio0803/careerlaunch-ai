@@ -17,6 +17,7 @@ function App() {
   const [resumeProfile, setResumeProfile] = useState(null);
   const [resumeAnalyzing, setResumeAnalyzing] = useState(false);
   const [loadingMessage, setLoadingMessage] = useState("");
+  const [coverLetter, setCoverLetter] = useState("");
   const fileInputRef = useRef(null);
 
   async function handleAnalyze() {
@@ -56,13 +57,10 @@ function App() {
         formData.append("resume", resumeFile);
       }
 
-      const response = await fetch(
-        "http://localhost:5000/analyze",
-        {
-          method: "POST",
-          body: formData,
-        },
-      );
+      const response = await fetch("http://localhost:5000/analyze", {
+        method: "POST",
+        body: formData,
+      });
 
       const data = await response.json();
       console.log("Analyze response:", data);
@@ -443,6 +441,66 @@ function App() {
     }
   }
 
+  async function handleCoverLetter() {
+    if (!resumeText.trim() && !resumeFile) {
+      setError("Please paste your resume text or upload a resume file.");
+      return;
+    }
+
+    if (!jobTitle.trim() || !jobDescription.trim()) {
+      setError("Please enter both the job title and responsibilities/duties.");
+      return;
+    }
+
+    setLoadingMessage(
+      "Please wait while CareerLaunch AI writes your tailored cover letter.",
+    );
+
+    setLoading(true);
+    setError("");
+    setCoverLetter("");
+
+    let finalResumeText = resumeText;
+
+    if (resumeFile && resumeFile.type === "text/plain") {
+      finalResumeText = await resumeFile.text();
+    }
+
+    try {
+      const formData = new FormData();
+
+      formData.append("resumeText", finalResumeText);
+      formData.append(
+        "jobDescription",
+        `Job Title: ${jobTitle}\n\nResponsibilities and Duties:\n${jobDescription}`,
+      );
+
+      if (resumeFile) {
+        formData.append("resume", resumeFile);
+      }
+
+      const response = await fetch("http://localhost:5000/cover-letter", {
+        method: "POST",
+        body: formData,
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        setError(data.error || "Unable to generate cover letter.");
+        return;
+      }
+
+      setCoverLetter(data.coverLetter);
+      setCurrentStep(5);
+    } catch (error) {
+      console.error(error);
+      setError("Unable to generate cover letter. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
   return (
     <div className="app">
       <header className="hero">
@@ -751,8 +809,49 @@ function App() {
               <button
                 className="interview-button"
                 onClick={() => {
+                  handleCoverLetter();
+                }}
+              >
+                Continue to Cover Letter →
+              </button>
+            </div>
+          </section>
+        )}
+        {currentStep === 5 && coverLetter && (
+          <section className="optimize-page">
+            <div className="analysis-header">
+              <h2>Cover Letter</h2>
+              <p>
+                Tailored for: <span>{jobTitle || "Target Position"}</span>
+              </p>
+            </div>
+
+            <div className="optimized-card">
+              <div className="optimized-header">
+                <div>
+                  <h3>AI Generated Cover Letter</h3>
+                  <p>Review, copy, or use this as a starting point.</p>
+                </div>
+
+                <div className="optimized-actions-top">
+                  <button
+                    className="copy-btn"
+                    onClick={() => copyToClipboard(coverLetter)}
+                  >
+                    Copy Cover Letter
+                  </button>
+                </div>
+              </div>
+
+              <pre className="optimized-resume-text">{coverLetter}</pre>
+            </div>
+
+            <div className="analysis-actions">
+              <button
+                className="interview-button"
+                onClick={() => {
                   handleInterviewCoach();
-                  setCurrentStep(5);
+                  setCurrentStep(6);
                 }}
               >
                 Continue to Interview Prep →
@@ -760,7 +859,7 @@ function App() {
             </div>
           </section>
         )}
-        {currentStep === 5 && interviewQuestions && (
+        {currentStep === 6 && interviewQuestions && (
           <section className="interview-page">
             <div className="analysis-header">
               <h2>Interview Prep</h2>
@@ -833,6 +932,37 @@ function App() {
                     ),
                   )}
                 </div>
+              </div>
+            </div>
+            <div className="completion-card">
+              <h2>✓ CareerLaunch AI Analysis Complete</h2>
+              <p>
+                Your resume analysis, optimized resume, and interview prep are
+                ready.
+              </p>
+
+              <div className="completion-actions">
+                <button className="download-btn" onClick={downloadReport}>
+                  Download ATS Report
+                </button>
+
+                <button
+                  className="download-btn"
+                  onClick={downloadRewrittenResume}
+                >
+                  Download Optimized Resume
+                </button>
+
+                <button
+                  className="download-btn"
+                  onClick={downloadInterviewPrep}
+                >
+                  Download Interview Prep
+                </button>
+
+                <button className="secondary-button" onClick={handleReset}>
+                  Start New Analysis
+                </button>
               </div>
             </div>
           </section>

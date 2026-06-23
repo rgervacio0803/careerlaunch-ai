@@ -917,3 +917,29 @@ button:hover {
   max-width: 550px;
   margin: 0 auto;
 }
+
+.completion-card {
+  margin-top: 40px;
+  padding: 28px;
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  border-radius: 18px;
+  text-align: center;
+}
+
+.completion-card h2 {
+  color: #166534;
+  margin-bottom: 8px;
+}
+
+.completion-card p {
+  color: #475569;
+  margin-bottom: 20px;
+}
+
+.completion-actions {
+  display: flex;
+  justify-content: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}

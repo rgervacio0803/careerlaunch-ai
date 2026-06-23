@@ -393,6 +393,71 @@ ${resumeText}
   }
 });
 
+app.post("/cover-letter", upload.single("resume"), async (req, res) => {
+  try {
+    let { resumeText, jobDescription } = req.body;
+
+    if (req.file) {
+      if (req.file.originalname.endsWith(".docx")) {
+        const extracted = await mammoth.extractRawText({
+          buffer: req.file.buffer,
+        });
+
+        resumeText = extracted.value;
+      } else if (req.file.originalname.endsWith(".pdf")) {
+        resumeText = await extractTextFromPdf(req.file.buffer);
+      } else if (req.file.mimetype === "text/plain") {
+        resumeText = req.file.buffer.toString("utf8");
+      }
+    }
+
+    if (
+      !resumeText ||
+      !resumeText.trim() ||
+      !jobDescription ||
+      !jobDescription.trim()
+    ) {
+      return res.status(400).json({
+        error: "Please provide both resume and job description.",
+      });
+    }
+
+    const response = await openai.responses.create({
+      model: "gpt-5.5",
+      input: `
+You are a professional cover letter writer.
+
+Write a personalized cover letter based on the resume and job description.
+
+Rules:
+- Return plain text only.
+- Do not invent experience.
+- Keep it professional and concise.
+- Use 3-5 paragraphs.
+- Match the job title and responsibilities.
+- Emphasize the candidate's most relevant strengths.
+- Do not include fake company names.
+- If company name is missing, use "Hiring Manager".
+
+Resume:
+${resumeText}
+
+Job Description:
+${jobDescription}
+      `,
+    });
+
+    res.json({
+      coverLetter: response.output_text,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      error: "Unable to generate cover letter.",
+    });
+  }
+});
+
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
 });
