@@ -1,6 +1,7 @@
 import { useRef, useState } from "react";
 import jsPDF from "jspdf";
 import "./App.css";
+import Landing from "./components/Landing";
 
 function App() {
   const [resumeText, setResumeText] = useState("");
@@ -18,6 +19,7 @@ function App() {
   const [resumeAnalyzing, setResumeAnalyzing] = useState(false);
   const [loadingMessage, setLoadingMessage] = useState("");
   const [coverLetter, setCoverLetter] = useState("");
+  const [showLanding, setShowLanding] = useState(true);
   const fileInputRef = useRef(null);
 
   async function handleAnalyze() {
@@ -499,6 +501,10 @@ function App() {
     } finally {
       setLoading(false);
     }
+  }
+
+  if (showLanding) {
+    return <Landing onStart={() => setShowLanding(false)} />;
   }
 
   return (
