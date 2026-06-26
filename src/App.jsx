@@ -572,63 +572,92 @@ function App() {
 
       <main className="container">
         {currentStep === 1 && (
-          <section className="card">
-            <label>Your Resume</label>
+          <section className="wizard-step-page">
+            <div className="step-page-header">
+              <p className="step-kicker">Step 1</p>
+              <h2>Upload Your Resume</h2>
+              <p>
+                Upload your resume or paste your resume text. CareerLaunch AI
+                will extract your skills, experience, and keywords
+                automatically.
+              </p>
+            </div>
 
-            <label className="upload-box">
-              <span className="upload-icon">📄</span>
-              <span className="upload-title">Upload Resume</span>
-              <span className="upload-subtitle">PDF, DOCX, or TXT</span>
+            <div className="upload-workspace">
+              <label className="large-upload-box">
+                <div className="large-upload-icon">⬆</div>
 
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept=".pdf,.doc,.docx,.txt"
-                onChange={(e) => handleResumeUpload(e.target.files[0])}
-              />
-            </label>
+                <h3>Drop your resume here</h3>
+                <p>PDF, DOCX, or TXT — we’ll analyze it instantly</p>
 
-            {resumeFile && (
-              <div className="file-selected">✅ {resumeFile.name}</div>
-            )}
+                <span className="browse-button">Browse Files</span>
 
-            <textarea
-              placeholder="Paste your resume text here..."
-              value={resumeText}
-              onChange={(e) => setResumeText(e.target.value)}
-            />
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept=".pdf,.doc,.docx,.txt"
+                  onChange={(e) => handleResumeUpload(e.target.files[0])}
+                />
+              </label>
+
+              {resumeFile && (
+                <div className="file-selected-modern">✅ {resumeFile.name}</div>
+              )}
+
+              <div className="paste-resume-box">
+                <label>Or paste your resume text</label>
+
+                <textarea
+                  placeholder="Paste your resume text here..."
+                  value={resumeText}
+                  onChange={(e) => setResumeText(e.target.value)}
+                />
+              </div>
+            </div>
           </section>
         )}
 
         {currentStep === 2 && (
-          <section className="card">
-            <h2>Target Job Details</h2>
-
-            <div className="form-group">
-              <label>Job Title</label>
-
-              <input
-                className="job-title-input"
-                type="text"
-                placeholder="Example: Frontend Developer"
-                value={jobTitle}
-                onChange={(e) => setJobTitle(e.target.value)}
-              />
+          <section className="wizard-step-page">
+            <div className="step-page-header">
+              <p className="step-kicker">Step 2</p>
+              <h2>Target Job Details</h2>
+              <p>
+                Paste the job title and responsibilities so CareerLaunch AI can
+                compare your resume against the role.
+              </p>
             </div>
 
-            <div className="form-group">
-              <label>Responsibilities and Duties</label>
+            <div className="job-details-workspace">
+              <div className="form-group">
+                <label>Job Title</label>
+                <input
+                  className="job-title-input-modern"
+                  type="text"
+                  placeholder="Example: Cytogenetic Technologist"
+                  value={jobTitle}
+                  onChange={(e) => setJobTitle(e.target.value)}
+                />
+              </div>
 
-              <textarea
-                placeholder="Paste the job responsibilities, requirements, and duties here..."
-                value={jobDescription}
-                onChange={(e) => setJobDescription(e.target.value)}
-              />
+              <div className="form-group">
+                <label>Responsibilities and Duties</label>
+                <textarea
+                  className="job-description-modern"
+                  placeholder="Paste the job responsibilities, requirements, and duties here..."
+                  value={jobDescription}
+                  onChange={(e) => setJobDescription(e.target.value)}
+                />
+              </div>
+
+              <button
+                className="primary-action-button"
+                onClick={handleAnalyze}
+                disabled={loading}
+              >
+                {loading ? "Analyzing Match..." : "Analyze Match →"}
+              </button>
             </div>
-
-            <button onClick={handleAnalyze} disabled={loading}>
-              {loading ? "Analyzing Match..." : "Analyze Match"}
-            </button>
           </section>
         )}
 
@@ -667,11 +696,12 @@ function App() {
         {error && <div className="error-message">{error}</div>}
 
         {currentStep === 3 && result && (
-          <section className="analysis-page">
-            <div className="analysis-header">
-              <h2>Analysis Results</h2>
+          <section className="wizard-step-page analysis-page">
+            <div className="step-page-header">
+              <p className="step-kicker">Step 3</p>
+              <h2>ATS Analysis Results</h2>
               <p>
-                For: <span>{jobTitle || "Target Position"}</span>
+                Resume match for: <span>{jobTitle || "Target Position"}</span>
               </p>
             </div>
 
@@ -776,8 +806,9 @@ function App() {
           </section>
         )}
         {currentStep === 4 && rewrittenResume && (
-          <section className="optimize-page">
-            <div className="analysis-header">
+          <section className="wizard-step-page optimize-page">
+            <div className="step-page-header">
+              <p className="step-kicker">Step 4</p>
               <h2>Optimized Resume</h2>
               <p>
                 Tailored for: <span>{jobTitle || "Target Position"}</span>
@@ -824,8 +855,9 @@ function App() {
           </section>
         )}
         {currentStep === 5 && coverLetter && (
-          <section className="optimize-page">
-            <div className="analysis-header">
+          <section className="wizard-step-page optimize-page">
+            <div className="step-page-header">
+              <p className="step-kicker">Step 5</p>
               <h2>Cover Letter</h2>
               <p>
                 Tailored for: <span>{jobTitle || "Target Position"}</span>
@@ -849,7 +881,7 @@ function App() {
                 </div>
               </div>
 
-              <pre className="optimized-resume-text">{coverLetter}</pre>
+              <pre className="cover-letter-text">{coverLetter}</pre>
             </div>
 
             <div className="analysis-actions">
@@ -866,18 +898,22 @@ function App() {
           </section>
         )}
         {currentStep === 6 && interviewQuestions && (
-          <section className="interview-page">
-            <div className="analysis-header">
-              <h2>Interview Prep</h2>
+          <section className="wizard-step-page interview-page">
+            <div className="step-page-header">
+              <p className="step-kicker">Step 6</p>
+              <h2>Interview Preparation</h2>
               <p>
-                Practice answers tailored for:{" "}
-                <span>{jobTitle || "Target Position"}</span>
+                Personalized interview questions for:
+                <span> {jobTitle || "Target Position"}</span>
               </p>
             </div>
 
             <div className="interview-top-actions">
-              <button className="download-btn" onClick={downloadInterviewPrep}>
-                Download Interview Prep
+              <button
+                className="primary-action-button"
+                onClick={downloadInterviewPrep}
+              >
+                Download Interview Prep PDF
               </button>
             </div>
 
