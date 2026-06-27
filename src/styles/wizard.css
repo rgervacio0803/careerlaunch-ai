@@ -1,0 +1,285 @@
+.hero {
+  width: min(1500px, 95%);
+  max-width: none;
+  margin: 28px auto 22px;
+  text-align: center;
+  padding: 44px 60px;
+
+  background: rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(22px);
+  -webkit-backdrop-filter: blur(22px);
+
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 28px;
+
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.28);
+}
+
+.hero h1 {
+  color: #0f172a;
+  font-size: 30px;
+}
+.hero p {
+  color: #64748b;
+}
+
+.hero .subtitle {
+  color: #64748b;
+  font-size: 15px;
+}
+
+.container {
+  width: min(1500px, 95%);
+  max-width: none;
+  margin: 0 auto 80px;
+}
+
+.steps {
+  width: 90%;
+  width: min(1200px, 94%);
+  margin: 0 auto 30px;
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.step {
+  text-align: center;
+  flex: 1;
+  color: #cbd5e1;
+}
+
+.step span {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.14);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+}
+
+.step p {
+  font-size: 13px;
+  margin-top: 8px;
+}
+
+.step.active span {
+  background: #2563eb;
+  color: white;
+  box-shadow: 0 0 0 6px rgba(37, 99, 235, 0.18);
+}
+
+.step.active p {
+  color: white;
+  font-weight: 700;
+}
+
+.wizard-nav {
+  display: flex;
+  justify-content: flex-start;
+  gap: 12px;
+
+  width: 90%;
+  width: min(1400px, 94%);
+  margin: 0 auto 24px;
+}
+
+.back-link,
+.start-over-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 160px;
+  height: 44px;
+
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+
+  font-size: 14px;
+  font-weight: 600;
+  color: #0f172a;
+
+  cursor: pointer;
+}
+
+.back-link:hover,
+.start-over-link:hover {
+  background: #f8fafc;
+}
+
+.start-over-icon {
+  font-size: 18px;
+}
+
+.wizard-step-page {
+  width: min(1200px, 94%);
+  margin: 0 auto 90px;
+}
+
+.step-page-header {
+  text-align: center;
+  margin-bottom: 34px;
+}
+
+.step-kicker {
+  color: #2563eb;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 10px;
+}
+
+.step-page-header h2 {
+  color: #0f172a;
+  font-size: 48px;
+  margin: 0 0 12px;
+  letter-spacing: -0.04em;
+}
+
+.step-page-header p {
+  color: #64748b;
+  font-size: 18px;
+  line-height: 1.6;
+  max-width: 760px;
+  margin: 0 auto;
+}
+
+.step-page-header span {
+  color: #2563eb;
+  font-weight: 800;
+}
+
+.upload-workspace {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 28px;
+  box-shadow: 0 24px 70px rgba(15, 23, 42, 0.08);
+  padding: 42px;
+}
+
+.large-upload-box {
+  min-height: 260px;
+  border: 2px dashed #93c5fd;
+  border-radius: 24px;
+  background: linear-gradient(180deg, #f8fbff, #eff6ff);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  cursor: pointer;
+  text-align: center;
+  transition: 0.25s ease;
+}
+
+.large-upload-box:hover {
+  border-color: #2563eb;
+  background: #eff6ff;
+}
+
+.large-upload-box input {
+  display: none;
+}
+
+.large-upload-icon {
+  width: 72px;
+  height: 72px;
+  border-radius: 20px;
+  background: #dbeafe;
+  color: #2563eb;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 34px;
+}
+
+.large-upload-box h3 {
+  color: #0f172a;
+  font-size: 24px;
+  margin: 8px 0 0;
+}
+
+.large-upload-box p {
+  color: #64748b;
+  margin: 0;
+}
+
+.browse-button {
+  margin-top: 10px;
+  background: white;
+  color: #2563eb;
+  border: 1px solid #bfdbfe;
+  border-radius: 12px;
+  padding: 10px 18px;
+  font-weight: 800;
+}
+
+.file-selected-modern {
+  margin: 18px 0;
+  padding: 14px 18px;
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  color: #166534;
+  border-radius: 14px;
+  font-weight: 700;
+}
+
+.paste-resume-box {
+  margin-top: 28px;
+}
+
+.paste-resume-box label {
+  display: block;
+  color: #0f172a;
+  font-weight: 800;
+  margin-bottom: 12px;
+}
+
+.paste-resume-box textarea {
+  min-height: 220px;
+  background: #f8fafc;
+}
+
+.job-details-workspace {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 28px;
+  box-shadow: 0 24px 70px rgba(15, 23, 42, 0.08);
+  padding: 42px;
+}
+
+.job-details-workspace label {
+  color: #0f172a;
+  font-weight: 800;
+  margin-bottom: 10px;
+}
+
+.job-title-input-modern {
+  width: 100%;
+  height: 58px;
+  padding: 0 18px;
+  border: 1px solid #dbe3ef;
+  border-radius: 14px;
+  background: #f8fafc;
+  color: #0f172a;
+  font-size: 16px;
+}
+
+.job-description-modern {
+  min-height: 320px;
+  background: #f8fafc;
+  color: #0f172a;
+}
+
+.primary-action-button {
+  margin-top: 18px;
+  height: 56px;
+  background: #2563eb;
+  color: white;
+  border-radius: 14px;
+}

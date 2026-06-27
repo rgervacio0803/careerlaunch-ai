@@ -1,6 +1,12 @@
 import { useRef, useState } from "react";
 import jsPDF from "jspdf";
 import "./App.css";
+import "./styles/base.css";
+import "./styles/landing.css";
+import "./styles/wizard.css";
+import "./styles/ats.css";
+import "./styles/optimize.css";
+import "./styles/interview.css";
 import Landing from "./components/Landing";
 
 function App() {

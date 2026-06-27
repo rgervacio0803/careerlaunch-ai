@@ -1,0 +1,164 @@
+.analysis-page {
+  width: 100%;
+}
+
+.analysis-header {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.analysis-header h2 {
+  font-size: 48px;
+  color: #0f172a;
+  margin-bottom: 8px;
+}
+
+.analysis-header p {
+  color: #64748b;
+  font-size: 18px;
+}
+
+.analysis-header span {
+  color: #2563eb;
+  font-weight: 700;
+}
+
+.ats-summary-card {
+  padding: 28px;
+  margin-bottom: 24px;
+}
+
+.ats-card-header {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.ats-icon {
+  width: 50px;
+  height: 50px;
+  border-radius: 14px;
+  background: #eff6ff;
+  color: #2563eb;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+}
+
+.ats-card-header h3 {
+  margin: 0;
+  color: #0f172a;
+}
+
+.ats-card-header p {
+  margin: 4px 0 0;
+  color: #64748b;
+}
+
+.ats-score-layout {
+  display: grid;
+  grid-template-columns: 1fr 220px;
+  gap: 30px;
+  align-items: center;
+}
+
+.ats-score-bullets h4 {
+  color: #0f172a;
+  margin-bottom: 14px;
+}
+
+.ats-score-bullets ul {
+  padding-left: 20px;
+}
+
+.ats-score-bullets li {
+  color: #0f172a;
+  margin-bottom: 10px;
+  line-height: 1.5;
+}
+
+.circle-score {
+  text-align: center;
+}
+
+.circle-inner {
+  width: 140px;
+  height: 140px;
+  margin: 0 auto;
+  border-radius: 50%;
+  border: 12px solid #22c55e;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: white;
+}
+
+.circle-inner span {
+  font-size: 38px;
+  font-weight: 800;
+  color: #22c55e;
+}
+
+.circle-score p {
+  margin-top: 12px;
+  color: #475569;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+
+.analysis-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24px;
+}
+
+.analysis-card {
+  padding: 24px;
+}
+
+.analysis-card h3 {
+  margin-top: 0;
+  color: #0f172a;
+}
+
+.analysis-card li {
+  color: #0f172a;
+  line-height: 1.55;
+  margin-bottom: 10px;
+}
+
+.tag-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.tag {
+  padding: 8px 12px;
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.tag-red {
+  background: #fef2f2;
+  color: #dc2626;
+  border: 1px solid #fecaca;
+}
+
+.analysis-actions {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  margin-top: 28px;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 800px) {
+  .ats-score-layout,
+  .analysis-grid {
+    grid-template-columns: 1fr;
+  }
+}

@@ -1,0 +1,76 @@
+.optimize-page {
+  width: 100%;
+}
+
+.optimized-card {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 28px;
+  box-shadow: 0 24px 70px rgba(15, 23, 42, 0.08);
+  padding: 42px;
+}
+
+.optimized-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  align-items: flex-start;
+  margin-bottom: 24px;
+}
+
+.optimized-header h3 {
+  margin: 0;
+  color: #0f172a;
+}
+
+.optimized-header p {
+  margin: 6px 0 0;
+  color: #64748b;
+}
+
+.optimized-actions-top {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.optimized-resume-text {
+  white-space: pre-wrap;
+  font-family: "Times New Roman", serif;
+  font-size: 15px;
+  line-height: 1.65;
+  color: #0f172a;
+  background: #f8fafc;
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
+  padding: 28px;
+  max-height: 700px;
+  overflow-y: auto;
+}
+
+.cover-letter-text {
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 17px;
+  line-height: 1.85;
+  color: #0f172a;
+  background: #f8fafc;
+  border: 1px solid #e5e7eb;
+  border-radius: 18px;
+  padding: 42px;
+  max-height: 760px;
+  overflow-y: auto;
+}
+
+@media (max-width: 800px) {
+  .optimized-header {
+    flex-direction: column;
+  }
+
+  .optimized-actions-top {
+    width: 100%;
+  }
+
+  .optimized-actions-top button {
+    width: 100%;
+  }
+}
