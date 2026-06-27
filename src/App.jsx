@@ -7,6 +7,7 @@ import "./styles/wizard.css";
 import "./styles/ats.css";
 import "./styles/optimize.css";
 import "./styles/interview.css";
+import "./styles/components.css";
 import Landing from "./components/Landing";
 
 function App() {

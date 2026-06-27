@@ -162,3 +162,56 @@
     grid-template-columns: 1fr;
   }
 }
+
+.ats-summary-card,
+.analysis-card {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 18px;
+  box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
+}
+
+.ats-summary-card {
+  padding: 40px;
+}
+
+.ats-card-header h3 {
+  font-size: 24px;
+}
+
+.ats-score-layout {
+  grid-template-columns: 1fr 260px;
+  gap: 50px;
+}
+
+.ats-score-bullets li {
+  font-size: 16px;
+  line-height: 1.75;
+}
+
+.circle-inner {
+  width: 170px;
+  height: 170px;
+}
+
+.circle-inner span {
+  font-size: 48px;
+}
+
+.analysis-card {
+  padding: 34px;
+}
+
+.analysis-card h3 {
+  font-size: 22px;
+}
+
+.analysis-card li {
+  font-size: 16px;
+  line-height: 1.7;
+}
+
+.keyword-tag {
+  color: #0f172a;
+  background: #e0ecff;
+}
