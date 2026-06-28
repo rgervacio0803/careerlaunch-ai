@@ -1,5 +1,6 @@
 import { useRef, useState } from "react";
 import jsPDF from "jspdf";
+
 import "./App.css";
 import "./styles/base.css";
 import "./styles/landing.css";
@@ -8,7 +9,9 @@ import "./styles/ats.css";
 import "./styles/optimize.css";
 import "./styles/interview.css";
 import "./styles/components.css";
+
 import Landing from "./components/Landing";
+import WizardHeader from "./components/Wizard/WizardHeader";
 
 function App() {
   const [resumeText, setResumeText] = useState("");
@@ -516,21 +519,6 @@ function App() {
 
   return (
     <div className="app">
-      <header className="hero">
-        <p className="eyebrow">Resume • Interview • Career Switch</p>
-        <h1 className="eyebrow-1">CareerLaunch AI</h1>
-        <p className="subtitle">
-          Upload your resume and paste a job description to get ATS feedback, an
-          optimized resume rewrite, and interview prep tailored to your target
-          role.
-        </p>
-
-        <div className="hero-tags">
-          <span>ATS Analysis</span>
-          <span>Resume Rewrite</span>
-          <span>Interview Coach</span>
-        </div>
-      </header>
 
       <section className="steps">
         <div className={currentStep === 1 ? "step active" : "step"}>
