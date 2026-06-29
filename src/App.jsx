@@ -519,51 +519,11 @@ function App() {
 
   return (
     <div className="app">
-
-      <section className="steps">
-        <div className={currentStep === 1 ? "step active" : "step"}>
-          <span>1</span>
-          <p>Upload</p>
-        </div>
-
-        <div className={currentStep === 2 ? "step active" : "step"}>
-          <span>2</span>
-          <p>Job Match</p>
-        </div>
-
-        <div className={currentStep === 3 ? "step active" : "step"}>
-          <span>3</span>
-          <p>ATS Analysis</p>
-        </div>
-
-        <div className={currentStep === 4 ? "step active" : "step"}>
-          <span>4</span>
-          <p>Optimize</p>
-        </div>
-
-        <div className={currentStep === 5 ? "step active" : "step"}>
-          <span>5</span>
-          <p>Interview Prep</p>
-        </div>
-      </section>
-
-      <div className="wizard-nav">
-        {currentStep > 1 && (
-          <button
-            className="back-link"
-            onClick={() => setCurrentStep((prev) => Math.max(prev - 1, 1))}
-          >
-            ← Back
-          </button>
-        )}
-
-        {currentStep > 1 && (
-          <button className="start-over-link" onClick={handleReset}>
-            <span className="start-over-icon">↻</span>
-            Start Over
-          </button>
-        )}
-      </div>
+      <WizardHeader
+        currentStep={currentStep}
+        onBack={() => setCurrentStep((prev) => Math.max(prev - 1, 1))}
+        onReset={handleReset}
+      />
 
       <main className="container">
         {currentStep === 1 && (
