@@ -18,25 +18,44 @@ import ATSResults from "./components/Wizard/ATSResults";
 import ResumeOptimize from "./components/Wizard/ResumeOptimize";
 import CoverLetter from "./components/Wizard/CoverLetter";
 import InterviewPrep from "./components/Wizard/InterviewPrep";
+import useResume from "./hooks/useResume";
 
 function App() {
-  const [resumeText, setResumeText] = useState("");
-  const [resumeFile, setResumeFile] = useState(null);
-  const [jobDescription, setJobDescription] = useState("");
-  const [result, setResult] = useState(null);
+  const resume = useResume();
+
+  const {
+    resumeText,
+    setResumeText,
+    resumeFile,
+    setResumeFile,
+    jobDescription,
+    setJobDescription,
+    result,
+    setResult,
+    rewrittenResume,
+    setRewrittenResume,
+    structuredResume,
+    setStructuredResume,
+    interviewQuestions,
+    setInterviewQuestions,
+    jobTitle,
+    setJobTitle,
+    resumeProfile,
+    setResumeProfile,
+    resumeAnalyzing,
+    setResumeAnalyzing,
+    coverLetter,
+    setCoverLetter,
+    fileInputRef,
+    resetResumeState,
+  } = resume;
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [toastMessage, setToastMessage] = useState("");
-  const [rewrittenResume, setRewrittenResume] = useState("");
-  const [interviewQuestions, setInterviewQuestions] = useState(null);
-  const [jobTitle, setJobTitle] = useState("");
   const [currentStep, setCurrentStep] = useState(1);
-  const [resumeProfile, setResumeProfile] = useState(null);
-  const [resumeAnalyzing, setResumeAnalyzing] = useState(false);
   const [loadingMessage, setLoadingMessage] = useState("");
-  const [coverLetter, setCoverLetter] = useState("");
   const [showLanding, setShowLanding] = useState(true);
-  const fileInputRef = useRef(null);
 
   async function handleAnalyze() {
     if (!resumeText.trim() && !resumeFile) {
@@ -104,6 +123,7 @@ function App() {
     setJobDescription("");
     setResult(null);
     setRewrittenResume("");
+    setStructuredResume(null);
     setToastMessage("");
     setInterviewQuestions(null);
     setJobTitle("");
@@ -236,8 +256,10 @@ function App() {
         method: "POST",
         body: formData,
       });
-
+      console.log("Rewrite response status:", response.status);
       const data = await response.json();
+      console.log("Rewrite data:", data);
+
       setRewrittenResume(data.rewrittenResume);
     } catch (error) {
       console.error(error);
