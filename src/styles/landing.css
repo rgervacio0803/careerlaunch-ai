@@ -61,12 +61,13 @@
 }
 
 .landing-hero {
-  max-width: 1600px;
+  width: min(1500px, 92%);
+  max-width: none;
   margin: 0 auto;
-  padding: 90px 5%;
+  padding: 90px 0;
   display: grid;
-  grid-template-columns: 55% 45%;
-  gap: 80px;
+  grid-template-columns: 52% 48%;
+  gap: 32px;
   align-items: center;
 }
 
@@ -83,7 +84,7 @@
 }
 
 .landing-left h1 {
-  max-width: 680px;
+  max-width: 720px;
   margin: 0 0 26px;
   font-size: clamp(48px, 5vw, 72px);
   line-height: 1.02;
@@ -141,12 +142,12 @@
 .preview-shell {
   position: relative;
   display: grid;
-  grid-template-columns: 190px 1fr;
+  grid-template-columns: 220px 1fr;
   gap: 24px;
   background: white;
   border: 1px solid #e5e7eb;
-  border-radius: 28px;
-  padding: 24px;
+  padding: 30px;
+  border-radius: 30px;
   box-shadow: 0 30px 80px rgba(15, 23, 42, 0.14);
 }
 
@@ -278,7 +279,8 @@
 }
 
 .feature-row {
-  max-width: 1200px;
+  width: min(1350px, 92%);
+  max-width: none;
   margin: 44px auto 0;
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -359,7 +361,8 @@
 }
 
 .success-banner {
-  max-width: 1300px;
+  width: min(1700px, 95%);
+  max-width: none;
   margin: 70px auto 0;
   padding: 38px;
   border-radius: 24px;
