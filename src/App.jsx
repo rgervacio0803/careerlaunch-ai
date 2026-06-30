@@ -118,23 +118,11 @@ function App() {
   }
 
   function handleReset() {
-    setResumeText("");
-    setResumeFile(null);
-    setJobDescription("");
-    setResult(null);
-    setRewrittenResume("");
-    setStructuredResume(null);
+    resetResumeState();
+
     setToastMessage("");
-    setInterviewQuestions(null);
-    setJobTitle("");
-    setResumeProfile(null);
-    setResumeAnalyzing(false);
     setCurrentStep(1);
     setError("");
-
-    if (fileInputRef.current) {
-      fileInputRef.current.value = "";
-    }
   }
 
   function copyToClipboard(text) {
