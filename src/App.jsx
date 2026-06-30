@@ -16,6 +16,8 @@ import UploadStep from "./components/Wizard/UploadStep";
 import JobMatchStep from "./components/Wizard/JobMatchStep";
 import ATSResults from "./components/Wizard/ATSResults";
 import ResumeOptimize from "./components/Wizard/ResumeOptimize";
+import CoverLetter from "./components/Wizard/CoverLetter";
+import InterviewPrep from "./components/Wizard/InterviewPrep";
 
 function App() {
   const [resumeText, setResumeText] = useState("");
@@ -230,13 +232,10 @@ function App() {
         formData.append("resume", resumeFile);
       }
 
-      const response = await fetch(
-        "https://careerlaunch-ai-api.onrender.com/rewrite",
-        {
-          method: "POST",
-          body: formData,
-        },
-      );
+      const response = await fetch("http://localhost:5000/rewrite", {
+        method: "POST",
+        body: formData,
+      });
 
       const data = await response.json();
       setRewrittenResume(data.rewrittenResume);
@@ -315,13 +314,10 @@ function App() {
         formData.append("resume", resumeFile);
       }
 
-      const response = await fetch(
-        "https://careerlaunch-ai-api.onrender.com/interview",
-        {
-          method: "POST",
-          body: formData,
-        },
-      );
+      const response = await fetch("http://localhost:5000/interview", {
+        method: "POST",
+        body: formData,
+      });
 
       const data = await response.json();
 
@@ -605,159 +601,23 @@ function App() {
           />
         )}
         {currentStep === 5 && coverLetter && (
-          <section className="wizard-step-page optimize-page">
-            <div className="step-page-header">
-              <p className="step-kicker">Step 5</p>
-              <h2>Cover Letter</h2>
-              <p>
-                Tailored for: <span>{jobTitle || "Target Position"}</span>
-              </p>
-            </div>
-
-            <div className="optimized-card">
-              <div className="optimized-header">
-                <div>
-                  <h3>AI Generated Cover Letter</h3>
-                  <p>Review, copy, or use this as a starting point.</p>
-                </div>
-
-                <div className="optimized-actions-top">
-                  <button
-                    className="copy-btn"
-                    onClick={() => copyToClipboard(coverLetter)}
-                  >
-                    Copy Cover Letter
-                  </button>
-                </div>
-              </div>
-
-              <pre className="cover-letter-text">{coverLetter}</pre>
-            </div>
-
-            <div className="analysis-actions">
-              <button
-                className="interview-button"
-                onClick={() => {
-                  handleInterviewCoach();
-                  setCurrentStep(6);
-                }}
-              >
-                Continue to Interview Prep →
-              </button>
-            </div>
-          </section>
+          <CoverLetter
+            coverLetter={coverLetter}
+            jobTitle={jobTitle}
+            copyToClipboard={copyToClipboard}
+            handleInterviewCoach={handleInterviewCoach}
+            setCurrentStep={setCurrentStep}
+          />
         )}
         {currentStep === 6 && interviewQuestions && (
-          <section className="wizard-step-page interview-page">
-            <div className="step-page-header">
-              <p className="step-kicker">Step 6</p>
-              <h2>Interview Preparation</h2>
-              <p>
-                Personalized interview questions for:
-                <span> {jobTitle || "Target Position"}</span>
-              </p>
-            </div>
-
-            <div className="interview-top-actions">
-              <button
-                className="primary-action-button"
-                onClick={downloadInterviewPrep}
-              >
-                Download Interview Prep PDF
-              </button>
-            </div>
-
-            <div className="interview-grid">
-              <div className="interview-panel">
-                <h3>💻 Technical Questions</h3>
-
-                {interviewQuestions.technicalQuestions?.map((item, index) => (
-                  <div key={index} className="interview-card">
-                    <p className="question-label">Question</p>
-                    <h4>{item.question}</h4>
-
-                    <p className="answer-label">Suggested Answer</p>
-                    <p>{item.answer}</p>
-                  </div>
-                ))}
-              </div>
-
-              <div className="interview-panel">
-                <h3>🤝 Behavioral Questions</h3>
-
-                {interviewQuestions.behavioralQuestions?.map((item, index) => (
-                  <div key={index} className="interview-card">
-                    <p className="question-label">Question</p>
-                    <h4>{item.question}</h4>
-
-                    <p className="answer-label">Suggested Answer</p>
-                    <p>{item.answer}</p>
-                  </div>
-                ))}
-              </div>
-
-              <div className="interview-panel">
-                <h3>🔄 Career Switch Questions</h3>
-
-                {interviewQuestions.careerSwitchQuestions?.map(
-                  (item, index) => (
-                    <div key={index} className="interview-card">
-                      <p className="question-label">Question</p>
-                      <h4>{item.question}</h4>
-
-                      <p className="answer-label">Suggested Answer</p>
-                      <p>{item.answer}</p>
-                    </div>
-                  ),
-                )}
-              </div>
-
-              <div className="interview-panel">
-                <h3>🏢 Questions to Ask the Employer</h3>
-
-                <div className="employer-question-list">
-                  {interviewQuestions.employerQuestions?.map(
-                    (question, index) => (
-                      <div key={index} className="employer-question">
-                        {question}
-                      </div>
-                    ),
-                  )}
-                </div>
-              </div>
-            </div>
-            <div className="completion-card">
-              <h2>✓ CareerLaunch AI Analysis Complete</h2>
-              <p>
-                Your resume analysis, optimized resume, and interview prep are
-                ready.
-              </p>
-
-              <div className="completion-actions">
-                <button className="download-btn" onClick={downloadReport}>
-                  Download ATS Report
-                </button>
-
-                <button
-                  className="download-btn"
-                  onClick={downloadRewrittenResume}
-                >
-                  Download Optimized Resume
-                </button>
-
-                <button
-                  className="download-btn"
-                  onClick={downloadInterviewPrep}
-                >
-                  Download Interview Prep
-                </button>
-
-                <button className="secondary-button" onClick={handleReset}>
-                  Start New Analysis
-                </button>
-              </div>
-            </div>
-          </section>
+          <InterviewPrep
+            interviewQuestions={interviewQuestions}
+            jobTitle={jobTitle}
+            downloadInterviewPrep={downloadInterviewPrep}
+            downloadReport={downloadReport}
+            downloadRewrittenResume={downloadRewrittenResume}
+            handleReset={handleReset}
+          />
         )}
       </main>
       {(loading || resumeAnalyzing) && (

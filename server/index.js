@@ -22,6 +22,14 @@ app.get("/", (req, res) => {
   res.json({ message: "Backend is working" });
 });
 
+function safeDecodeText(text = "") {
+  try {
+    return decodeURIComponent(text);
+  } catch {
+    return text;
+  }
+}
+
 function extractTextFromPdf(buffer) {
   return new Promise((resolve, reject) => {
     const pdfParser = new PDFParser();
@@ -33,7 +41,7 @@ function extractTextFromPdf(buffer) {
     pdfParser.on("pdfParser_dataReady", (pdfData) => {
       const text = pdfData.Pages.map((page) =>
         page.Texts.map((textItem) =>
-          decodeURIComponent(textItem.R.map((r) => r.T).join("")),
+          safeDecodeText(textItem.R.map((r) => r.T).join("")),
         ).join(" "),
       ).join("\n");
 
@@ -431,20 +439,33 @@ Write a personalized cover letter based on the resume and job description.
 
 Rules:
 - Return plain text only.
-- Do not invent experience.
-- Keep it professional and concise.
-- Use 3-5 paragraphs.
-- Match the job title and responsibilities.
-- Emphasize the candidate's most relevant strengths.
-- Do not include fake company names.
-- If company name is missing, use "Hiring Manager".
+- Use ONLY information that appears in the uploaded resume.
+- If a detail is not explicitly stated in the resume, do not include it.
+- Never invent employers, job titles, certifications, accomplishments, projects, technologies, education, years of experience, awards, or achievements.
+- Tailor the writing to the job description using keywords only when they accurately reflect the candidate's existing skills and experience.
+- Keep the cover letter professional, concise, and approximately one page.
+- Use 3–5 well-structured paragraphs.
+- Address the letter to "Dear Hiring Manager," unless another recipient is provided.
+- Write in a confident but truthful tone.
+- Do not exaggerate or fabricate qualifications.
+- End the letter with a proper closing.
+
+The cover letter MUST end exactly like this:
+
+Sincerely,
+
+<Candidate Name>
+
+Use the candidate's actual name from the uploaded resume. If the name cannot be determined, use "Candidate".
+
+The cover letter should sound personalized and natural, not generic. Connect the candidate's actual experience to the job requirements without repeating the resume word-for-word.
 
 Resume:
 ${resumeText}
 
 Job Description:
 ${jobDescription}
-      `,
+`,
     });
 
     res.json({
