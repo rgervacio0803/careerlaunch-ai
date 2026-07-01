@@ -9,6 +9,7 @@ import "./styles/ats.css";
 import "./styles/optimize.css";
 import "./styles/interview.css";
 import "./styles/components.css";
+import "./styles/resumeTemplates.css";
 
 import Landing from "./components/Landing";
 import WizardHeader from "./components/Wizard/WizardHeader";
@@ -54,6 +55,7 @@ function App() {
   const [error, setError] = useState("");
   const [toastMessage, setToastMessage] = useState("");
   const [currentStep, setCurrentStep] = useState(1);
+  const [selectedTemplate, setSelectedTemplate] = useState("modern");
   const [loadingMessage, setLoadingMessage] = useState("");
   const [showLanding, setShowLanding] = useState(true);
 
@@ -249,11 +251,37 @@ function App() {
       console.log("Rewrite data:", data);
 
       setRewrittenResume(data.rewrittenResume);
+      await handleStructureResume();
     } catch (error) {
       console.error(error);
       setError("Unable to rewrite resume. Please try again.");
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function handleStructureResume() {
+    try {
+      const formData = new FormData();
+
+      formData.append("resumeText", resumeText);
+
+      if (resumeFile) {
+        formData.append("resume", resumeFile);
+      }
+
+      const response = await fetch("http://localhost:5000/structure-resume", {
+        method: "POST",
+        body: formData,
+      });
+
+      const data = await response.json();
+
+      console.log("Structured Resume:", data);
+
+      setStructuredResume(data.structuredResume);
+    } catch (error) {
+      console.error(error);
     }
   }
 
@@ -604,6 +632,9 @@ function App() {
         {currentStep === 4 && rewrittenResume && (
           <ResumeOptimize
             rewrittenResume={rewrittenResume}
+            structuredResume={structuredResume}
+            selectedTemplate={selectedTemplate}
+            setSelectedTemplate={setSelectedTemplate}
             jobTitle={jobTitle}
             copyToClipboard={copyToClipboard}
             downloadRewrittenResume={downloadRewrittenResume}

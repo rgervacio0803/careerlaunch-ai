@@ -204,6 +204,82 @@ ${jobDescription}
   }
 });
 
+app.post("/structure-resume", upload.single("resume"), async (req, res) => {
+  try {
+    let { resumeText } = req.body;
+
+    if (req.file) {
+      if (req.file.originalname.endsWith(".docx")) {
+        const extracted = await mammoth.extractRawText({
+          buffer: req.file.buffer,
+        });
+
+        resumeText = extracted.value;
+      } else if (req.file.originalname.endsWith(".pdf")) {
+        resumeText = await extractTextFromPdf(req.file.buffer);
+      } else if (req.file.mimetype === "text/plain") {
+        resumeText = req.file.buffer.toString("utf8");
+      }
+    }
+
+    if (!resumeText || !resumeText.trim()) {
+      return res.status(400).json({
+        error: "Please provide resume text or upload a resume file.",
+      });
+    }
+
+    const response = await openai.responses.create({
+      model: "gpt-5.5",
+      input: `
+You are a resume data parser.
+
+Convert this resume into structured JSON.
+
+Return ONLY valid JSON in this exact structure:
+
+{
+  "name": "",
+  "title": "",
+  "contact": "",
+  "summary": "",
+  "skills": [],
+  "experience": [
+    {
+      "jobTitle": "",
+      "company": "",
+      "dates": "",
+      "bullets": []
+    }
+  ],
+  "education": [],
+  "certifications": []
+}
+
+Rules:
+- Use ONLY information from the resume.
+- Do not invent employers, titles, certifications, education, dates, skills, or achievements.
+- If a detail is missing, use an empty string or empty array.
+- Return JSON only. No markdown. No explanation.
+
+Resume:
+${resumeText}
+      `,
+    });
+
+    const structuredResume = JSON.parse(response.output_text);
+
+    res.json({
+      structuredResume,
+    });
+  } catch (error) {
+    console.error(error);
+
+    res.status(500).json({
+      error: "Unable to structure resume.",
+    });
+  }
+});
+
 app.post("/interview", upload.single("resume"), async (req, res) => {
   try {
     let { resumeText, jobDescription } = req.body;

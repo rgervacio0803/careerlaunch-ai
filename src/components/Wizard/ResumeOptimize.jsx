@@ -1,6 +1,12 @@
+import ModernResume from "../ResumeTemplates/ModernResume";
+import ProfessionalResume from "../ResumeTemplates/ProfessionalResume";
+import MinimalResume from "../ResumeTemplates/MinimalResume";
 
 function ResumeOptimize({
   rewrittenResume,
+  structuredResume,
+  selectedTemplate,
+  setSelectedTemplate,
   jobTitle,
   copyToClipboard,
   downloadRewrittenResume,
@@ -38,6 +44,88 @@ function ResumeOptimize({
         </div>
 
         <pre className="optimized-resume-text">{rewrittenResume}</pre>
+
+        {structuredResume && (
+          <div className="resume-preview-section">
+            <div className="template-card-grid">
+              <button
+                className={
+                  selectedTemplate === "modern"
+                    ? "template-card active"
+                    : "template-card"
+                }
+                onClick={() => setSelectedTemplate("modern")}
+              >
+                <div className="template-mini modern-mini">
+                  <div></div>
+                  <span></span>
+                  <span></span>
+                  <span></span>
+                </div>
+
+                <strong>Modern</strong>
+                <p>Clean blue-accent layout</p>
+              </button>
+
+              <button
+                className={
+                  selectedTemplate === "professional"
+                    ? "template-card active"
+                    : "template-card"
+                }
+                onClick={() => setSelectedTemplate("professional")}
+              >
+                <div className="template-mini professional-mini">
+                  <div></div>
+                  <span></span>
+                  <span></span>
+                  <span></span>
+                </div>
+
+                <strong>Professional</strong>
+                <p>Classic corporate style</p>
+              </button>
+
+              <button
+                className={
+                  selectedTemplate === "minimal"
+                    ? "template-card active"
+                    : "template-card"
+                }
+                onClick={() => setSelectedTemplate("minimal")}
+              >
+                <div className="template-mini minimal-mini">
+                  <div></div>
+                  <span></span>
+                  <span></span>
+                  <span></span>
+                </div>
+
+                <strong>Minimal</strong>
+                <p>Simple and elegant</p>
+              </button>
+            </div>
+
+            <h3>
+              {selectedTemplate === "modern" && "Modern Resume Preview"}
+              {selectedTemplate === "professional" &&
+                "Professional Resume Preview"}
+              {selectedTemplate === "minimal" && "Minimal Resume Preview"}
+            </h3>
+
+            {selectedTemplate === "modern" && (
+              <ModernResume resume={structuredResume} />
+            )}
+
+            {selectedTemplate === "professional" && (
+              <ProfessionalResume resume={structuredResume} />
+            )}
+
+            {selectedTemplate === "minimal" && (
+              <MinimalResume resume={structuredResume} />
+            )}
+          </div>
+        )}
       </div>
 
       <div className="analysis-actions">
