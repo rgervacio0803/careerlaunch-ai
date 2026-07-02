@@ -7,6 +7,7 @@ function ResumeOptimize({
   structuredResume,
   selectedTemplate,
   setSelectedTemplate,
+  resumePreviewRef,
   jobTitle,
   copyToClipboard,
   downloadRewrittenResume,
@@ -37,7 +38,10 @@ function ResumeOptimize({
               Copy Resume
             </button>
 
-            <button className="download-btn" onClick={downloadRewrittenResume}>
+            <button
+              className="download-btn"
+              onClick={() => downloadRewrittenResume(selectedTemplate)}
+            >
               Download PDF
             </button>
           </div>
@@ -57,10 +61,15 @@ function ResumeOptimize({
                 onClick={() => setSelectedTemplate("modern")}
               >
                 <div className="template-mini modern-mini">
-                  <div></div>
-                  <span></span>
-                  <span></span>
-                  <span></span>
+                  <div className="mini-header"></div>
+                  <span className="mini-line long"></span>
+                  <span className="mini-line medium"></span>
+                  <div className="mini-pill-row">
+                    <i></i>
+                    <i></i>
+                    <i></i>
+                  </div>
+                  <span className="mini-line long"></span>
                 </div>
 
                 <strong>Modern</strong>
@@ -112,18 +121,19 @@ function ResumeOptimize({
                 "Professional Resume Preview"}
               {selectedTemplate === "minimal" && "Minimal Resume Preview"}
             </h3>
+            <div ref={resumePreviewRef} className="pdf-capture-area">
+              {selectedTemplate === "modern" && (
+                <ModernResume resume={structuredResume} />
+              )}
 
-            {selectedTemplate === "modern" && (
-              <ModernResume resume={structuredResume} />
-            )}
+              {selectedTemplate === "professional" && (
+                <ProfessionalResume resume={structuredResume} />
+              )}
 
-            {selectedTemplate === "professional" && (
-              <ProfessionalResume resume={structuredResume} />
-            )}
-
-            {selectedTemplate === "minimal" && (
-              <MinimalResume resume={structuredResume} />
-            )}
+              {selectedTemplate === "minimal" && (
+                <MinimalResume resume={structuredResume} />
+              )}
+            </div>
           </div>
         )}
       </div>

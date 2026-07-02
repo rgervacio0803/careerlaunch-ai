@@ -381,3 +381,54 @@
   color: #64748b;
   font-weight: 700;
 }
+
+.template-mini .mini-header {
+  height: 18px;
+  border-radius: 999px;
+  margin-bottom: 14px;
+}
+
+.template-mini .mini-line {
+  display: block;
+  height: 8px;
+  border-radius: 999px;
+  background: #cbd5e1;
+  margin-bottom: 8px;
+}
+
+.template-mini .mini-line.long {
+  width: 90%;
+}
+
+.template-mini .mini-line.medium {
+  width: 65%;
+}
+
+.mini-pill-row {
+  display: flex;
+  gap: 6px;
+  margin: 10px 0;
+}
+
+.mini-pill-row i {
+  width: 28px;
+  height: 10px;
+  border-radius: 999px;
+  background: #bfdbfe;
+}
+
+.modern-mini .mini-header {
+  background: #2563eb;
+}
+
+.professional-resume-paper,
+.modern-resume-paper,
+.minimal-resume-paper {
+  margin-bottom: 0;
+}
+
+.pdf-capture-area {
+  display: inline-block;
+  width: 100%;
+  background: white;
+}

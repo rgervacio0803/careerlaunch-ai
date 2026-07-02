@@ -1,5 +1,6 @@
 import { useRef, useState } from "react";
 import jsPDF from "jspdf";
+import html2canvas from "html2canvas";
 
 import "./App.css";
 import "./styles/base.css";
@@ -58,6 +59,7 @@ function App() {
   const [selectedTemplate, setSelectedTemplate] = useState("modern");
   const [loadingMessage, setLoadingMessage] = useState("");
   const [showLanding, setShowLanding] = useState(true);
+  const resumePreviewRef = useRef(null);
 
   async function handleAnalyze() {
     if (!resumeText.trim() && !resumeFile) {
@@ -285,37 +287,45 @@ function App() {
     }
   }
 
-  function downloadRewrittenResume() {
-    if (!rewrittenResume) return;
+  async function downloadRewrittenResume() {
+    if (!resumePreviewRef.current) return;
 
-    const doc = new jsPDF();
-
-    const pageHeight = doc.internal.pageSize.getHeight();
-    const margin = 20;
-    const maxWidth = 170;
-    let y = 20;
-
-    doc.setFontSize(16);
-    doc.setFont(undefined, "bold");
-    doc.text(`ATS Optimized Resume - ${jobTitle}`, margin, y);
-    y += 12;
-
-    doc.setFontSize(10);
-    doc.setFont(undefined, "normal");
-
-    const lines = doc.splitTextToSize(rewrittenResume, maxWidth);
-
-    lines.forEach((line) => {
-      if (y > pageHeight - 20) {
-        doc.addPage();
-        y = 20;
-      }
-
-      doc.text(line, margin, y);
-      y += 6;
+    const canvas = await html2canvas(resumePreviewRef.current, {
+      scale: 2,
+      useCORS: true,
+      backgroundColor: "#ffffff",
     });
 
-    doc.save("rewritten-resume.pdf");
+    const imgData = canvas.toDataURL("image/png");
+
+    const pdf = new jsPDF("p", "mm", "a4");
+    const pageWidth = pdf.internal.pageSize.getWidth();
+    const pageHeight = pdf.internal.pageSize.getHeight();
+
+    const margin = 10;
+    const imgWidth = pageWidth - margin * 2;
+    const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+    if (imgHeight <= pageHeight - margin * 2) {
+      pdf.addImage(imgData, "PNG", margin, margin, imgWidth, imgHeight);
+    } else {
+      let heightLeft = imgHeight;
+      let position = margin;
+
+      pdf.addImage(imgData, "PNG", margin, position, imgWidth, imgHeight);
+      heightLeft -= pageHeight - margin * 2;
+
+      while (heightLeft > 0) {
+        position = heightLeft - imgHeight + margin;
+        pdf.addPage();
+
+        pdf.addImage(imgData, "PNG", margin, position, imgWidth, imgHeight);
+
+        heightLeft -= pageHeight - margin * 2;
+      }
+    }
+
+    pdf.save(`${selectedTemplate}-resume.pdf`);
   }
 
   async function handleInterviewCoach() {
@@ -635,6 +645,7 @@ function App() {
             structuredResume={structuredResume}
             selectedTemplate={selectedTemplate}
             setSelectedTemplate={setSelectedTemplate}
+            resumePreviewRef={resumePreviewRef}
             jobTitle={jobTitle}
             copyToClipboard={copyToClipboard}
             downloadRewrittenResume={downloadRewrittenResume}
