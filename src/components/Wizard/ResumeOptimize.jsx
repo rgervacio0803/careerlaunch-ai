@@ -47,7 +47,6 @@ function ResumeOptimize({
           </div>
         </div>
 
-        <pre className="optimized-resume-text">{rewrittenResume}</pre>
 
         {structuredResume && (
           <div className="resume-preview-section">
@@ -127,7 +126,12 @@ function ResumeOptimize({
       </div>
 
       <div className="analysis-actions">
-        <button className="interview-button" onClick={handleCoverLetter}>
+        <button
+          className="interview-button"
+          onClick={() => {
+            handleCoverLetter();
+          }}
+        >
           Continue to Cover Letter →
         </button>
       </div>

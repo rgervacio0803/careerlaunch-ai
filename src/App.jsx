@@ -20,6 +20,7 @@ import ATSResults from "./components/Wizard/ATSResults";
 import ResumeOptimize from "./components/Wizard/ResumeOptimize";
 import CoverLetter from "./components/Wizard/CoverLetter";
 import InterviewPrep from "./components/Wizard/InterviewPrep";
+import ResumeInsights from "./components/Wizard/ResumeInsights";
 import useResume from "./hooks/useResume";
 
 function App() {
@@ -124,31 +125,31 @@ function App() {
   }
 
   async function handleResumeInsights() {
-  try {
-    const formData = new FormData();
+    try {
+      const formData = new FormData();
 
-    formData.append("resumeText", resumeText);
-    formData.append("jobDescription", jobDescription);
+      formData.append("resumeText", resumeText);
+      formData.append("jobDescription", jobDescription);
 
-    if (resumeFile) {
-      formData.append("resume", resumeFile);
+      if (resumeFile) {
+        formData.append("resume", resumeFile);
+      }
+
+      const response = await fetch("http://localhost:5000/resume-insights", {
+        method: "POST",
+        body: formData,
+      });
+
+      const data = await response.json();
+
+      console.log("Resume Insights:", data);
+
+      setResumeInsights(data);
+    } catch (error) {
+      console.error(error);
+      setError("Unable to generate resume insights.");
     }
-
-    const response = await fetch("http://localhost:5000/resume-insights", {
-      method: "POST",
-      body: formData,
-    });
-
-    const data = await response.json();
-
-    console.log("Resume Insights:", data);
-
-    setResumeInsights(data);
-  } catch (error) {
-    console.error(error);
-    setError("Unable to generate resume insights.");
   }
-}
 
   function handleReset() {
     resetResumeState();
@@ -283,6 +284,7 @@ function App() {
 
       setRewrittenResume(data.rewrittenResume);
       await handleStructureResume();
+      setCurrentStep(5);
     } catch (error) {
       console.error(error);
       setError("Unable to rewrite resume. Please try again.");
@@ -399,6 +401,7 @@ function App() {
       const data = await response.json();
 
       setInterviewQuestions(data);
+      setCurrentStep(7);
     } catch (error) {
       console.error(error);
       setError("Unable to generate interview questions. Please try again.");
@@ -581,7 +584,7 @@ function App() {
       }
 
       setCoverLetter(data.coverLetter);
-      setCurrentStep(5);
+      setCurrentStep(6);
     } catch (error) {
       console.error(error);
       setError("Unable to generate cover letter. Please try again.");
@@ -593,6 +596,43 @@ function App() {
   if (showLanding) {
     return <Landing onStart={() => setShowLanding(false)} />;
   }
+
+  function getRecommendedTemplate() {
+    const title = jobTitle.toLowerCase();
+
+    if (
+      title.includes("developer") ||
+      title.includes("engineer") ||
+      title.includes("frontend") ||
+      title.includes("backend") ||
+      title.includes("software")
+    ) {
+      return {
+        template: "Modern",
+        reason:
+          "Modern highlights technical skills and is ideal for software engineering roles.",
+      };
+    }
+
+    if (
+      title.includes("manager") ||
+      title.includes("director") ||
+      title.includes("executive")
+    ) {
+      return {
+        template: "Professional",
+        reason: "Professional emphasizes leadership and corporate experience.",
+      };
+    }
+
+    return {
+      template: "Minimal",
+      reason:
+        "Minimal provides a clean layout suitable for many professional roles.",
+    };
+  }
+
+  const recommendation = getRecommendedTemplate();
 
   return (
     <div className="app">
@@ -668,7 +708,17 @@ function App() {
             setCurrentStep={setCurrentStep}
           />
         )}
-        {currentStep === 4 && rewrittenResume && (
+        {currentStep === 4 && resumeInsights && (
+          <ResumeInsights
+            resumeInsights={resumeInsights}
+            recommendation={recommendation}
+            onContinue={async () => {
+              setSelectedTemplate(recommendation.template.toLowerCase());
+              await handleRewriteResume();
+            }}
+          />
+        )}
+        {currentStep === 5 && rewrittenResume && (
           <ResumeOptimize
             rewrittenResume={rewrittenResume}
             structuredResume={structuredResume}
@@ -681,7 +731,7 @@ function App() {
             handleCoverLetter={handleCoverLetter}
           />
         )}
-        {currentStep === 5 && coverLetter && (
+        {currentStep === 6 && coverLetter && (
           <CoverLetter
             coverLetter={coverLetter}
             jobTitle={jobTitle}
@@ -690,7 +740,7 @@ function App() {
             setCurrentStep={setCurrentStep}
           />
         )}
-        {currentStep === 6 && interviewQuestions && (
+        {currentStep === 7 && interviewQuestions && (
           <InterviewPrep
             interviewQuestions={interviewQuestions}
             jobTitle={jobTitle}

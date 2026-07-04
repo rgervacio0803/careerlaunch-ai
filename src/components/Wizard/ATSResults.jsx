@@ -108,11 +108,10 @@ function ATSResults({
         <button
           className="rewrite-button"
           onClick={() => {
-            handleRewriteResume();
             setCurrentStep(4);
           }}
         >
-          Continue to Optimize Resume →
+          Continue to AI Resume Insights →
         </button>
       </div>
     </section>
