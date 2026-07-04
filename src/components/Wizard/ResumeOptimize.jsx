@@ -51,25 +51,18 @@ function ResumeOptimize({
 
         {structuredResume && (
           <div className="resume-preview-section">
-            <div className="template-card-grid">
+            <div className="template-gallery-grid">
               <button
                 className={
                   selectedTemplate === "modern"
-                    ? "template-card active"
-                    : "template-card"
+                    ? "template-gallery-card active"
+                    : "template-gallery-card"
                 }
                 onClick={() => setSelectedTemplate("modern")}
               >
-                <div className="template-mini modern-mini">
-                  <div className="mini-header"></div>
-                  <span className="mini-line long"></span>
-                  <span className="mini-line medium"></span>
-                  <div className="mini-pill-row">
-                    <i></i>
-                    <i></i>
-                    <i></i>
-                  </div>
-                  <span className="mini-line long"></span>
+                <div className="recommended-badge">⭐ Recommended</div>
+                <div className="template-thumbnail">
+                  <ModernResume resume={structuredResume} />
                 </div>
 
                 <strong>Modern</strong>
@@ -79,16 +72,14 @@ function ResumeOptimize({
               <button
                 className={
                   selectedTemplate === "professional"
-                    ? "template-card active"
-                    : "template-card"
+                    ? "template-gallery-card active"
+                    : "template-gallery-card"
                 }
                 onClick={() => setSelectedTemplate("professional")}
               >
-                <div className="template-mini professional-mini">
-                  <div></div>
-                  <span></span>
-                  <span></span>
-                  <span></span>
+                <div className="recommended-badge">⭐ Recommended</div>
+                <div className="template-thumbnail">
+                  <ProfessionalResume resume={structuredResume} />
                 </div>
 
                 <strong>Professional</strong>
@@ -98,16 +89,13 @@ function ResumeOptimize({
               <button
                 className={
                   selectedTemplate === "minimal"
-                    ? "template-card active"
-                    : "template-card"
+                    ? "template-gallery-card active"
+                    : "template-gallery-card"
                 }
                 onClick={() => setSelectedTemplate("minimal")}
               >
-                <div className="template-mini minimal-mini">
-                  <div></div>
-                  <span></span>
-                  <span></span>
-                  <span></span>
+                <div className="template-thumbnail">
+                  <MinimalResume resume={structuredResume} />
                 </div>
 
                 <strong>Minimal</strong>

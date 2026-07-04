@@ -59,6 +59,7 @@ function App() {
   const [selectedTemplate, setSelectedTemplate] = useState("modern");
   const [loadingMessage, setLoadingMessage] = useState("");
   const [showLanding, setShowLanding] = useState(true);
+  const [resumeInsights, setResumeInsights] = useState(null);
   const resumePreviewRef = useRef(null);
 
   async function handleAnalyze() {
@@ -111,6 +112,7 @@ function App() {
         return;
       }
       setResult(data);
+      await handleResumeInsights();
       setJobTitle(data.jobTitle || "Target Position");
       setCurrentStep(3);
     } catch (error) {
@@ -120,6 +122,33 @@ function App() {
       setLoading(false);
     }
   }
+
+  async function handleResumeInsights() {
+  try {
+    const formData = new FormData();
+
+    formData.append("resumeText", resumeText);
+    formData.append("jobDescription", jobDescription);
+
+    if (resumeFile) {
+      formData.append("resume", resumeFile);
+    }
+
+    const response = await fetch("http://localhost:5000/resume-insights", {
+      method: "POST",
+      body: formData,
+    });
+
+    const data = await response.json();
+
+    console.log("Resume Insights:", data);
+
+    setResumeInsights(data);
+  } catch (error) {
+    console.error(error);
+    setError("Unable to generate resume insights.");
+  }
+}
 
   function handleReset() {
     resetResumeState();

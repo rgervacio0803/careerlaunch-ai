@@ -280,6 +280,104 @@ ${resumeText}
   }
 });
 
+app.post("/resume-insights", upload.single("resume"), async (req, res) => {
+  try {
+    let { resumeText, jobDescription } = req.body;
+
+    if (req.file) {
+      if (req.file.originalname.endsWith(".docx")) {
+        const extracted = await mammoth.extractRawText({
+          buffer: req.file.buffer,
+        });
+
+        resumeText = extracted.value;
+      } else if (req.file.originalname.endsWith(".pdf")) {
+        resumeText = await extractTextFromPdf(req.file.buffer);
+      } else if (req.file.mimetype === "text/plain") {
+        resumeText = req.file.buffer.toString("utf8");
+      }
+    }
+
+    if (!resumeText || !resumeText.trim()) {
+      return res.status(400).json({
+        error: "Resume text is required.",
+      });
+    }
+
+    const response = await openai.responses.create({
+      model: "gpt-5.5",
+      text: {
+        format: {
+          type: "json_object",
+        },
+      },
+      input: `
+You are an expert recruiter and career coach.
+
+Analyze the resume against the job description.
+
+Return ONLY valid JSON in this exact format:
+
+{
+  "overallImpression": "",
+  "biggestStrength": {
+    "title": "",
+    "impact": 5,
+    "description": ""
+  },
+  "biggestWeakness": {
+    "title": "",
+    "impact": 5,
+    "description": ""
+  },
+  "recruiterFirstImpression": "",
+  "topImprovements": [
+    {
+      "title": "",
+      "impact": 5,
+      "description": ""
+    },
+    {
+      "title": "",
+      "impact": 4,
+      "description": ""
+    },
+    {
+      "title": "",
+      "impact": 3,
+      "description": ""
+    }
+  ]
+}
+
+Rules:
+
+- Be encouraging but honest.
+- Base every observation only on the resume and job description provided.
+- Do not invent experience or qualifications.
+- Keep each description under 35 words.
+- Impact must be a number from 1 to 5.
+- Use impact 5 for the most important improvement or strongest issue.
+- Return JSON only.
+
+Resume:
+${resumeText}
+
+Job Description:
+${jobDescription}
+      `,
+    });
+
+    res.json(JSON.parse(response.output_text));
+  } catch (error) {
+    console.error(error);
+
+    res.status(500).json({
+      error: "Unable to generate resume insights.",
+    });
+  }
+});
+
 app.post("/interview", upload.single("resume"), async (req, res) => {
   try {
     let { resumeText, jobDescription } = req.body;
