@@ -283,6 +283,7 @@ function App() {
       console.log("Rewrite data:", data);
 
       setRewrittenResume(data.rewrittenResume);
+      setSelectedTemplate(recommendation.template.toLowerCase());
       await handleStructureResume();
       setCurrentStep(5);
     } catch (error) {
@@ -722,6 +723,7 @@ function App() {
           <ResumeOptimize
             rewrittenResume={rewrittenResume}
             structuredResume={structuredResume}
+            recommendation={recommendation}
             selectedTemplate={selectedTemplate}
             setSelectedTemplate={setSelectedTemplate}
             resumePreviewRef={resumePreviewRef}

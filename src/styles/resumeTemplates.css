@@ -506,3 +506,49 @@
   box-shadow: none !important;
   border-radius: 0;
 }
+
+.ai-template-recommendation {
+  display: flex;
+  gap: 18px;
+  align-items: flex-start;
+  padding: 24px;
+  margin-bottom: 28px;
+  border-radius: 20px;
+  background: linear-gradient(135deg, #eff6ff, #ffffff);
+  border: 1px solid #bfdbfe;
+  box-shadow: 0 14px 34px rgba(37, 99, 235, 0.1);
+}
+
+.ai-recommendation-icon {
+  width: 54px;
+  height: 54px;
+  border-radius: 16px;
+  background: #2563eb;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 26px;
+  flex-shrink: 0;
+}
+
+.recommendation-title {
+  margin: 0 0 6px;
+  color: #2563eb;
+  font-size: 12px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.ai-template-recommendation h3 {
+  margin: 0 0 8px;
+  color: #0f172a;
+  font-size: 24px;
+}
+
+.ai-template-recommendation p {
+  color: #475569;
+  line-height: 1.7;
+  margin: 0;
+}

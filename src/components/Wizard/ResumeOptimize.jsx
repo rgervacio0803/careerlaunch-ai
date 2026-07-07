@@ -5,6 +5,7 @@ import MinimalResume from "../ResumeTemplates/MinimalResume";
 function ResumeOptimize({
   rewrittenResume,
   structuredResume,
+  recommendation,
   selectedTemplate,
   setSelectedTemplate,
   resumePreviewRef,
@@ -17,17 +18,20 @@ function ResumeOptimize({
     <section className="wizard-step-page optimize-page">
       <div className="step-page-header">
         <p className="step-kicker">Step 4</p>
-        <h2>Optimized Resume</h2>
+        <h2>Choose Your Resume Template</h2>
         <p>
-          Tailored for: <span>{jobTitle || "Target Position"}</span>
+          Your resume has been optimized. Choose a professional template before
+          downloading.
         </p>
       </div>
 
       <div className="optimized-card">
         <div className="optimized-header">
           <div>
-            <h3>ATS Optimized Resume</h3>
-            <p>Review, copy, or download your rewritten resume.</p>
+            <h3>Template Gallery</h3>
+            <p>
+              Select a design, preview it, then download your polished resume.
+            </p>
           </div>
 
           <div className="optimized-actions-top">
@@ -47,9 +51,21 @@ function ResumeOptimize({
           </div>
         </div>
 
-
         {structuredResume && (
           <div className="resume-preview-section">
+            <div className="ai-template-recommendation">
+              <div className="ai-recommendation-icon">🤖</div>
+
+              <div>
+                <p className="recommendation-title">
+                  CareerLaunch AI Recommendation
+                </p>
+
+                <h3>{recommendation.template} Template</h3>
+
+                <p>{recommendation.reason}</p>
+              </div>
+            </div>
             <div className="template-gallery-grid">
               <button
                 className={
@@ -59,7 +75,6 @@ function ResumeOptimize({
                 }
                 onClick={() => setSelectedTemplate("modern")}
               >
-                <div className="recommended-badge">⭐ Recommended</div>
                 <div className="template-thumbnail">
                   <ModernResume resume={structuredResume} />
                 </div>
@@ -76,7 +91,6 @@ function ResumeOptimize({
                 }
                 onClick={() => setSelectedTemplate("professional")}
               >
-                <div className="recommended-badge">⭐ Recommended</div>
                 <div className="template-thumbnail">
                   <ProfessionalResume resume={structuredResume} />
                 </div>
