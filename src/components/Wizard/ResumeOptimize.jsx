@@ -1,6 +1,8 @@
 import ModernResume from "../ResumeTemplates/ModernResume";
 import ProfessionalResume from "../ResumeTemplates/ProfessionalResume";
 import MinimalResume from "../ResumeTemplates/MinimalResume";
+import ExecutiveResume from "../ResumeTemplates/ExecutiveResume";
+import TechResume from "../ResumeTemplates/TechResume";
 
 function ResumeOptimize({
   rewrittenResume,
@@ -61,7 +63,11 @@ function ResumeOptimize({
                   CareerLaunch AI Recommendation
                 </p>
 
-                <h3>{recommendation.template} Template</h3>
+                <h3>⭐ Recommended for You</h3>
+
+                <h2 className="recommended-template-name">
+                  {recommendation.template}
+                </h2>
 
                 <p>{recommendation.reason}</p>
               </div>
@@ -80,6 +86,15 @@ function ResumeOptimize({
                 </div>
 
                 <strong>Modern</strong>
+
+                {recommendation.template.toLowerCase() === "modern" && (
+                  <div className="ai-recommended-badge">⭐ AI Recommended</div>
+                )}
+
+                {selectedTemplate === "modern" && (
+                  <div className="selected-template-badge">✓ Selected</div>
+                )}
+
                 <p>Clean blue-accent layout</p>
               </button>
 
@@ -96,7 +111,66 @@ function ResumeOptimize({
                 </div>
 
                 <strong>Professional</strong>
+
+                {recommendation.template.toLowerCase() === "professional" && (
+                  <div className="ai-recommended-badge">⭐ AI Recommended</div>
+                )}
+
+                {selectedTemplate === "professional" && (
+                  <div className="selected-template-badge">✓ Selected</div>
+                )}
+
                 <p>Classic corporate style</p>
+              </button>
+
+              <button
+                className={
+                  selectedTemplate === "executive"
+                    ? "template-gallery-card active"
+                    : "template-gallery-card"
+                }
+                onClick={() => setSelectedTemplate("executive")}
+              >
+                <div className="template-thumbnail">
+                  <ExecutiveResume resume={structuredResume} />
+                </div>
+
+                <strong>Executive</strong>
+
+                {recommendation.template.toLowerCase() === "executive" && (
+                  <div className="ai-recommended-badge">⭐ AI Recommended</div>
+                )}
+
+                {selectedTemplate === "executive" && (
+                  <div className="selected-template-badge">✓ Selected</div>
+                )}
+
+                <p>Leadership and executive style</p>
+              </button>
+
+              <button
+                className={
+                  selectedTemplate === "tech"
+                    ? "template-gallery-card active"
+                    : "template-gallery-card"
+                }
+                onClick={() => setSelectedTemplate("tech")}
+              >
+                <div className="template-thumbnail">
+                  <TechResume resume={structuredResume} />
+                </div>
+
+                <strong>Tech</strong>
+
+                {recommendation.template.toLowerCase() === "tech" && (
+                  <div className="ai-recommended-badge">⭐ AI Recommended</div>
+                )}
+
+                {selectedTemplate === "tech" && (
+                  <div className="selected-template-badge">✓ Selected</div>
+                )}
+
+                <p>Developer-focused skills layout</p>
               </button>
 
               <button
@@ -112,15 +186,23 @@ function ResumeOptimize({
                 </div>
 
                 <strong>Minimal</strong>
+
+                {recommendation.template.toLowerCase() === "minimal" && (
+                  <div className="ai-recommended-badge">⭐ AI Recommended</div>
+                )}
+
+                {selectedTemplate === "minimal" && (
+                  <div className="selected-template-badge">✓ Selected</div>
+                )}
+
                 <p>Simple and elegant</p>
               </button>
             </div>
 
             <h3>
-              {selectedTemplate === "modern" && "Modern Resume Preview"}
-              {selectedTemplate === "professional" &&
-                "Professional Resume Preview"}
-              {selectedTemplate === "minimal" && "Minimal Resume Preview"}
+              {selectedTemplate.charAt(0).toUpperCase() +
+                selectedTemplate.slice(1)}{" "}
+              Resume Preview
             </h3>
             <div ref={resumePreviewRef} className="pdf-capture-area">
               {selectedTemplate === "modern" && (
@@ -129,6 +211,14 @@ function ResumeOptimize({
 
               {selectedTemplate === "professional" && (
                 <ProfessionalResume resume={structuredResume} />
+              )}
+
+              {selectedTemplate === "executive" && (
+                <ExecutiveResume resume={structuredResume} />
+              )}
+
+              {selectedTemplate === "tech" && (
+                <TechResume resume={structuredResume} />
               )}
 
               {selectedTemplate === "minimal" && (
