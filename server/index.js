@@ -146,7 +146,7 @@ ${jobDescription}
 });
 app.post("/rewrite", upload.single("resume"), async (req, res) => {
   try {
-    let { resumeText, jobDescription } = req.body;
+    let { resumeText, jobDescription, resumeInsights } = req.body;
 
     if (req.file) {
       if (req.file.originalname.endsWith(".docx")) {
@@ -169,27 +169,42 @@ app.post("/rewrite", upload.single("resume"), async (req, res) => {
       });
     }
 
+
     const response = await openai.responses.create({
       model: "gpt-5.5",
       input: `
-You are an expert resume writer.
+You are an expert resume writer and ATS optimization specialist.
 
-Rewrite the resume so it better matches the job description.
+Your job is to rewrite the resume so it better matches the target job description.
+
+The resume has already been analyzed by an AI recruiter.
+
+Use the Resume Insights below to guide your rewrite.
+
+Your goal is to directly address the weaknesses and improvements identified while preserving the candidate's real experience.
 
 Rules:
-- Improve wording
-- Add stronger action verbs
-- Keep it truthful
-- Optimize for ATS
-- Do not invent experience
-- Return plain text only
+
+- Improve wording and readability.
+- Use stronger action verbs.
+- Improve ATS keyword matching.
+- Address the Resume Insights recommendations.
+- Fix the biggest weakness whenever possible.
+- Apply the Top Improvements throughout the resume.
+- Keep all information truthful.
+- Never invent skills, experience, companies, or accomplishments.
+- Preserve the candidate's overall career history.
+- Return only the rewritten resume in plain text.
 
 Resume:
 ${resumeText}
 
 Job Description:
 ${jobDescription}
-      `,
+
+Resume Insights:
+${resumeInsights || "No resume insights available."}
+`,
     });
 
     res.json({

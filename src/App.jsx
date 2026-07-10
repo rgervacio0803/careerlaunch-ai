@@ -269,6 +269,7 @@ function App() {
 
       formData.append("resumeText", finalResumeText);
       formData.append("jobDescription", jobDescription);
+      formData.append("resumeInsights", JSON.stringify(resumeInsights));
 
       if (resumeFile) {
         formData.append("resume", resumeFile);
