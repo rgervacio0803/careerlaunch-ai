@@ -148,6 +148,14 @@ app.post("/rewrite", upload.single("resume"), async (req, res) => {
   try {
     let { resumeText, jobDescription, resumeInsights } = req.body;
 
+    let insights = {};
+
+    try {
+      insights = JSON.parse(resumeInsights || "{}");
+    } catch {
+      insights = {};
+    }
+
     if (req.file) {
       if (req.file.originalname.endsWith(".docx")) {
         const extracted = await mammoth.extractRawText({
@@ -169,7 +177,6 @@ app.post("/rewrite", upload.single("resume"), async (req, res) => {
       });
     }
 
-
     const response = await openai.responses.create({
       model: "gpt-5.5",
       input: `
@@ -185,14 +192,24 @@ Your goal is to directly address the weaknesses and improvements identified whil
 
 Rules:
 
-- Improve wording and readability.
-- Use stronger action verbs.
-- Improve ATS keyword matching.
-- Address the Resume Insights recommendations.
-- Fix the biggest weakness whenever possible.
-- Apply the Top Improvements throughout the resume.
-- Keep all information truthful.
-- Never invent skills, experience, companies, or accomplishments.
+Priority 1:
+- Fix the Biggest Weakness identified in the Resume Analysis.
+
+Priority 2:
+- Apply each of the Top Improvements throughout the resume whenever supported by the candidate's real experience.
+
+Priority 3:
+- Improve ATS keyword matching using relevant terms from the Job Description.
+
+Priority 4:
+- Improve wording, readability, and professionalism.
+- Use strong action verbs.
+- Rewrite bullet points to emphasize accomplishments and impact.
+- Keep the resume concise and easy to scan.
+
+Important:
+- Never invent skills, experience, certifications, companies, dates, or accomplishments.
+- If a recommended improvement cannot be made because the experience does not exist, skip it rather than fabricate information.
 - Preserve the candidate's overall career history.
 - Return only the rewritten resume in plain text.
 
@@ -202,8 +219,24 @@ ${resumeText}
 Job Description:
 ${jobDescription}
 
-Resume Insights:
-${resumeInsights || "No resume insights available."}
+Resume Analysis
+
+Overall Impression:
+${insights.overallImpression || "None"}
+
+Biggest Weakness:
+${insights.biggestWeakness?.description || "None"}
+
+Top Improvements:
+
+1.
+${insights.topImprovements?.[0]?.description || "None"}
+
+2.
+${insights.topImprovements?.[1]?.description || "None"}
+
+3.
+${insights.topImprovements?.[2]?.description || "None"}
 `,
     });
 
@@ -389,6 +422,118 @@ ${jobDescription}
 
     res.status(500).json({
       error: "Unable to generate resume insights.",
+    });
+  }
+});
+
+app.post("/rewrite-plan", upload.single("resume"), async (req, res) => {
+  try {
+    let { resumeText, jobDescription, resumeInsights } = req.body;
+
+    if (req.file) {
+      if (req.file.originalname.endsWith(".docx")) {
+        const extracted = await mammoth.extractRawText({
+          buffer: req.file.buffer,
+        });
+
+        resumeText = extracted.value;
+      } else if (req.file.originalname.endsWith(".pdf")) {
+        resumeText = await extractTextFromPdf(req.file.buffer);
+      } else if (req.file.mimetype === "text/plain") {
+        resumeText = req.file.buffer.toString("utf8");
+      }
+    }
+
+    if (!resumeText || !resumeText.trim()) {
+      return res.status(400).json({
+        error: "Resume text is required.",
+      });
+    }
+
+    let insights = {};
+
+    try {
+      insights = JSON.parse(resumeInsights || "{}");
+    } catch {
+      insights = {};
+    }
+
+    const response = await openai.responses.create({
+      model: "gpt-5.5",
+      text: {
+        format: {
+          type: "json_object",
+        },
+      },
+      input: `
+You are an expert resume strategist.
+
+Create a concrete rewrite plan based on the resume, job description, and recruiter insights.
+
+Return ONLY valid JSON in this exact format:
+
+{
+  "highestPriority": "",
+  "plannedImprovements": [
+    "",
+    "",
+    ""
+  ],
+  "aiActions": [
+    "",
+    "",
+    "",
+    ""
+  ]
+}
+
+Rules:
+- Make every item specific and actionable.
+- Use only information supported by the resume.
+- Never recommend inventing skills, experience, credentials, dates, employers, or achievements.
+- The highestPriority must describe the most important issue to fix.
+- plannedImprovements must describe the actual edits the rewrite should make.
+- aiActions must describe what the rewrite engine will do.
+- If the job asks for unsupported experience, do not claim it exists.
+- Keep every item under 35 words.
+- Return JSON only.
+
+Resume:
+${resumeText}
+
+Job Description:
+${jobDescription}
+
+Overall Impression:
+${insights.overallImpression || "None"}
+
+Biggest Weakness:
+${
+  typeof insights.biggestWeakness === "string"
+    ? insights.biggestWeakness
+    : insights.biggestWeakness?.description || "None"
+}
+
+Top Improvements:
+${(insights.topImprovements || [])
+  .map((item, index) => {
+    const text =
+      typeof item === "string" ? item : item.description || item.title || "";
+
+    return `${index + 1}. ${text}`;
+  })
+  .join("\n")}
+      `,
+    });
+
+    const rewritePlan = JSON.parse(response.output_text);
+
+    res.json({ rewritePlan });
+  } catch (error) {
+    console.error("Rewrite plan error:", error);
+
+    res.status(500).json({
+      error: "Unable to generate rewrite plan.",
     });
   }
 });

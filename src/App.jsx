@@ -21,6 +21,7 @@ import ResumeOptimize from "./components/Wizard/ResumeOptimize";
 import CoverLetter from "./components/Wizard/CoverLetter";
 import InterviewPrep from "./components/Wizard/InterviewPrep";
 import ResumeInsights from "./components/Wizard/ResumeInsights";
+import AIRewritePlan from "./components/AIRewritePlan";
 import useResume from "./hooks/useResume";
 
 function App() {
@@ -61,6 +62,7 @@ function App() {
   const [loadingMessage, setLoadingMessage] = useState("");
   const [showLanding, setShowLanding] = useState(true);
   const [resumeInsights, setResumeInsights] = useState(null);
+  const [rewritePlan, setRewritePlan] = useState(null);
   const resumePreviewRef = useRef(null);
 
   async function handleAnalyze() {
@@ -148,6 +150,39 @@ function App() {
     } catch (error) {
       console.error(error);
       setError("Unable to generate resume insights.");
+    }
+  }
+
+  async function handleRewritePlan() {
+    try {
+      const formData = new FormData();
+
+      formData.append("resumeText", resumeText);
+      formData.append("jobDescription", jobDescription);
+      formData.append("resumeInsights", JSON.stringify(resumeInsights));
+
+      if (resumeFile) {
+        formData.append("resume", resumeFile);
+      }
+
+      const response = await fetch("http://localhost:5000/rewrite-plan", {
+        method: "POST",
+        body: formData,
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        setError(data.error || "Unable to generate rewrite plan.");
+        return;
+      }
+
+      console.log("Rewrite Plan:", data);
+      setRewritePlan(data.rewritePlan);
+      setCurrentStep(5);
+    } catch (error) {
+      console.error(error);
+      setError("Unable to generate rewrite plan.");
     }
   }
 
@@ -286,7 +321,7 @@ function App() {
       setRewrittenResume(data.rewrittenResume);
       setSelectedTemplate(recommendation.template.toLowerCase());
       await handleStructureResume();
-      setCurrentStep(5);
+      setCurrentStep(6);
     } catch (error) {
       console.error(error);
       setError("Unable to rewrite resume. Please try again.");
@@ -403,7 +438,7 @@ function App() {
       const data = await response.json();
 
       setInterviewQuestions(data);
-      setCurrentStep(7);
+      setCurrentStep(8);
     } catch (error) {
       console.error(error);
       setError("Unable to generate interview questions. Please try again.");
@@ -586,7 +621,7 @@ function App() {
       }
 
       setCoverLetter(data.coverLetter);
-      setCurrentStep(6);
+      setCurrentStep(7);
     } catch (error) {
       console.error(error);
       setError("Unable to generate cover letter. Please try again.");
@@ -714,13 +749,20 @@ function App() {
           <ResumeInsights
             resumeInsights={resumeInsights}
             recommendation={recommendation}
+            onContinue={handleRewritePlan}
+          />
+        )}
+
+        {currentStep === 5 && rewritePlan && (
+          <AIRewritePlan
+            rewritePlan={rewritePlan}
             onContinue={async () => {
               setSelectedTemplate(recommendation.template.toLowerCase());
               await handleRewriteResume();
             }}
           />
         )}
-        {currentStep === 5 && rewrittenResume && (
+        {currentStep === 6 && rewrittenResume && (
           <ResumeOptimize
             rewrittenResume={rewrittenResume}
             structuredResume={structuredResume}
@@ -734,7 +776,7 @@ function App() {
             handleCoverLetter={handleCoverLetter}
           />
         )}
-        {currentStep === 6 && coverLetter && (
+        {currentStep === 7 && coverLetter && (
           <CoverLetter
             coverLetter={coverLetter}
             jobTitle={jobTitle}
@@ -743,7 +785,7 @@ function App() {
             setCurrentStep={setCurrentStep}
           />
         )}
-        {currentStep === 7 && interviewQuestions && (
+        {currentStep === 8 && interviewQuestions && (
           <InterviewPrep
             interviewQuestions={interviewQuestions}
             jobTitle={jobTitle}
