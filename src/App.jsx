@@ -23,6 +23,8 @@ import InterviewPrep from "./components/Wizard/InterviewPrep";
 import ResumeInsights from "./components/Wizard/ResumeInsights";
 import AIRewritePlan from "./components/AIRewritePlan";
 import useResume from "./hooks/useResume";
+import ResumeOptimizationProgress from "./components/ResumeOptimizationProgress";
+import RewritePlanProgress from "./components/RewritePlanProgress";
 
 function App() {
   const resume = useResume();
@@ -63,6 +65,10 @@ function App() {
   const [showLanding, setShowLanding] = useState(true);
   const [resumeInsights, setResumeInsights] = useState(null);
   const [rewritePlan, setRewritePlan] = useState(null);
+  const [isOptimizingResume, setIsOptimizingResume] = useState(false);
+  const [optimizationStep, setOptimizationStep] = useState(0);
+  const [isBuildingRewritePlan, setIsBuildingRewritePlan] = useState(false);
+  const [rewritePlanStep, setRewritePlanStep] = useState(0);
   const resumePreviewRef = useRef(null);
 
   async function handleAnalyze() {
@@ -154,6 +160,17 @@ function App() {
   }
 
   async function handleRewritePlan() {
+    setIsBuildingRewritePlan(true);
+    setRewritePlanStep(0);
+    setError("");
+
+    const progressTimer = setInterval(() => {
+      setRewritePlanStep((current) => {
+        if (current >= 2) return current;
+        return current + 1;
+      });
+    }, 1800);
+
     try {
       const formData = new FormData();
 
@@ -177,102 +194,19 @@ function App() {
         return;
       }
 
-      console.log("Rewrite Plan:", data);
       setRewritePlan(data.rewritePlan);
+      setRewritePlanStep(2);
+
+      await new Promise((resolve) => setTimeout(resolve, 600));
+
       setCurrentStep(5);
     } catch (error) {
       console.error(error);
       setError("Unable to generate rewrite plan.");
+    } finally {
+      clearInterval(progressTimer);
+      setIsBuildingRewritePlan(false);
     }
-  }
-
-  function handleReset() {
-    resetResumeState();
-
-    setToastMessage("");
-    setCurrentStep(1);
-    setError("");
-  }
-
-  function copyToClipboard(text) {
-    navigator.clipboard.writeText(text);
-
-    setToastMessage("✓ Copied");
-
-    setTimeout(() => {
-      setToastMessage("");
-    }, 3000);
-  }
-
-  function downloadReport() {
-    if (!result) return;
-
-    const doc = new jsPDF();
-
-    const pageWidth = doc.internal.pageSize.getWidth();
-    const pageHeight = doc.internal.pageSize.getHeight();
-
-    const margin = 20;
-    const maxWidth = pageWidth - margin * 2;
-    let y = 20;
-
-    function addSectionTitle(title) {
-      if (y > pageHeight - 25) {
-        doc.addPage();
-        y = 20;
-      }
-
-      doc.setFontSize(13);
-      doc.setFont(undefined, "bold");
-      doc.text(title, margin, y);
-      y += 8;
-    }
-
-    function addBulletList(items = []) {
-      doc.setFontSize(10);
-      doc.setFont(undefined, "normal");
-
-      items.forEach((item) => {
-        const lines = doc.splitTextToSize(`• ${item}`, maxWidth);
-
-        if (y + lines.length * 6 > pageHeight - 20) {
-          doc.addPage();
-          y = 20;
-        }
-
-        doc.text(lines, margin, y);
-        y += lines.length * 6 + 3;
-      });
-
-      y += 5;
-    }
-
-    doc.setFontSize(16);
-    doc.setFont(undefined, "bold");
-    doc.text("AI Career Switch Assistant Report", margin, y);
-    y += 12;
-
-    doc.setFontSize(12);
-    doc.setFont(undefined, "normal");
-    doc.text(`ATS Score: ${result.atsScore}%`, margin, y);
-    y += 12;
-
-    addSectionTitle("Score Explanation");
-    addBulletList(result.scoreExplanation);
-
-    addSectionTitle("Missing Keywords");
-    addBulletList(result.missingKeywords);
-
-    addSectionTitle("Resume Suggestions");
-    addBulletList(result.resumeSuggestions);
-
-    addSectionTitle("Career Advice");
-    addBulletList(result.careerAdvice);
-
-    addSectionTitle("Interview Questions");
-    addBulletList(result.interviewQuestions);
-
-    doc.save("career-report.pdf");
   }
 
   async function handleRewriteResume() {
@@ -285,6 +219,17 @@ function App() {
       setError("Please enter both the job title and responsibilities/duties.");
       return;
     }
+
+    setIsOptimizingResume(true);
+
+    setOptimizationStep(0);
+
+    const progressTimer = setInterval(() => {
+      setOptimizationStep((current) => {
+        if (current >= 4) return current;
+        return current + 1;
+      });
+    }, 2500);
 
     setLoadingMessage(
       "Please wait while CareerLaunch AI optimizes your resume for the target role.",
@@ -304,7 +249,7 @@ function App() {
 
       formData.append("resumeText", finalResumeText);
       formData.append("jobDescription", jobDescription);
-      formData.append("resumeInsights", JSON.stringify(resumeInsights));
+      formData.append("rewritePlan", JSON.stringify(rewritePlan));
 
       if (resumeFile) {
         formData.append("resume", resumeFile);
@@ -319,14 +264,20 @@ function App() {
       console.log("Rewrite data:", data);
 
       setRewrittenResume(data.rewrittenResume);
+      setStructuredResume(data.structuredResume);
       setSelectedTemplate(recommendation.template.toLowerCase());
-      await handleStructureResume();
       setCurrentStep(6);
     } catch (error) {
       console.error(error);
       setError("Unable to rewrite resume. Please try again.");
     } finally {
+      clearInterval(progressTimer);
+      setOptimizationStep(4);
+
+      await new Promise((resolve) => setTimeout(resolve, 700));
+
       setLoading(false);
+      setIsOptimizingResume(false);
     }
   }
 
@@ -630,6 +581,115 @@ function App() {
     }
   }
 
+  function handleStartOver() {
+  resetResumeState();
+
+  setError("");
+  setToastMessage("");
+  setLoading(false);
+  setLoadingMessage("");
+
+  setCurrentStep(1);
+  setSelectedTemplate("modern");
+
+  setResumeInsights(null);
+  setRewritePlan(null);
+
+  setIsOptimizingResume(false);
+  setOptimizationStep(0);
+
+  setIsBuildingRewritePlan(false);
+  setRewritePlanStep(0);
+}
+
+async function copyToClipboard(text) {
+  if (!text) return;
+
+  try {
+    await navigator.clipboard.writeText(text);
+
+    setToastMessage("Copied to clipboard!");
+
+    setTimeout(() => {
+      setToastMessage("");
+    }, 2500);
+  } catch (error) {
+    console.error("Copy failed:", error);
+    setError("Unable to copy to clipboard.");
+  }
+}
+
+function downloadReport() {
+  if (!result) return;
+
+  const doc = new jsPDF();
+  const margin = 20;
+  const maxWidth = 170;
+  let y = 20;
+
+  function addText(text, fontSize = 10, spacing = 7) {
+    doc.setFontSize(fontSize);
+
+    const lines = doc.splitTextToSize(String(text), maxWidth);
+
+    if (y + lines.length * spacing > 280) {
+      doc.addPage();
+      y = 20;
+    }
+
+    doc.text(lines, margin, y);
+    y += lines.length * spacing;
+  }
+
+  doc.setFont(undefined, "bold");
+  addText(`ATS Analysis — ${jobTitle || "Target Position"}`, 16, 8);
+
+  doc.setFont(undefined, "normal");
+  addText(`ATS Score: ${result.atsScore ?? "N/A"}`, 12, 8);
+
+  if (result.scoreExplanation?.length) {
+    doc.setFont(undefined, "bold");
+    addText("Score Explanation", 13, 8);
+
+    doc.setFont(undefined, "normal");
+    result.scoreExplanation.forEach((item) => {
+      addText(`• ${item}`);
+    });
+  }
+
+  if (result.resumeStrengths?.length) {
+    doc.setFont(undefined, "bold");
+    addText("Resume Strengths", 13, 8);
+
+    doc.setFont(undefined, "normal");
+    result.resumeStrengths.forEach((item) => {
+      addText(`• ${item}`);
+    });
+  }
+
+  if (result.missingKeywords?.length) {
+    doc.setFont(undefined, "bold");
+    addText("Missing Keywords", 13, 8);
+
+    doc.setFont(undefined, "normal");
+    result.missingKeywords.forEach((item) => {
+      addText(`• ${item}`);
+    });
+  }
+
+  if (result.resumeSuggestions?.length) {
+    doc.setFont(undefined, "bold");
+    addText("Resume Suggestions", 13, 8);
+
+    doc.setFont(undefined, "normal");
+    result.resumeSuggestions.forEach((item) => {
+      addText(`• ${item}`);
+    });
+  }
+
+  doc.save("ats-analysis-report.pdf");
+}
+
   if (showLanding) {
     return <Landing onStart={() => setShowLanding(false)} />;
   }
@@ -673,10 +733,16 @@ function App() {
 
   return (
     <div className="app">
+      {isOptimizingResume && (
+        <ResumeOptimizationProgress currentStep={optimizationStep} />
+      )}
+      {isBuildingRewritePlan && (
+        <RewritePlanProgress currentStep={rewritePlanStep} />
+      )}
       <WizardHeader
         currentStep={currentStep}
         onBack={() => setCurrentStep((prev) => Math.max(prev - 1, 1))}
-        onReset={handleReset}
+        onReset={handleStartOver}
       />
 
       <main className="container">
@@ -725,7 +791,7 @@ function App() {
 
             <button
               className="secondary-button"
-              onClick={handleReset}
+             onClick={handleStartOver}
               disabled={loading}
             >
               Clear / Start Over
@@ -792,19 +858,21 @@ function App() {
             downloadInterviewPrep={downloadInterviewPrep}
             downloadReport={downloadReport}
             downloadRewrittenResume={downloadRewrittenResume}
-            handleReset={handleReset}
+            handleReset={handleStartOver}
           />
         )}
       </main>
-      {(loading || resumeAnalyzing) && (
-        <div className="loading-overlay">
-          <div className="loading-modal">
-            <div className="spinner"></div>
-            <h2>Working on it...</h2>
-            <p>{loadingMessage}</p>
+      {(loading || resumeAnalyzing) &&
+        !isOptimizingResume &&
+        !isBuildingRewritePlan && (
+          <div className="loading-overlay">
+            <div className="loading-modal">
+              <div className="spinner"></div>
+              <h2>Working on it...</h2>
+              <p>{loadingMessage}</p>
+            </div>
           </div>
-        </div>
-      )}
+        )}
       {toastMessage && <div className="toast">{toastMessage}</div>}
     </div>
   );

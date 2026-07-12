@@ -144,16 +144,358 @@ ${jobDescription}
     });
   }
 });
+
+async function parseResumeForRewrite(resumeText) {
+  const response = await openai.responses.create({
+    model: "gpt-5.5",
+    text: {
+      format: {
+        type: "json_object",
+      },
+    },
+    input: `
+You are a resume data parser.
+
+Convert the resume into structured JSON.
+
+Return ONLY valid JSON in this exact format:
+
+{
+  "name": "",
+  "title": "",
+  "contact": "",
+  "summary": "",
+  "skills": [],
+  "experience": [
+    {
+      "jobTitle": "",
+      "company": "",
+      "dates": "",
+      "bullets": []
+    }
+  ],
+  "education": [],
+  "certifications": []
+}
+
+Rules:
+- Preserve only information found in the resume.
+- Do not rewrite or improve anything yet.
+- Do not invent information.
+- Keep every employer, job title, date, skill, education item, and certification truthful.
+- If a section is missing, use an empty string or empty array.
+- Return JSON only.
+
+Resume:
+${resumeText}
+    `,
+  });
+
+  return JSON.parse(response.output_text);
+}
+
+async function rewriteSummary({
+  originalSummary,
+  resumeData,
+  jobDescription,
+  rewritePlan,
+}) {
+  const response = await openai.responses.create({
+    model: "gpt-5.5",
+    input: `
+You are an expert resume writer.
+
+Rewrite ONLY the professional summary for this candidate.
+
+Approved Rewrite Plan:
+Highest Priority:
+${rewritePlan.highestPriority || "None"}
+
+Planned Improvements:
+${
+  (rewritePlan.plannedImprovements || [])
+    .map((item, index) => `${index + 1}. ${item}`)
+    .join("\n") || "None"
+}
+
+Candidate Information:
+Current Summary or Objective:
+${originalSummary || "None"}
+
+Skills:
+${(resumeData.skills || []).join(", ") || "None"}
+
+Experience:
+${(resumeData.experience || [])
+  .map(
+    (job) =>
+      `${job.jobTitle} at ${job.company}: ${(job.bullets || []).join(" ")}`,
+  )
+  .join("\n")}
+
+Target Job Description:
+${jobDescription}
+
+Rules:
+- Write a targeted professional summary, not an objective statement.
+- Use only information supported by the candidate's resume.
+- Follow the approved Rewrite Plan.
+- Emphasize the most relevant experience, leadership, technical expertise, quality, validation, training, or other strengths when supported.
+- Do not invent metrics, credentials, skills, or experience.
+- Keep it concise: 3 to 5 sentences.
+- Return only the summary text. Do not include a heading.
+    `,
+  });
+
+  return response.output_text.trim();
+}
+
+async function rewriteExperience({ experience, jobDescription, rewritePlan }) {
+  const response = await openai.responses.create({
+    model: "gpt-5.5",
+    text: {
+      format: {
+        type: "json_object",
+      },
+    },
+    input: `
+You are an expert resume writer.
+
+Rewrite ONLY the professional experience section.
+
+Return ONLY valid JSON in this exact format:
+
+{
+  "experience": [
+    {
+      "jobTitle": "",
+      "company": "",
+      "dates": "",
+      "bullets": []
+    }
+  ]
+}
+
+Approved Rewrite Plan:
+
+Highest Priority:
+${rewritePlan.highestPriority || "None"}
+
+Planned Improvements:
+${
+  (rewritePlan.plannedImprovements || [])
+    .map((item, index) => `${index + 1}. ${item}`)
+    .join("\n") || "None"
+}
+
+Candidate Experience (most recent first):
+
+${(experience || [])
+  .map((job, index) => {
+    return `
+Position ${index + 1}
+Job Title: ${job.jobTitle}
+Company: ${job.company}
+Dates: ${job.dates}
+
+Current Bullets:
+${(job.bullets || []).map((b) => `- ${b}`).join("\n")}
+`;
+  })
+  .join("\n-----------------------------\n")}
+
+Target Job Description:
+${jobDescription}
+
+Rules:
+
+GENERAL
+- Preserve every employer, job title, and employment date exactly.
+- Never invent accomplishments, metrics, certifications, tools, or responsibilities.
+- Follow the Rewrite Plan wherever supported.
+
+BULLETS
+- Each bullet should contain one accomplishment or responsibility.
+- Keep each bullet between 12 and 24 words whenever possible.
+- Start every bullet with a strong action verb.
+- Remove filler words.
+- Remove repetitive wording.
+- Focus on measurable responsibilities and impact whenever supported.
+
+PRIORITIZATION
+- Give the most attention to the three most recent jobs.
+- Keep the most recent job between 5 and 7 bullets.
+- Keep the second most recent job between 4 and 6 bullets.
+- Keep the third most recent job between 3 and 5 bullets.
+- Older jobs should generally have 2 to 3 bullets unless a unique accomplishment should be preserved.
+- Reduce repetitive technical details from older positions.
+- Eliminate duplicate responsibilities that appear across multiple jobs.
+- Preserve unique accomplishments.
+
+RELEVANCE
+- Tailor emphasis to the target job without changing the candidate's actual history.
+- Move the most job-relevant responsibilities to the top of each role.
+- Preserve specific tools, systems, regulations, and methods when they strengthen the match.
+- Do not force unsupported job-description keywords into the resume.
+- Prefer concrete responsibilities over generic statements such as "performed duties" or "assisted as needed."
+
+ATS
+- Naturally incorporate supported ATS keywords from the Job Description.
+- Improve readability for recruiters.
+- Keep the resume ATS-friendly.
+
+RETURN
+Return JSON only.
+    `,
+  });
+
+  const parsed = JSON.parse(response.output_text);
+
+  return parsed.experience || [];
+}
+
+async function rewriteSkills({
+  skills,
+  experience,
+  jobDescription,
+  rewritePlan,
+}) {
+  const response = await openai.responses.create({
+    model: "gpt-5.5",
+    text: {
+      format: {
+        type: "json_object",
+      },
+    },
+    input: `
+You are an expert resume writer and ATS specialist.
+
+Rewrite ONLY the skills section.
+
+Return ONLY valid JSON in this exact format:
+
+{
+  "skills": []
+}
+
+Approved Rewrite Plan:
+
+Highest Priority:
+${rewritePlan.highestPriority || "None"}
+
+Planned Improvements:
+${
+  (rewritePlan.plannedImprovements || [])
+    .map((item, index) => `${index + 1}. ${item}`)
+    .join("\n") || "None"
+}
+
+Original Skills:
+${JSON.stringify(skills || [], null, 2)}
+
+Candidate Experience:
+${JSON.stringify(experience || [], null, 2)}
+
+Target Job Description:
+${jobDescription}
+
+Rules:
+- Use only skills supported by the original resume or candidate experience.
+- Do not invent tools, certifications, systems, methods, or qualifications.
+- Prioritize skills relevant to the target job.
+- Include supported ATS keywords from the job description.
+- Remove duplicates and vague filler.
+- Keep skill names concise.
+- Return 8 to 18 strong skills when enough supported skills exist.
+- Return JSON only.
+    `,
+  });
+
+  const parsed = JSON.parse(response.output_text);
+
+  return parsed.skills || [];
+}
+
+function assembleStructuredResume({
+  originalResume,
+  rewrittenSummary,
+  rewrittenExperience,
+  rewrittenSkills,
+}) {
+  return {
+    name: originalResume.name || "",
+    title: originalResume.title || "",
+    contact: originalResume.contact || "",
+    summary: rewrittenSummary || "",
+    skills: rewrittenSkills || [],
+    experience: rewrittenExperience || [],
+    education: originalResume.education || [],
+    certifications: originalResume.certifications || [],
+  };
+}
+
+function structuredResumeToPlainText(resume) {
+  const sections = [];
+
+  if (resume.name) {
+    sections.push(resume.name);
+  }
+
+  if (resume.title) {
+    sections.push(resume.title);
+  }
+
+  if (resume.contact) {
+    sections.push(resume.contact);
+  }
+
+  if (resume.summary) {
+    sections.push(`PROFESSIONAL SUMMARY\n${resume.summary}`);
+  }
+
+  if (resume.skills?.length) {
+    sections.push(`SKILLS\n${resume.skills.join(" • ")}`);
+  }
+
+  if (resume.experience?.length) {
+    const experienceText = resume.experience
+      .map((job) => {
+        const heading = [job.jobTitle, job.company, job.dates]
+          .filter(Boolean)
+          .join(" | ");
+
+        const bullets = (job.bullets || [])
+          .map((bullet) => `• ${bullet}`)
+          .join("\n");
+
+        return `${heading}\n${bullets}`.trim();
+      })
+      .join("\n\n");
+
+    sections.push(`PROFESSIONAL EXPERIENCE\n${experienceText}`);
+  }
+
+  if (resume.education?.length) {
+    sections.push(`EDUCATION\n${resume.education.join("\n")}`);
+  }
+
+  if (resume.certifications?.length) {
+    sections.push(`CERTIFICATIONS\n${resume.certifications.join("\n")}`);
+  }
+
+  return sections.filter(Boolean).join("\n\n");
+}
+
 app.post("/rewrite", upload.single("resume"), async (req, res) => {
   try {
-    let { resumeText, jobDescription, resumeInsights } = req.body;
+    let { resumeText, jobDescription, rewritePlan } = req.body;
 
-    let insights = {};
+    let plan = {};
 
     try {
-      insights = JSON.parse(resumeInsights || "{}");
+      plan = JSON.parse(rewritePlan || "{}");
     } catch {
-      insights = {};
+      plan = {};
     }
 
     if (req.file) {
@@ -177,71 +519,40 @@ app.post("/rewrite", upload.single("resume"), async (req, res) => {
       });
     }
 
-    const response = await openai.responses.create({
-      model: "gpt-5.5",
-      input: `
-You are an expert resume writer and ATS optimization specialist.
+    const originalResume = await parseResumeForRewrite(resumeText);
 
-Your job is to rewrite the resume so it better matches the target job description.
-
-The resume has already been analyzed by an AI recruiter.
-
-Use the Resume Insights below to guide your rewrite.
-
-Your goal is to directly address the weaknesses and improvements identified while preserving the candidate's real experience.
-
-Rules:
-
-Priority 1:
-- Fix the Biggest Weakness identified in the Resume Analysis.
-
-Priority 2:
-- Apply each of the Top Improvements throughout the resume whenever supported by the candidate's real experience.
-
-Priority 3:
-- Improve ATS keyword matching using relevant terms from the Job Description.
-
-Priority 4:
-- Improve wording, readability, and professionalism.
-- Use strong action verbs.
-- Rewrite bullet points to emphasize accomplishments and impact.
-- Keep the resume concise and easy to scan.
-
-Important:
-- Never invent skills, experience, certifications, companies, dates, or accomplishments.
-- If a recommended improvement cannot be made because the experience does not exist, skip it rather than fabricate information.
-- Preserve the candidate's overall career history.
-- Return only the rewritten resume in plain text.
-
-Resume:
-${resumeText}
-
-Job Description:
-${jobDescription}
-
-Resume Analysis
-
-Overall Impression:
-${insights.overallImpression || "None"}
-
-Biggest Weakness:
-${insights.biggestWeakness?.description || "None"}
-
-Top Improvements:
-
-1.
-${insights.topImprovements?.[0]?.description || "None"}
-
-2.
-${insights.topImprovements?.[1]?.description || "None"}
-
-3.
-${insights.topImprovements?.[2]?.description || "None"}
-`,
+    const rewrittenSummary = await rewriteSummary({
+      originalSummary: originalResume.summary,
+      resumeData: originalResume,
+      jobDescription,
+      rewritePlan: plan,
     });
 
+    const rewrittenExperience = await rewriteExperience({
+      experience: originalResume.experience,
+      jobDescription,
+      rewritePlan: plan,
+    });
+
+    const rewrittenSkills = await rewriteSkills({
+      skills: originalResume.skills,
+      experience: originalResume.experience,
+      jobDescription,
+      rewritePlan: plan,
+    });
+
+    const structuredResume = assembleStructuredResume({
+      originalResume,
+      rewrittenSummary,
+      rewrittenExperience,
+      rewrittenSkills,
+    });
+
+    const rewrittenResume = structuredResumeToPlainText(structuredResume);
+
     res.json({
-      rewrittenResume: response.output_text,
+      rewrittenResume,
+      structuredResume,
     });
   } catch (error) {
     console.error(error);
