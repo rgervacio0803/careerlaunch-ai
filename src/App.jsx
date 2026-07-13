@@ -25,6 +25,7 @@ import AIRewritePlan from "./components/AIRewritePlan";
 import useResume from "./hooks/useResume";
 import ResumeOptimizationProgress from "./components/ResumeOptimizationProgress";
 import RewritePlanProgress from "./components/RewritePlanProgress";
+import ResumeOptimizationComplete from "./components/ResumeOptimizationComplete";
 
 function App() {
   const resume = useResume();
@@ -67,6 +68,8 @@ function App() {
   const [rewritePlan, setRewritePlan] = useState(null);
   const [isOptimizingResume, setIsOptimizingResume] = useState(false);
   const [optimizationStep, setOptimizationStep] = useState(0);
+  const [showOptimizationComplete, setShowOptimizationComplete] =
+    useState(false);
   const [isBuildingRewritePlan, setIsBuildingRewritePlan] = useState(false);
   const [rewritePlanStep, setRewritePlanStep] = useState(0);
   const resumePreviewRef = useRef(null);
@@ -266,6 +269,12 @@ function App() {
       setRewrittenResume(data.rewrittenResume);
       setStructuredResume(data.structuredResume);
       setSelectedTemplate(recommendation.template.toLowerCase());
+
+      setShowOptimizationComplete(true);
+
+      await new Promise((resolve) => setTimeout(resolve, 1200));
+
+      setShowOptimizationComplete(false);
       setCurrentStep(6);
     } catch (error) {
       console.error(error);
@@ -273,8 +282,6 @@ function App() {
     } finally {
       clearInterval(progressTimer);
       setOptimizationStep(4);
-
-      await new Promise((resolve) => setTimeout(resolve, 700));
 
       setLoading(false);
       setIsOptimizingResume(false);
@@ -582,113 +589,113 @@ function App() {
   }
 
   function handleStartOver() {
-  resetResumeState();
+    resetResumeState();
 
-  setError("");
-  setToastMessage("");
-  setLoading(false);
-  setLoadingMessage("");
+    setError("");
+    setToastMessage("");
+    setLoading(false);
+    setLoadingMessage("");
 
-  setCurrentStep(1);
-  setSelectedTemplate("modern");
+    setCurrentStep(1);
+    setSelectedTemplate("modern");
 
-  setResumeInsights(null);
-  setRewritePlan(null);
+    setResumeInsights(null);
+    setRewritePlan(null);
 
-  setIsOptimizingResume(false);
-  setOptimizationStep(0);
+    setIsOptimizingResume(false);
+    setOptimizationStep(0);
 
-  setIsBuildingRewritePlan(false);
-  setRewritePlanStep(0);
-}
-
-async function copyToClipboard(text) {
-  if (!text) return;
-
-  try {
-    await navigator.clipboard.writeText(text);
-
-    setToastMessage("Copied to clipboard!");
-
-    setTimeout(() => {
-      setToastMessage("");
-    }, 2500);
-  } catch (error) {
-    console.error("Copy failed:", error);
-    setError("Unable to copy to clipboard.");
+    setIsBuildingRewritePlan(false);
+    setRewritePlanStep(0);
   }
-}
 
-function downloadReport() {
-  if (!result) return;
+  async function copyToClipboard(text) {
+    if (!text) return;
 
-  const doc = new jsPDF();
-  const margin = 20;
-  const maxWidth = 170;
-  let y = 20;
+    try {
+      await navigator.clipboard.writeText(text);
 
-  function addText(text, fontSize = 10, spacing = 7) {
-    doc.setFontSize(fontSize);
+      setToastMessage("Copied to clipboard!");
 
-    const lines = doc.splitTextToSize(String(text), maxWidth);
+      setTimeout(() => {
+        setToastMessage("");
+      }, 2500);
+    } catch (error) {
+      console.error("Copy failed:", error);
+      setError("Unable to copy to clipboard.");
+    }
+  }
 
-    if (y + lines.length * spacing > 280) {
-      doc.addPage();
-      y = 20;
+  function downloadReport() {
+    if (!result) return;
+
+    const doc = new jsPDF();
+    const margin = 20;
+    const maxWidth = 170;
+    let y = 20;
+
+    function addText(text, fontSize = 10, spacing = 7) {
+      doc.setFontSize(fontSize);
+
+      const lines = doc.splitTextToSize(String(text), maxWidth);
+
+      if (y + lines.length * spacing > 280) {
+        doc.addPage();
+        y = 20;
+      }
+
+      doc.text(lines, margin, y);
+      y += lines.length * spacing;
     }
 
-    doc.text(lines, margin, y);
-    y += lines.length * spacing;
-  }
-
-  doc.setFont(undefined, "bold");
-  addText(`ATS Analysis — ${jobTitle || "Target Position"}`, 16, 8);
-
-  doc.setFont(undefined, "normal");
-  addText(`ATS Score: ${result.atsScore ?? "N/A"}`, 12, 8);
-
-  if (result.scoreExplanation?.length) {
     doc.setFont(undefined, "bold");
-    addText("Score Explanation", 13, 8);
+    addText(`ATS Analysis — ${jobTitle || "Target Position"}`, 16, 8);
 
     doc.setFont(undefined, "normal");
-    result.scoreExplanation.forEach((item) => {
-      addText(`• ${item}`);
-    });
+    addText(`ATS Score: ${result.atsScore ?? "N/A"}`, 12, 8);
+
+    if (result.scoreExplanation?.length) {
+      doc.setFont(undefined, "bold");
+      addText("Score Explanation", 13, 8);
+
+      doc.setFont(undefined, "normal");
+      result.scoreExplanation.forEach((item) => {
+        addText(`• ${item}`);
+      });
+    }
+
+    if (result.resumeStrengths?.length) {
+      doc.setFont(undefined, "bold");
+      addText("Resume Strengths", 13, 8);
+
+      doc.setFont(undefined, "normal");
+      result.resumeStrengths.forEach((item) => {
+        addText(`• ${item}`);
+      });
+    }
+
+    if (result.missingKeywords?.length) {
+      doc.setFont(undefined, "bold");
+      addText("Missing Keywords", 13, 8);
+
+      doc.setFont(undefined, "normal");
+      result.missingKeywords.forEach((item) => {
+        addText(`• ${item}`);
+      });
+    }
+
+    if (result.resumeSuggestions?.length) {
+      doc.setFont(undefined, "bold");
+      addText("Resume Suggestions", 13, 8);
+
+      doc.setFont(undefined, "normal");
+      result.resumeSuggestions.forEach((item) => {
+        addText(`• ${item}`);
+      });
+    }
+
+    doc.save("ats-analysis-report.pdf");
   }
-
-  if (result.resumeStrengths?.length) {
-    doc.setFont(undefined, "bold");
-    addText("Resume Strengths", 13, 8);
-
-    doc.setFont(undefined, "normal");
-    result.resumeStrengths.forEach((item) => {
-      addText(`• ${item}`);
-    });
-  }
-
-  if (result.missingKeywords?.length) {
-    doc.setFont(undefined, "bold");
-    addText("Missing Keywords", 13, 8);
-
-    doc.setFont(undefined, "normal");
-    result.missingKeywords.forEach((item) => {
-      addText(`• ${item}`);
-    });
-  }
-
-  if (result.resumeSuggestions?.length) {
-    doc.setFont(undefined, "bold");
-    addText("Resume Suggestions", 13, 8);
-
-    doc.setFont(undefined, "normal");
-    result.resumeSuggestions.forEach((item) => {
-      addText(`• ${item}`);
-    });
-  }
-
-  doc.save("ats-analysis-report.pdf");
-}
 
   if (showLanding) {
     return <Landing onStart={() => setShowLanding(false)} />;
@@ -736,6 +743,7 @@ function downloadReport() {
       {isOptimizingResume && (
         <ResumeOptimizationProgress currentStep={optimizationStep} />
       )}
+      {showOptimizationComplete && <ResumeOptimizationComplete />}
       {isBuildingRewritePlan && (
         <RewritePlanProgress currentStep={rewritePlanStep} />
       )}
@@ -791,7 +799,7 @@ function downloadReport() {
 
             <button
               className="secondary-button"
-             onClick={handleStartOver}
+              onClick={handleStartOver}
               disabled={loading}
             >
               Clear / Start Over

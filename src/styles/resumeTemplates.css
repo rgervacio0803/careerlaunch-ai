@@ -469,7 +469,7 @@
   text-align: left;
   position: relative;
   transition: all 0.3s ease;
-cursor: pointer;
+  cursor: pointer;
 }
 
 .template-gallery-card:hover {
@@ -560,11 +560,11 @@ cursor: pointer;
   margin: 0;
 }
 
-.recommended-template-name{
-    margin:8px 0 14px;
-    font-size:36px;
-    font-weight:800;
-    color:#2563eb;
+.recommended-template-name {
+  margin: 8px 0 14px;
+  font-size: 36px;
+  font-weight: 800;
+  color: #2563eb;
 }
 
 .ai-recommended-badge {
@@ -595,4 +595,171 @@ cursor: pointer;
   border-radius: 999px;
   font-size: 13px;
   font-weight: 700;
+}
+
+.executive-elite-resume {
+  width: 100%;
+  min-height: 1120px;
+  padding: 54px;
+  background: #ffffff;
+  color: #1f2937;
+  font-family: Arial, Helvetica, sans-serif;
+  box-sizing: border-box;
+}
+
+.executive-elite-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 28px;
+  align-items: flex-start;
+  padding-bottom: 24px;
+  border-bottom: 3px solid #1e3a5f;
+}
+
+.executive-elite-header h1 {
+  margin: 0;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 30px;
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: 0.02em;
+  color: #12263f;
+}
+
+.executive-elite-header p {
+  margin: 9px 0 0;
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #8a6a2f;
+}
+
+.executive-elite-contact {
+  max-width: 230px;
+  text-align: right;
+  font-size: 12px;
+  line-height: 1.6;
+  color: #52606d;
+}
+
+.executive-elite-section {
+  margin-top: 28px;
+}
+
+.executive-elite-section h2 {
+  margin: 0 0 14px;
+  padding-bottom: 7px;
+  border-bottom: 1px solid #cbd5e1;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 17px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #1e3a5f;
+}
+
+.executive-elite-section > p {
+  margin: 0 0 12px;
+  font-size: 15px;
+  line-height: 1.75;
+}
+
+.executive-elite-skills {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 9px 18px;
+}
+
+.executive-elite-skills span {
+  position: relative;
+  padding-left: 13px;
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.executive-elite-skills span::before {
+  content: "";
+  position: absolute;
+  top: 7px;
+  left: 0;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #b38a45;
+}
+
+.executive-elite-job {
+  margin-bottom: 23px;
+}
+
+.executive-elite-job-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 22px;
+  align-items: flex-start;
+  margin-bottom: 8px;
+}
+
+.executive-elite-job-header h3 {
+  margin: 0;
+  font-size: 17px;
+  color: #172033;
+}
+
+.executive-elite-job-header p {
+  margin: 4px 0 0;
+  font-size: 15px;
+  font-weight: 700;
+  color: #8a6a2f;
+}
+
+.executive-elite-job-header > span {
+  flex-shrink: 0;
+  font-size: 14px;
+  font-weight: 700;
+  color: #64748b;
+}
+
+.executive-elite-job ul {
+  margin: 0;
+  padding-left: 20px;
+}
+
+.executive-elite-job li {
+  margin-bottom: 10px;
+  font-size: 15px;
+  line-height: 1.7;
+}
+
+@media (max-width: 700px) {
+  .executive-elite-resume {
+    padding: 32px 24px;
+  }
+
+  .executive-elite-header,
+  .executive-elite-job-header {
+    flex-direction: column;
+  }
+
+  .executive-elite-contact {
+    max-width: none;
+    text-align: left;
+  }
+
+  .executive-elite-skills {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.template-thumbnail .executive-elite-resume {
+  width: 794px;
+  min-width: 794px;
+  min-height: 1120px;
+  transform: scale(0.29);
+  transform-origin: top left;
+}
+
+.template-thumbnail:has(.executive-elite-resume) {
+  height: 325px;
+  overflow: hidden;
 }

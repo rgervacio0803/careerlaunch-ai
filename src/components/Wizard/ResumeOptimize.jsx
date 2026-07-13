@@ -3,6 +3,7 @@ import ProfessionalResume from "../ResumeTemplates/ProfessionalResume";
 import MinimalResume from "../ResumeTemplates/MinimalResume";
 import ExecutiveResume from "../ResumeTemplates/ExecutiveResume";
 import TechResume from "../ResumeTemplates/TechResume";
+import ExecutiveEliteResume from "../ResumeTemplates/ExecutiveEliteResume";
 
 function ResumeOptimize({
   rewrittenResume,
@@ -147,6 +148,31 @@ function ResumeOptimize({
 
                 <p>Leadership and executive style</p>
               </button>
+              <button
+                className={
+                  selectedTemplate === "executive-elite"
+                    ? "template-gallery-card active"
+                    : "template-gallery-card"
+                }
+                onClick={() => setSelectedTemplate("executive-elite")}
+              >
+                <div className="template-thumbnail">
+                  <ExecutiveEliteResume resume={structuredResume} />
+                </div>
+
+                <strong>Executive Elite</strong>
+
+                {recommendation.template.toLowerCase() ===
+                  "executive elite" && (
+                  <div className="ai-recommended-badge">⭐ AI Recommended</div>
+                )}
+
+                {selectedTemplate === "executive-elite" && (
+                  <div className="selected-template-badge">✓ Selected</div>
+                )}
+
+                <p>Leadership-focused premium layout</p>
+              </button>
 
               <button
                 className={
@@ -215,6 +241,10 @@ function ResumeOptimize({
 
               {selectedTemplate === "executive" && (
                 <ExecutiveResume resume={structuredResume} />
+              )}
+
+              {selectedTemplate === "executive-elite" && (
+                <ExecutiveEliteResume resume={structuredResume} />
               )}
 
               {selectedTemplate === "tech" && (
