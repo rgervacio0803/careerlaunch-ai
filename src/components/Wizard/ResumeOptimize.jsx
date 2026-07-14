@@ -5,6 +5,51 @@ import ExecutiveResume from "../ResumeTemplates/ExecutiveResume";
 import TechResume from "../ResumeTemplates/TechResume";
 import ExecutiveEliteResume from "../ResumeTemplates/ExecutiveEliteResume";
 
+const templateOptions = [
+  {
+    id: "executive-elite",
+    name: "Executive Elite",
+    description: "Leadership-focused premium layout",
+    bestFor: "Management, healthcare, and senior professionals",
+    component: ExecutiveEliteResume,
+  },
+  {
+    id: "modern",
+    name: "Modern",
+    description: "Clean blue-accent layout",
+    bestFor: "General professional roles",
+    component: ModernResume,
+  },
+  {
+    id: "professional",
+    name: "Professional",
+    description: "Classic corporate style",
+    bestFor: "Business and corporate roles",
+    component: ProfessionalResume,
+  },
+  {
+    id: "minimal",
+    name: "Minimal",
+    description: "Simple and elegant",
+    bestFor: "ATS-friendly applications",
+    component: MinimalResume,
+  },
+  {
+    id: "executive",
+    name: "Executive",
+    description: "Leadership and executive style",
+    bestFor: "Managers and directors",
+    component: ExecutiveResume,
+  },
+  {
+    id: "tech",
+    name: "Tech",
+    description: "Developer-focused skills layout",
+    bestFor: "Software, IT, and engineering",
+    component: TechResume,
+  },
+];
+
 function ResumeOptimize({
   rewrittenResume,
   structuredResume,
@@ -74,186 +119,79 @@ function ResumeOptimize({
               </div>
             </div>
             <div className="template-gallery-grid">
-              <button
-                className={
-                  selectedTemplate === "modern"
-                    ? "template-gallery-card active"
-                    : "template-gallery-card"
-                }
-                onClick={() => setSelectedTemplate("modern")}
-              >
-                <div className="template-thumbnail">
-                  <ModernResume resume={structuredResume} />
-                </div>
+              {templateOptions.map((template) => {
+                const TemplateComponent = template.component;
+                const isSelected = selectedTemplate === template.id;
 
-                <strong>Modern</strong>
+                const recommendedId = recommendation.template
+                  .toLowerCase()
+                  .replaceAll(" ", "-");
 
-                {recommendation.template.toLowerCase() === "modern" && (
-                  <div className="ai-recommended-badge">⭐ AI Recommended</div>
-                )}
+                const isRecommended = recommendedId === template.id;
 
-                {selectedTemplate === "modern" && (
-                  <div className="selected-template-badge">✓ Selected</div>
-                )}
+                return (
+                  <button
+                    key={template.id}
+                    className={
+                      isSelected
+                        ? "template-gallery-card active"
+                        : "template-gallery-card"
+                    }
+                    onClick={() => setSelectedTemplate(template.id)}
+                  >
+                    <div
+                      className={`template-thumbnail ${
+                        template.id === "executive-elite"
+                          ? "executive-elite-thumbnail"
+                          : ""
+                      }`}
+                    >
+                      <TemplateComponent resume={structuredResume} />
+                    </div>
 
-                <p>Clean blue-accent layout</p>
-              </button>
+                    <strong>{template.name}</strong>
 
-              <button
-                className={
-                  selectedTemplate === "professional"
-                    ? "template-gallery-card active"
-                    : "template-gallery-card"
-                }
-                onClick={() => setSelectedTemplate("professional")}
-              >
-                <div className="template-thumbnail">
-                  <ProfessionalResume resume={structuredResume} />
-                </div>
+                    <div className="template-badges">
+                      {isRecommended && (
+                        <div className="ai-recommended-badge">
+                          ⭐ AI Recommended
+                        </div>
+                      )}
 
-                <strong>Professional</strong>
+                      {isSelected && (
+                        <div className="selected-template-badge">
+                          ✓ Selected
+                        </div>
+                      )}
+                    </div>
 
-                {recommendation.template.toLowerCase() === "professional" && (
-                  <div className="ai-recommended-badge">⭐ AI Recommended</div>
-                )}
-
-                {selectedTemplate === "professional" && (
-                  <div className="selected-template-badge">✓ Selected</div>
-                )}
-
-                <p>Classic corporate style</p>
-              </button>
-
-              <button
-                className={
-                  selectedTemplate === "executive"
-                    ? "template-gallery-card active"
-                    : "template-gallery-card"
-                }
-                onClick={() => setSelectedTemplate("executive")}
-              >
-                <div className="template-thumbnail">
-                  <ExecutiveResume resume={structuredResume} />
-                </div>
-
-                <strong>Executive</strong>
-
-                {recommendation.template.toLowerCase() === "executive" && (
-                  <div className="ai-recommended-badge">⭐ AI Recommended</div>
-                )}
-
-                {selectedTemplate === "executive" && (
-                  <div className="selected-template-badge">✓ Selected</div>
-                )}
-
-                <p>Leadership and executive style</p>
-              </button>
-              <button
-                className={
-                  selectedTemplate === "executive-elite"
-                    ? "template-gallery-card active"
-                    : "template-gallery-card"
-                }
-                onClick={() => setSelectedTemplate("executive-elite")}
-              >
-                <div className="template-thumbnail">
-                  <ExecutiveEliteResume resume={structuredResume} />
-                </div>
-
-                <strong>Executive Elite</strong>
-
-                {recommendation.template.toLowerCase() ===
-                  "executive elite" && (
-                  <div className="ai-recommended-badge">⭐ AI Recommended</div>
-                )}
-
-                {selectedTemplate === "executive-elite" && (
-                  <div className="selected-template-badge">✓ Selected</div>
-                )}
-
-                <p>Leadership-focused premium layout</p>
-              </button>
-
-              <button
-                className={
-                  selectedTemplate === "tech"
-                    ? "template-gallery-card active"
-                    : "template-gallery-card"
-                }
-                onClick={() => setSelectedTemplate("tech")}
-              >
-                <div className="template-thumbnail">
-                  <TechResume resume={structuredResume} />
-                </div>
-
-                <strong>Tech</strong>
-
-                {recommendation.template.toLowerCase() === "tech" && (
-                  <div className="ai-recommended-badge">⭐ AI Recommended</div>
-                )}
-
-                {selectedTemplate === "tech" && (
-                  <div className="selected-template-badge">✓ Selected</div>
-                )}
-
-                <p>Developer-focused skills layout</p>
-              </button>
-
-              <button
-                className={
-                  selectedTemplate === "minimal"
-                    ? "template-gallery-card active"
-                    : "template-gallery-card"
-                }
-                onClick={() => setSelectedTemplate("minimal")}
-              >
-                <div className="template-thumbnail">
-                  <MinimalResume resume={structuredResume} />
-                </div>
-
-                <strong>Minimal</strong>
-
-                {recommendation.template.toLowerCase() === "minimal" && (
-                  <div className="ai-recommended-badge">⭐ AI Recommended</div>
-                )}
-
-                {selectedTemplate === "minimal" && (
-                  <div className="selected-template-badge">✓ Selected</div>
-                )}
-
-                <p>Simple and elegant</p>
-              </button>
+                    <p>{template.description}</p>
+                    <small className="template-best-for">
+                      Best for: {template.bestFor}
+                    </small>
+                  </button>
+                );
+              })}
             </div>
 
             <h3>
-              {selectedTemplate.charAt(0).toUpperCase() +
-                selectedTemplate.slice(1)}{" "}
-              Resume Preview
+              {templateOptions.find(
+                (template) => template.id === selectedTemplate,
+              )?.name || "Resume"}{" "}
+              Preview
             </h3>
             <div ref={resumePreviewRef} className="pdf-capture-area">
-              {selectedTemplate === "modern" && (
-                <ModernResume resume={structuredResume} />
-              )}
+              {(() => {
+                const selectedOption = templateOptions.find(
+                  (template) => template.id === selectedTemplate,
+                );
 
-              {selectedTemplate === "professional" && (
-                <ProfessionalResume resume={structuredResume} />
-              )}
+                if (!selectedOption) return null;
 
-              {selectedTemplate === "executive" && (
-                <ExecutiveResume resume={structuredResume} />
-              )}
+                const SelectedTemplateComponent = selectedOption.component;
 
-              {selectedTemplate === "executive-elite" && (
-                <ExecutiveEliteResume resume={structuredResume} />
-              )}
-
-              {selectedTemplate === "tech" && (
-                <TechResume resume={structuredResume} />
-              )}
-
-              {selectedTemplate === "minimal" && (
-                <MinimalResume resume={structuredResume} />
-              )}
+                return <SelectedTemplateComponent resume={structuredResume} />;
+              })()}
             </div>
           </div>
         )}

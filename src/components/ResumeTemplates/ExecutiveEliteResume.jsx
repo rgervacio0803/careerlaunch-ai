@@ -1,62 +1,40 @@
+import ResumeHeader from "../ResumeSections/ResumeHeader";
+import ResumeSummary from "../ResumeSections/ResumeSummary";
+import ResumeExperience from "../ResumeSections/ResumeExperience";
+import ResumeSkills from "../ResumeSections/ResumeSkills";
+
 function ExecutiveEliteResume({ resume }) {
   if (!resume) return null;
 
   return (
     <div className="executive-elite-resume">
-      <header className="executive-elite-header">
-        <div>
-          <h1>{resume.name || "Candidate Name"}</h1>
-          <p>{resume.title || "Executive Professional"}</p>
-        </div>
+      <ResumeHeader
+        name={resume.name}
+        title={resume.title}
+        contact={resume.contact}
+        className="executive-elite-header"
+      />
 
-        {resume.contact && (
-          <div className="executive-elite-contact">{resume.contact}</div>
-        )}
-      </header>
+      <ResumeSummary
+        summary={resume.summary}
+        heading="Executive Profile"
+        className="executive-elite-section"
+      />
 
-      {resume.summary && (
-        <section className="executive-elite-section">
-          <h2>Executive Profile</h2>
-          <p>{resume.summary}</p>
-        </section>
-      )}
+      <ResumeSkills
+        skills={resume.skills}
+        heading="Core Competencies"
+        className="executive-elite-section"
+        listClass="executive-elite-skills"
+      />
 
-      {resume.skills?.length > 0 && (
-        <section className="executive-elite-section">
-          <h2>Core Competencies</h2>
-
-          <div className="executive-elite-skills">
-            {resume.skills.map((skill, index) => (
-              <span key={index}>{skill}</span>
-            ))}
-          </div>
-        </section>
-      )}
-
-      {resume.experience?.length > 0 && (
-        <section className="executive-elite-section">
-          <h2>Professional Experience</h2>
-
-          {resume.experience.map((job, index) => (
-            <article key={index} className="executive-elite-job">
-              <div className="executive-elite-job-header">
-                <div>
-                  <h3>{job.jobTitle}</h3>
-                  <p>{job.company}</p>
-                </div>
-
-                <span>{job.dates}</span>
-              </div>
-
-              <ul>
-                {job.bullets?.map((bullet, bulletIndex) => (
-                  <li key={bulletIndex}>{bullet}</li>
-                ))}
-              </ul>
-            </article>
-          ))}
-        </section>
-      )}
+      <ResumeExperience
+        experience={resume.experience}
+        heading="Professional Experience"
+        className="executive-elite-section"
+        jobClass="executive-elite-job"
+        headerClass="executive-elite-job-header"
+      />
 
       {resume.education?.length > 0 && (
         <section className="executive-elite-section">
