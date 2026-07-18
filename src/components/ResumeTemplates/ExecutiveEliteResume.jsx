@@ -1,13 +1,16 @@
+import ResumePage from "./ResumePage";
 import ResumeHeader from "../ResumeSections/ResumeHeader";
 import ResumeSummary from "../ResumeSections/ResumeSummary";
 import ResumeExperience from "../ResumeSections/ResumeExperience";
 import ResumeSkills from "../ResumeSections/ResumeSkills";
+import ResumeEducation from "../ResumeSections/ResumeEducation";
+import ResumeCertifications from "../ResumeSections/ResumeCertifications";
 
 function ExecutiveEliteResume({ resume }) {
   if (!resume) return null;
 
   return (
-    <div className="executive-elite-resume">
+    <ResumePage className="executive-elite-resume">
       <ResumeHeader
         name={resume.name}
         title={resume.title}
@@ -36,26 +39,17 @@ function ExecutiveEliteResume({ resume }) {
         headerClass="executive-elite-job-header"
       />
 
-      {resume.education?.length > 0 && (
-        <section className="executive-elite-section">
-          <h2>Education</h2>
-
-          {resume.education.map((item, index) => (
-            <p key={index}>{item}</p>
-          ))}
-        </section>
-      )}
-
-      {resume.certifications?.length > 0 && (
-        <section className="executive-elite-section">
-          <h2>Certifications</h2>
-
-          {resume.certifications.map((item, index) => (
-            <p key={index}>{item}</p>
-          ))}
-        </section>
-      )}
-    </div>
+      <ResumeEducation
+        education={resume.education}
+        heading="Education"
+        className="executive-elite-section"
+      />
+      <ResumeCertifications
+        certifications={resume.certifications}
+        heading="Certifications"
+        className="executive-elite-section"
+      />
+    </ResumePage>
   );
 }
 

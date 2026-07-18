@@ -1,8 +1,10 @@
+import ResumePage from "./ResumePage";
+
 function TechResume({ resume }) {
   if (!resume) return null;
 
   return (
-    <div className="tech-resume-paper">
+    <ResumePage className="tech-resume-paper">
       <header className="tech-header">
         <div>
           <h1>{resume.name || "Candidate Name"}</h1>
@@ -44,6 +46,7 @@ function TechResume({ resume }) {
                   <h3>{job.jobTitle}</h3>
                   <p>{job.company}</p>
                 </div>
+
                 <span>{job.dates}</span>
               </div>
 
@@ -63,7 +66,7 @@ function TechResume({ resume }) {
           <p>{resume.education.join(" • ")}</p>
         </section>
       )}
-    </div>
+    </ResumePage>
   );
 }
 

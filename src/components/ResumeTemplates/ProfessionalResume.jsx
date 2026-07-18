@@ -1,8 +1,10 @@
-function ProfessionalResume({ resume }) {
+ import ResumePage from "./ResumePage";
+ 
+ function ProfessionalResume({ resume }) {
   if (!resume) return null;
 
   return (
-    <div className="professional-resume-paper">
+    <ResumePage className="professional-resume-paper">
       <header className="professional-resume-header">
         <h1>{resume.name || "Candidate Name"}</h1>
         <p>{resume.title || "Target Role"}</p>
@@ -57,7 +59,7 @@ function ProfessionalResume({ resume }) {
           </ul>
         </section>
       )}
-    </div>
+   </ResumePage>
   );
 }
 

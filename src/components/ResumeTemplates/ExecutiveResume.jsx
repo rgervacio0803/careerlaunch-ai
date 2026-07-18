@@ -1,8 +1,10 @@
+import ResumePage from "./ResumePage";
+
 function ExecutiveResume({ resume }) {
   if (!resume) return null;
 
   return (
-    <div className="executive-resume-paper">
+    <ResumePage className="executive-resume-paper">
       <header className="executive-header">
         <div>
           <h1>{resume.name || "Candidate Name"}</h1>
@@ -22,6 +24,7 @@ function ExecutiveResume({ resume }) {
       {resume.skills?.length > 0 && (
         <section className="executive-section">
           <h2>Leadership Strengths</h2>
+
           <div className="executive-skill-grid">
             {resume.skills.map((skill, index) => (
               <span key={index}>{skill}</span>
@@ -41,6 +44,7 @@ function ExecutiveResume({ resume }) {
                   <h3>{job.jobTitle}</h3>
                   <p>{job.company}</p>
                 </div>
+
                 <span>{job.dates}</span>
               </div>
 
@@ -67,7 +71,7 @@ function ExecutiveResume({ resume }) {
           <p>{resume.certifications.join(" • ")}</p>
         </section>
       )}
-    </div>
+    </ResumePage>
   );
 }
 

@@ -1,8 +1,10 @@
+import ResumePage from "./ResumePage";
+
 function MinimalResume({ resume }) {
   if (!resume) return null;
 
   return (
-    <div className="minimal-resume-paper">
+    <ResumePage className="minimal-resume-paper">
       <header className="minimal-resume-header">
         <h1>{resume.name || "Candidate Name"}</h1>
         <p>{resume.title || "Target Role"}</p>
@@ -50,7 +52,7 @@ function MinimalResume({ resume }) {
           <p>{resume.education.join(" / ")}</p>
         </section>
       )}
-    </div>
+    </ResumePage>
   );
 }
 

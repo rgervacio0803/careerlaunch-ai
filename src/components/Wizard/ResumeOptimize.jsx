@@ -4,6 +4,9 @@ import MinimalResume from "../ResumeTemplates/MinimalResume";
 import ExecutiveResume from "../ResumeTemplates/ExecutiveResume";
 import TechResume from "../ResumeTemplates/TechResume";
 import ExecutiveEliteResume from "../ResumeTemplates/ExecutiveEliteResume";
+import ExecutiveBlueResume from "../ResumeTemplates/ExecutiveBlueResume";
+import ResumeThumbnail from "../ResumeTemplates/ResumeThumbnail";
+import TemplateCard from "../ResumeTemplates/TemplateCard";
 
 const templateOptions = [
   {
@@ -12,6 +15,13 @@ const templateOptions = [
     description: "Leadership-focused premium layout",
     bestFor: "Management, healthcare, and senior professionals",
     component: ExecutiveEliteResume,
+  },
+  {
+    id: "executive-blue",
+    name: "Executive Blue",
+    description: "Modern blue sidebar layout",
+    bestFor: "Corporate leadership and senior professionals",
+    component: ExecutiveBlueResume,
   },
   {
     id: "modern",
@@ -130,46 +140,17 @@ function ResumeOptimize({
                 const isRecommended = recommendedId === template.id;
 
                 return (
-                  <button
+                  <TemplateCard
                     key={template.id}
-                    className={
-                      isSelected
-                        ? "template-gallery-card active"
-                        : "template-gallery-card"
-                    }
-                    onClick={() => setSelectedTemplate(template.id)}
+                    template={template}
+                    isSelected={isSelected}
+                    isRecommended={isRecommended}
+                    onSelect={() => setSelectedTemplate(template.id)}
                   >
-                    <div
-                      className={`template-thumbnail ${
-                        template.id === "executive-elite"
-                          ? "executive-elite-thumbnail"
-                          : ""
-                      }`}
-                    >
+                    <ResumeThumbnail>
                       <TemplateComponent resume={structuredResume} />
-                    </div>
-
-                    <strong>{template.name}</strong>
-
-                    <div className="template-badges">
-                      {isRecommended && (
-                        <div className="ai-recommended-badge">
-                          ⭐ AI Recommended
-                        </div>
-                      )}
-
-                      {isSelected && (
-                        <div className="selected-template-badge">
-                          ✓ Selected
-                        </div>
-                      )}
-                    </div>
-
-                    <p>{template.description}</p>
-                    <small className="template-best-for">
-                      Best for: {template.bestFor}
-                    </small>
-                  </button>
+                    </ResumeThumbnail>
+                  </TemplateCard>
                 );
               })}
             </div>
