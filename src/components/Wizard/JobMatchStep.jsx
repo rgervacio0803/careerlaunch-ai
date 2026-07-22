@@ -1,8 +1,19 @@
 function JobMatchStep({
   jobTitle,
   setJobTitle,
+
+  companyName,
+  setCompanyName,
+
+  hiringManager,
+  setHiringManager,
+
+  companyAddress,
+  setCompanyAddress,
+
   jobDescription,
   setJobDescription,
+
   loading,
   handleAnalyze,
 }) {
@@ -14,8 +25,9 @@ function JobMatchStep({
         <h2>Target Job Details</h2>
 
         <p>
-          Paste the job title and responsibilities so CareerLaunch AI can
-          compare your resume against the role.
+          Enter the job title and company name, then paste the complete job
+          description so CareerLaunch AI can tailor your resume and cover
+          letter.
         </p>
       </div>
 
@@ -29,6 +41,18 @@ function JobMatchStep({
             placeholder="Example: Cytogenetic Technologist"
             value={jobTitle}
             onChange={(e) => setJobTitle(e.target.value)}
+          />
+        </div>
+
+        <div className="form-group">
+          <label>Company Name</label>
+
+          <input
+            className="job-title-input-modern"
+            type="text"
+            placeholder="Example: Kaiser Permanente"
+            value={companyName}
+            onChange={(e) => setCompanyName(e.target.value)}
           />
         </div>
 

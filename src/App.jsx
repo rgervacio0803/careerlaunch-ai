@@ -62,6 +62,16 @@ function App() {
   const [toastMessage, setToastMessage] = useState("");
   const [currentStep, setCurrentStep] = useState(1);
   const [selectedTemplate, setSelectedTemplate] = useState("modern");
+  const [companyName, setCompanyName] = useState("");
+  const [hiringManager, setHiringManager] = useState("");
+  const [companyAddress, setCompanyAddress] = useState("");
+  const [coverLetterDate, setCoverLetterDate] = useState(
+    new Date().toLocaleDateString("en-US", {
+      month: "long",
+      day: "numeric",
+      year: "numeric",
+    }),
+  );
   const [loadingMessage, setLoadingMessage] = useState("");
   const [showLanding, setShowLanding] = useState(true);
   const [resumeInsights, setResumeInsights] = useState(null);
@@ -588,6 +598,76 @@ function App() {
     }
   }
 
+  function downloadCoverLetter() {
+    if (!coverLetter) return;
+
+    const doc = new jsPDF("p", "mm", "letter");
+
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const pageHeight = doc.internal.pageSize.getHeight();
+
+    const leftMargin = 22;
+    const rightMargin = 22;
+    const maxWidth = pageWidth - leftMargin - rightMargin;
+
+    let y = 22;
+
+    doc.setTextColor(15, 23, 42);
+    doc.setFont("helvetica", "normal");
+
+    // Date
+    doc.setFontSize(11);
+    doc.text(coverLetterDate || "", leftMargin, y);
+    y += 8;
+
+    // Hiring manager
+    if (hiringManager?.trim()) {
+      doc.text(hiringManager.trim(), leftMargin, y);
+      y += 7;
+    }
+
+    // Company
+    if (companyName?.trim()) {
+      doc.text(companyName.trim(), leftMargin, y);
+      y += 10;
+    } else {
+      y += 3;
+    }
+
+    // Subject
+    doc.setFont("helvetica", "bold");
+    doc.text(`Re: ${jobTitle || "Target Position"}`, leftMargin, y);
+    y += 12;
+
+    // Cover-letter body
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(11);
+
+    const paragraphs = coverLetter
+      .split(/\n\s*\n/)
+      .map((paragraph) => paragraph.trim())
+      .filter(Boolean);
+
+    paragraphs.forEach((paragraph) => {
+      const lines = doc.splitTextToSize(paragraph, maxWidth);
+      const paragraphHeight = lines.length * 6;
+
+      if (y + paragraphHeight > pageHeight - 22) {
+        doc.addPage();
+        y = 22;
+      }
+
+      doc.text(lines, leftMargin, y);
+      y += paragraphHeight + 6;
+    });
+
+    const safeCompanyName = companyName
+      ? companyName.toLowerCase().replace(/[^a-z0-9]+/g, "-")
+      : "company";
+
+    doc.save(`${safeCompanyName}-cover-letter.pdf`);
+  }
+
   function handleStartOver() {
     resetResumeState();
 
@@ -768,6 +848,8 @@ function App() {
           <JobMatchStep
             jobTitle={jobTitle}
             setJobTitle={setJobTitle}
+            companyName={companyName}
+            setCompanyName={setCompanyName}
             jobDescription={jobDescription}
             setJobDescription={setJobDescription}
             loading={loading}
@@ -855,8 +937,13 @@ function App() {
             coverLetter={coverLetter}
             jobTitle={jobTitle}
             copyToClipboard={copyToClipboard}
+            downloadCoverLetter={downloadCoverLetter}
             handleInterviewCoach={handleInterviewCoach}
             setCurrentStep={setCurrentStep}
+            companyName={companyName}
+            hiringManager={hiringManager}
+            setHiringManager={setHiringManager}
+            coverLetterDate={coverLetterDate}
           />
         )}
         {currentStep === 8 && interviewQuestions && (
