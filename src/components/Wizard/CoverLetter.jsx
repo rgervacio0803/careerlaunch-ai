@@ -4,6 +4,7 @@ function CoverLetter({
   copyToClipboard,
   downloadCoverLetter,
   handleInterviewCoach,
+  handleCoverLetter,
   setCurrentStep,
 
   companyName,
@@ -11,8 +12,12 @@ function CoverLetter({
   hiringManager,
   setHiringManager,
 
+  lastGeneratedHiringManager,
+
   coverLetterDate,
 }) {
+  const needsRegeneration = hiringManager.trim() !== lastGeneratedHiringManager;
+
   return (
     <section className="wizard-step-page optimize-page">
       <div className="step-page-header">
@@ -29,9 +34,7 @@ function CoverLetter({
       <div className="cover-letter-builder">
         <div className="cover-letter-details-panel">
           <div className="cover-letter-panel-heading">
-            <p className="cover-letter-panel-kicker">
-              Application Details
-            </p>
+            <p className="cover-letter-panel-kicker">Application Details</p>
 
             <h3>Personalize Your Cover Letter</h3>
 
@@ -45,11 +48,7 @@ function CoverLetter({
             <div className="cover-letter-field">
               <label>Company</label>
 
-              <input
-                type="text"
-                value={companyName}
-                readOnly
-              />
+              <input type="text" value={companyName} readOnly />
             </div>
 
             <div className="cover-letter-field">
@@ -60,9 +59,7 @@ function CoverLetter({
               <input
                 type="text"
                 value={hiringManager}
-                onChange={(event) =>
-                  setHiringManager(event.target.value)
-                }
+                onChange={(event) => setHiringManager(event.target.value)}
                 placeholder="Example: Jane Smith"
               />
             </div>
@@ -70,27 +67,34 @@ function CoverLetter({
             <div className="cover-letter-field">
               <label>Date</label>
 
-              <input
-                type="text"
-                value={coverLetterDate}
-                readOnly
-              />
+              <input type="text" value={coverLetterDate} readOnly />
             </div>
           </div>
+          {needsRegeneration && (
+            <div className="cover-letter-update-notice">
+              <strong>Application details changed.</strong>
+
+              <p>
+                Personalize your cover letter with the updated hiring manager.
+              </p>
+
+              <button
+                type="button"
+                className="secondary-button"
+                onClick={handleCoverLetter}
+              >
+                ✨ Personalize Letter
+              </button>
+            </div>
+          )}
         </div>
 
         <div className="cover-letter-preview-panel">
           <div className="cover-letter-preview-header">
             <div>
-              <p className="cover-letter-panel-kicker">
-                Document Preview
-              </p>
+              <h3>Cover Letter Preview</h3>
 
-              <h3>AI-Generated Cover Letter</h3>
-
-              <p>
-                Review the letter before copying or downloading it.
-              </p>
+              <p>Review your letter before copying or downloading it.</p>
             </div>
 
             <div className="cover-letter-actions">
@@ -121,9 +125,7 @@ function CoverLetter({
               {companyName && <p>{companyName}</p>}
             </div>
 
-            <pre className="cover-letter-text">
-              {coverLetter}
-            </pre>
+            <pre className="cover-letter-text">{coverLetter}</pre>
           </div>
         </div>
       </div>

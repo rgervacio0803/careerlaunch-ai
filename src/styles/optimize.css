@@ -116,3 +116,89 @@
   line-height: 1.6;
   font-family: Arial, sans-serif;
 }
+
+/* Cover letter preview actions */
+.cover-letter-preview-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 20px;
+  margin-bottom: 18px;
+}
+
+.cover-letter-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.cover-letter-actions .copy-btn,
+.cover-letter-actions .download-btn {
+  width: auto;
+  margin: 0;
+  padding: 10px 16px;
+}
+
+@media (max-width: 700px) {
+  .cover-letter-preview-header {
+    flex-direction: column;
+  }
+
+  .cover-letter-actions {
+    width: 100%;
+  }
+
+  .cover-letter-actions .copy-btn,
+  .cover-letter-actions .download-btn {
+    flex: 1;
+  }
+}
+
+.cover-letter-paper {
+  width: 100%;
+  max-width: 850px;
+  min-height: 950px;
+
+  margin: 20px auto 0;
+  padding: 64px 72px;
+
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 2px;
+
+  box-shadow:
+    0 14px 32px rgba(15, 23, 42, 0.1),
+    0 3px 8px rgba(15, 23, 42, 0.06);
+
+  color: #172033;
+  box-sizing: border-box;
+}
+
+.cover-letter-recipient {
+  margin-bottom: 30px;
+
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 15px;
+  line-height: 1.65;
+}
+
+.cover-letter-recipient p {
+  margin: 0 0 3px;
+}
+
+.cover-letter-text {
+  margin: 0;
+
+  color: #172033;
+  background: transparent;
+  border: none;
+  padding: 0;
+
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 15px;
+  line-height: 1.8;
+
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}

@@ -64,6 +64,8 @@ function App() {
   const [selectedTemplate, setSelectedTemplate] = useState("modern");
   const [companyName, setCompanyName] = useState("");
   const [hiringManager, setHiringManager] = useState("");
+  const [lastGeneratedHiringManager, setLastGeneratedHiringManager] =
+  useState("");
   const [companyAddress, setCompanyAddress] = useState("");
   const [coverLetterDate, setCoverLetterDate] = useState(
     new Date().toLocaleDateString("en-US", {
@@ -589,6 +591,7 @@ function App() {
       }
 
       setCoverLetter(data.coverLetter);
+      setLastGeneratedHiringManager(hiringManager.trim());
       setCurrentStep(7);
     } catch (error) {
       console.error(error);
@@ -612,10 +615,33 @@ function App() {
 
     let y = 22;
 
+    const applicantName = structuredResume?.name?.trim() || "Candidate Name";
+
+    const applicantContact = structuredResume?.contact?.trim() || "";
+
     doc.setTextColor(15, 23, 42);
     doc.setFont("helvetica", "normal");
 
+    // Applicant header
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(16);
+    doc.text(applicantName, leftMargin, y);
+    y += 8;
+
+    if (applicantContact) {
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(10);
+
+      const contactLines = doc.splitTextToSize(applicantContact, maxWidth);
+
+      doc.text(contactLines, leftMargin, y);
+      y += contactLines.length * 5 + 7;
+    } else {
+      y += 4;
+    }
+
     // Date
+    doc.setFont("helvetica", "normal");
     doc.setFontSize(11);
     doc.text(coverLetterDate || "", leftMargin, y);
     y += 8;
@@ -939,10 +965,12 @@ function App() {
             copyToClipboard={copyToClipboard}
             downloadCoverLetter={downloadCoverLetter}
             handleInterviewCoach={handleInterviewCoach}
+            handleCoverLetter={handleCoverLetter}
             setCurrentStep={setCurrentStep}
             companyName={companyName}
             hiringManager={hiringManager}
             setHiringManager={setHiringManager}
+            lastGeneratedHiringManager={lastGeneratedHiringManager}
             coverLetterDate={coverLetterDate}
           />
         )}
