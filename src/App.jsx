@@ -65,7 +65,7 @@ function App() {
   const [companyName, setCompanyName] = useState("");
   const [hiringManager, setHiringManager] = useState("");
   const [lastGeneratedHiringManager, setLastGeneratedHiringManager] =
-  useState("");
+    useState("");
   const [companyAddress, setCompanyAddress] = useState("");
   const [coverLetterDate, setCoverLetterDate] = useState(
     new Date().toLocaleDateString("en-US", {
@@ -571,7 +571,12 @@ function App() {
       formData.append("resumeText", finalResumeText);
       formData.append(
         "jobDescription",
-        `Job Title: ${jobTitle}\n\nResponsibilities and Duties:\n${jobDescription}`,
+        `Job Title: ${jobTitle}
+Company Name: ${companyName || "Not provided"}
+Hiring Manager: ${hiringManager || "Not provided"}
+
+Responsibilities and Duties:
+${jobDescription}`,
       );
 
       if (resumeFile) {
@@ -592,6 +597,11 @@ function App() {
 
       setCoverLetter(data.coverLetter);
       setLastGeneratedHiringManager(hiringManager.trim());
+      setToastMessage("Cover letter updated successfully!");
+
+      setTimeout(() => {
+        setToastMessage("");
+      }, 2500);
       setCurrentStep(7);
     } catch (error) {
       console.error(error);

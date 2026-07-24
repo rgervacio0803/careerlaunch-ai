@@ -202,3 +202,96 @@
   white-space: pre-wrap;
   overflow-wrap: anywhere;
 }
+
+/* ==========================================
+   Cover Letter Update Card
+========================================== */
+
+.cover-letter-update-notice {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 24px;
+
+  margin-top: 20px;
+  padding: 18px 20px;
+
+  background: #eef5ff;
+  border: 1px solid #c7dcff;
+  border-left: 4px solid #2563eb;
+  border-radius: 12px;
+}
+.cover-letter-update-notice-content {
+  flex: 1;
+}
+
+.cover-letter-update-notice-content strong {
+  display: block;
+  margin-bottom: 6px;
+
+  color: #1e3a8a;
+  font-size: 17px;
+  font-weight: 700;
+}
+
+.cover-letter-update-notice-content p {
+  margin: 0;
+
+  color: #475569;
+  line-height: 1.6;
+}
+
+.cover-letter-update-notice-content {
+  flex: 1;
+}
+
+.cover-letter-update-notice strong {
+  display: block;
+  margin-bottom: 6px;
+
+  color: #1e3a8a;
+  font-size: 17px;
+  font-weight: 700;
+}
+
+.cover-letter-update-notice p {
+  margin: 0;
+
+  color: #475569;
+  line-height: 1.6;
+}
+
+.cover-letter-update-notice .secondary-button {
+  width: auto;
+  min-width: 190px;
+  margin: 0;
+  padding: 11px 16px;
+
+  background: #2563eb;
+  color: #ffffff;
+
+  border: none;
+  border-radius: 9px;
+
+  font-size: 13px;
+  font-weight: 700;
+  white-space: nowrap;
+
+  cursor: pointer;
+}
+
+.cover-letter-update-notice .secondary-button:hover {
+  background: #1d4ed8;
+}
+
+@media (max-width: 768px) {
+  .cover-letter-update-notice {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .cover-letter-update-notice .secondary-button {
+    width: 100%;
+    min-width: 0;
+  }
+}

@@ -1090,7 +1090,12 @@ Rules:
 - Tailor the writing to the job description using keywords only when they accurately reflect the candidate's existing skills and experience.
 - Keep the cover letter professional, concise, and approximately one page.
 - Use 3–5 well-structured paragraphs.
-- Address the letter to "Dear Hiring Manager," unless another recipient is provided.
+- The job details may include a line beginning with "Hiring Manager:".
+- If the Hiring Manager value is present and is not "Not provided", begin the letter with:
+  Dear <Hiring Manager>,
+- If no hiring manager is provided, begin the letter with:
+  Dear Hiring Manager,
+- Do not invent a title such as Mr., Ms., Dr., or Mrs.
 - Write in a confident but truthful tone.
 - Do not exaggerate or fabricate qualifications.
 - End the letter with a proper closing.

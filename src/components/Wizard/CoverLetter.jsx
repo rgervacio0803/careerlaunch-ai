@@ -72,19 +72,27 @@ function CoverLetter({
           </div>
           {needsRegeneration && (
             <div className="cover-letter-update-notice">
-              <strong>Application details changed.</strong>
+              {/* LEFT SIDE */}
 
-              <p>
-                Personalize your cover letter with the updated hiring manager.
-              </p>
+              <div className="cover-letter-update-notice-content">
+                <h4>🔄 Cover Letter Needs Updating</h4>
 
-              <button
-                type="button"
-                className="secondary-button"
-                onClick={handleCoverLetter}
-              >
-                ✨ Personalize Letter
-              </button>
+                <p>You've updated your application details.</p>
+
+                <p>Update your cover letter to keep everything in sync.</p>
+              </div>
+
+              {/* RIGHT SIDE */}
+
+              <div className="cover-letter-update-action">
+                <button
+                  type="button"
+                  className="secondary-button"
+                  onClick={handleCoverLetter}
+                >
+                  Update Cover Letter →
+                </button>
+              </div>
             </div>
           )}
         </div>
