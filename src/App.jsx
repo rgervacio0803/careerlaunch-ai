@@ -85,6 +85,7 @@ function App() {
   const [isBuildingRewritePlan, setIsBuildingRewritePlan] = useState(false);
   const [rewritePlanStep, setRewritePlanStep] = useState(0);
   const resumePreviewRef = useRef(null);
+  const coverLetterPreviewRef = useRef(null);
 
   async function handleAnalyze() {
     if (!resumeText.trim() && !resumeFile) {
@@ -326,9 +327,60 @@ function App() {
   }
 
   async function downloadRewrittenResume() {
-    if (!resumePreviewRef.current) return;
+  if (!resumePreviewRef.current) return;
 
-    const canvas = await html2canvas(resumePreviewRef.current, {
+  const canvas = await html2canvas(resumePreviewRef.current, {
+    scale: 2,
+    useCORS: true,
+    backgroundColor: "#ffffff",
+  });
+
+  const imgData = canvas.toDataURL("image/png");
+
+  const pdf = new jsPDF("p", "mm", "a4");
+
+  const pageWidth = pdf.internal.pageSize.getWidth();
+  const pageHeight = pdf.internal.pageSize.getHeight();
+
+  const margin = 10;
+  const imgWidth = pageWidth - margin * 2;
+  const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+  if (imgHeight <= pageHeight - margin * 2) {
+    pdf.addImage(imgData, "PNG", margin, margin, imgWidth, imgHeight);
+  } else {
+    let heightLeft = imgHeight;
+    let position = margin;
+
+    pdf.addImage(imgData, "PNG", margin, position, imgWidth, imgHeight);
+    heightLeft -= pageHeight - margin * 2;
+
+    while (heightLeft > 0) {
+      position = heightLeft - imgHeight + margin;
+
+      pdf.addPage();
+
+      pdf.addImage(
+        imgData,
+        "PNG",
+        margin,
+        position,
+        imgWidth,
+        imgHeight,
+      );
+
+      heightLeft -= pageHeight - margin * 2;
+    }
+  }
+
+  pdf.save(`${selectedTemplate}-resume.pdf`);
+}
+
+  async function downloadThemedCoverLetter() {
+    
+    if (!coverLetterPreviewRef.current) return;
+
+    const canvas = await html2canvas(coverLetterPreviewRef.current, {
       scale: 2,
       useCORS: true,
       backgroundColor: "#ffffff",
@@ -336,7 +388,8 @@ function App() {
 
     const imgData = canvas.toDataURL("image/png");
 
-    const pdf = new jsPDF("p", "mm", "a4");
+    const pdf = new jsPDF("p", "mm", "letter");
+
     const pageWidth = pdf.internal.pageSize.getWidth();
     const pageHeight = pdf.internal.pageSize.getHeight();
 
@@ -355,15 +408,19 @@ function App() {
 
       while (heightLeft > 0) {
         position = heightLeft - imgHeight + margin;
-        pdf.addPage();
 
+        pdf.addPage();
         pdf.addImage(imgData, "PNG", margin, position, imgWidth, imgHeight);
 
         heightLeft -= pageHeight - margin * 2;
       }
     }
 
-    pdf.save(`${selectedTemplate}-resume.pdf`);
+    const safeCompanyName = companyName
+      ? companyName.toLowerCase().replace(/[^a-z0-9]+/g, "-")
+      : "company";
+
+    pdf.save(`${safeCompanyName}-cover-letter.pdf`);
   }
 
   async function handleInterviewCoach() {
@@ -974,8 +1031,9 @@ ${jobDescription}`,
             jobTitle={jobTitle}
             selectedTemplate={selectedTemplate}
             structuredResume={structuredResume}
+            coverLetterPreviewRef={coverLetterPreviewRef}
             copyToClipboard={copyToClipboard}
-            downloadCoverLetter={downloadCoverLetter}
+            downloadCoverLetter={downloadThemedCoverLetter}
             handleInterviewCoach={handleInterviewCoach}
             handleCoverLetter={handleCoverLetter}
             setCurrentStep={setCurrentStep}

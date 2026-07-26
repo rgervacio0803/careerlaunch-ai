@@ -5,6 +5,7 @@ function CoverLetter({
   jobTitle,
   selectedTemplate,
   structuredResume,
+  coverLetterPreviewRef,
 
   copyToClipboard,
   downloadCoverLetter,
@@ -132,6 +133,7 @@ function CoverLetter({
           </div>
 
           <div
+            ref={coverLetterPreviewRef}
             className={`cover-letter-paper cover-letter-${selectedTemplate}`}
           >
             <CoverLetterHeader
