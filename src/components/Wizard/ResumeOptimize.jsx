@@ -5,6 +5,7 @@ import ExecutiveResume from "../ResumeTemplates/ExecutiveResume";
 import TechResume from "../ResumeTemplates/TechResume";
 import ExecutiveEliteResume from "../ResumeTemplates/ExecutiveEliteResume";
 import ExecutiveBlueResume from "../ResumeTemplates/ExecutiveBlueResume";
+import HealthcareProfessionalResume from "../ResumeTemplates/HealthcareProfessionalResume";
 import ResumeThumbnail from "../ResumeTemplates/ResumeThumbnail";
 import TemplateCard from "../ResumeTemplates/TemplateCard";
 
@@ -57,6 +58,13 @@ const templateOptions = [
     description: "Developer-focused skills layout",
     bestFor: "Software, IT, and engineering",
     component: TechResume,
+  },
+  {
+    id: "healthcare-professional",
+    name: "Healthcare Professional",
+    description: "Clean clinical and medical layout",
+    bestFor: "Healthcare, laboratory, nursing, and medical roles",
+    component: HealthcareProfessionalResume,
   },
 ];
 

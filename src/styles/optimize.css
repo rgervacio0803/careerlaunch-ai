@@ -121,9 +121,14 @@
 .cover-letter-preview-header {
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
-  gap: 20px;
-  margin-bottom: 18px;
+  align-items: center;
+  gap: 18px;
+
+  margin-bottom: 8px;
+}
+
+.cover-letter-preview-header h3 {
+  margin: 0;
 }
 
 .cover-letter-actions {
@@ -157,50 +162,57 @@
 
 .cover-letter-paper {
   width: 100%;
-  max-width: 850px;
-  min-height: 950px;
+  max-width: 816px;
+  min-height: 1056px;
 
-  margin: 20px auto 0;
-  padding: 64px 72px;
+  margin: 24px auto 0;
+  padding: 72px 76px;
+
+  box-sizing: border-box;
 
   background: #ffffff;
   border: 1px solid #e2e8f0;
   border-radius: 2px;
 
   box-shadow:
-    0 14px 32px rgba(15, 23, 42, 0.1),
-    0 3px 8px rgba(15, 23, 42, 0.06);
+    0 18px 40px rgba(15, 23, 42, 0.1),
+    0 4px 10px rgba(15, 23, 42, 0.06);
 
-  color: #172033;
-  box-sizing: border-box;
+  color: var(--cover-accent, #172033);
+  font-family: var(--cover-font, Georgia, "Times New Roman", serif);
 }
 
 .cover-letter-recipient {
-  margin-bottom: 30px;
+  margin-bottom: 28px;
 
+  color: #334155;
   font-family: Georgia, "Times New Roman", serif;
   font-size: 15px;
   line-height: 1.65;
 }
 
 .cover-letter-recipient p {
-  margin: 0 0 3px;
+  margin: 0 0 4px;
 }
 
 .cover-letter-text {
+  width: 100%;
   margin: 0;
+  padding: 0;
 
-  color: #172033;
+  overflow: visible;
+
   background: transparent;
   border: none;
-  padding: 0;
+
+  color: #172033;
 
   font-family: Georgia, "Times New Roman", serif;
   font-size: 15px;
   line-height: 1.8;
 
   white-space: pre-wrap;
-  overflow-wrap: anywhere;
+  overflow-wrap: break-word;
 }
 
 /* ==========================================
@@ -208,6 +220,8 @@
 ========================================== */
 
 .cover-letter-update-notice {
+  max-width: 620px;
+  margin: 24px auto;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -294,4 +308,569 @@
     width: 100%;
     min-width: 0;
   }
+}
+
+.cover-letter-preview-description {
+  margin: 0 0 18px;
+
+  color: #64748b;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.cover-letter-preview-panel {
+  margin-top: 32px;
+}
+
+.cover-letter-preview-header {
+  max-width: 816px;
+  margin: 0 auto 24px;
+}
+
+/* ==========================================
+   Cover Letter Theme Support
+========================================== */
+
+/* Modern */
+
+.cover-letter-modern {
+  --cover-accent: #2563eb;
+  --cover-font: "Inter", sans-serif;
+}
+
+/* Professional */
+
+.cover-letter-professional {
+  --cover-accent: #1f2937;
+  --cover-font: Georgia, serif;
+}
+
+/* Executive */
+
+.cover-letter-executive {
+  --cover-accent: #0f172a;
+  --cover-font: Georgia, serif;
+}
+
+/* Executive Blue */
+
+.cover-letter-executive-blue {
+  --cover-accent: #1d4ed8;
+  --cover-font: "Inter", sans-serif;
+}
+
+/* Executive Elite */
+
+.cover-letter-executive-elite {
+  --cover-accent: #1e3a8a;
+  --cover-font: Georgia, serif;
+}
+
+/* Minimal */
+
+.cover-letter-minimal {
+  --cover-accent: #64748b;
+  --cover-font: "Inter", sans-serif;
+}
+
+/* Tech */
+
+.cover-letter-tech {
+  --cover-accent: #0ea5e9;
+  --cover-font: "Inter", sans-serif;
+}
+
+/* ==========================================
+   Shared Cover Letter Header
+========================================== */
+
+.cover-letter-theme-header {
+  margin-bottom: 36px;
+  padding-bottom: 18px;
+
+  border-bottom: 3px solid var(--cover-accent);
+
+  text-align: center;
+}
+
+.cover-letter-theme-name h1 {
+  margin: 0;
+
+  font-size: 32px;
+  font-weight: 700;
+
+  color: var(--cover-accent);
+
+  letter-spacing: 1px;
+}
+
+.cover-letter-theme-title {
+  margin-top: 8px;
+
+  font-size: 16px;
+  color: #475569;
+}
+
+.cover-letter-theme-contact {
+  margin-top: 12px;
+
+  color: #64748b;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+/* ==========================================
+   Cover Letter Header Theme Overrides
+========================================== */
+
+/* Modern */
+.theme-modern {
+  text-align: left;
+  border-bottom-width: 2px;
+}
+
+.theme-modern .cover-letter-theme-name h1 {
+  font-family: Arial, Helvetica, sans-serif;
+  font-weight: 700;
+  letter-spacing: 0;
+}
+
+/* Professional */
+.theme-professional {
+  text-align: center;
+  border-bottom-width: 1px;
+}
+
+.theme-professional .cover-letter-theme-name h1 {
+  font-family: Georgia, "Times New Roman", serif;
+  font-weight: 700;
+}
+
+/* Minimal */
+.theme-minimal {
+  text-align: left;
+  border-bottom-width: 1px;
+}
+
+.theme-minimal .cover-letter-theme-name h1 {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 29px;
+  font-weight: 600;
+  letter-spacing: 0;
+}
+
+/* Executive */
+.theme-executive {
+  text-align: left;
+  border-bottom-width: 3px;
+}
+
+.theme-executive .cover-letter-theme-name h1 {
+  font-family: Georgia, "Times New Roman", serif;
+  font-weight: 700;
+}
+
+/* Executive Blue */
+.theme-executive-blue {
+  text-align: left;
+  border-bottom-width: 4px;
+}
+
+.theme-executive-blue .cover-letter-theme-name h1 {
+  font-family: Arial, Helvetica, sans-serif;
+  font-weight: 800;
+}
+
+/* Executive Elite */
+.theme-executive-elite {
+  text-align: center;
+  border-bottom-width: 3px;
+}
+
+.theme-executive-elite .cover-letter-theme-name h1 {
+  font-family: Georgia, "Times New Roman", serif;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+}
+
+/* Tech */
+.theme-tech {
+  text-align: left;
+  border-bottom-width: 2px;
+}
+
+.theme-tech .cover-letter-theme-name h1 {
+  font-family: Arial, Helvetica, sans-serif;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+}
+
+.theme-tech .cover-letter-theme-contact {
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+/* ==========================================
+   Modern Cover Letter Header
+========================================== */
+
+.modern-cover-letter-header {
+  display: block;
+
+  margin-bottom: 34px;
+  padding-bottom: 18px;
+
+  border-left: none;
+  border-bottom: 1px solid #0f172a;
+
+  text-align: center;
+}
+
+.modern-cover-letter-heading h1 {
+  margin: 0;
+
+  color: #0f172a;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 30px;
+  font-weight: 500;
+  letter-spacing: 2px;
+}
+
+.modern-cover-letter-title {
+  margin: 6px 0 0;
+
+  color: #0f172a;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.modern-cover-letter-contact {
+  max-width: none;
+  margin: 12px 0 0;
+
+  color: #64748b;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 11px;
+  line-height: 1.5;
+  text-align: center;
+}
+
+/* ==========================================
+   Executive Blue Cover Letter Header
+========================================== */
+
+.executive-blue-cover-letter-header {
+  margin: -72px -76px 34px;
+  padding: 42px 48px 34px;
+
+  background: linear-gradient(135deg, #0f3d66, #1f5f99);
+  color: #ffffff;
+}
+
+.executive-blue-cover-letter-header h1 {
+  margin: 0;
+
+  color: #ffffff;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 34px;
+  line-height: 1.15;
+}
+
+.executive-blue-cover-letter-title {
+  margin: 10px 0 0;
+
+  color: #dbeafe;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.executive-blue-cover-letter-contact {
+  margin: 16px 0 0;
+
+  color: #eff6ff;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+/* ==========================================
+   Executive Elite Cover Letter Header
+========================================== */
+
+.executive-elite-cover-letter-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 28px;
+
+  margin-bottom: 34px;
+  padding-bottom: 24px;
+
+  border-bottom: 3px solid #1e3a5f;
+}
+
+.executive-elite-cover-letter-header h1 {
+  margin: 0;
+
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 30px;
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: 0.02em;
+
+  color: #12263f;
+}
+
+.executive-elite-cover-letter-title {
+  margin: 9px 0 0;
+
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+
+  color: #8a6a2f;
+}
+
+.executive-elite-cover-letter-contact {
+  max-width: 230px;
+
+  text-align: right;
+
+  font-size: 12px;
+  line-height: 1.6;
+
+  color: #52606d;
+}
+
+/* ==========================================
+   Professional Cover Letter Header
+========================================== */
+
+.professional-cover-letter-header {
+  text-align: center;
+
+  margin-bottom: 34px;
+  padding-bottom: 18px;
+
+  border-bottom: 3px double #111827;
+}
+
+.professional-cover-letter-header h1 {
+  margin: 0 0 8px;
+
+  color: #111827;
+
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 32px;
+
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.professional-cover-letter-title {
+  margin: 0 0 8px;
+
+  color: #374151;
+
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 16px;
+
+  font-weight: 700;
+}
+
+.professional-cover-letter-contact {
+  margin: 0;
+
+  color: #374151;
+
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 13px;
+
+  line-height: 1.6;
+}
+
+/* ==========================================
+   Executive Cover Letter Header
+========================================== */
+
+.executive-cover-letter-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 30px;
+
+  margin-bottom: 34px;
+  padding-bottom: 22px;
+
+  border-bottom: 3px solid #1e3a5f;
+}
+
+.executive-cover-letter-header h1 {
+  margin: 0 0 8px;
+
+  color: #12263f;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 34px;
+  line-height: 1.1;
+}
+
+.executive-cover-letter-title {
+  margin: 0;
+
+  color: #8a6a2f;
+  font-size: 16px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.executive-cover-letter-contact {
+  max-width: 250px;
+
+  color: #52606d;
+  font-size: 12px;
+  line-height: 1.6;
+  text-align: right;
+}
+
+/* ==========================================
+   Minimal Cover Letter Header
+========================================== */
+
+.minimal-cover-letter-header {
+  margin-bottom: 34px;
+}
+
+.minimal-cover-letter-header h1 {
+  margin: 0 0 8px;
+
+  color: #111827;
+
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 34px;
+  font-weight: 700;
+
+  letter-spacing: -0.04em;
+}
+
+.minimal-cover-letter-title {
+  margin: 0 0 8px;
+
+  color: #374151;
+
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 16px;
+
+  font-weight: 700;
+}
+
+.minimal-cover-letter-contact {
+  display: block;
+
+  color: #64748b;
+
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 14px;
+}
+
+/* ==========================================
+   Tech Cover Letter Header
+========================================== */
+
+.tech-cover-letter-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 28px;
+
+  margin-bottom: 32px;
+  padding-bottom: 18px;
+
+  border-bottom: 2px solid #0ea5e9;
+}
+
+.tech-cover-letter-header h1 {
+  margin: 0;
+
+  color: #111827;
+
+  font-family: "Inter", Arial, sans-serif;
+  font-size: 32px;
+  font-weight: 800;
+
+  letter-spacing: -0.04em;
+}
+
+.tech-cover-letter-header p {
+  margin: 8px 0 0;
+
+  color: #0ea5e9;
+
+  font-family: "Inter", Arial, sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.tech-cover-letter-contact {
+  max-width: 250px;
+
+  color: #64748b;
+
+  font-family: "Inter", Arial, sans-serif;
+  font-size: 13px;
+  line-height: 1.6;
+
+  text-align: right;
+}
+
+/* ==========================================
+   Healthcare Professional Cover Letter Header
+========================================== */
+
+.healthcare-cover-letter-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 28px;
+
+  margin-bottom: 34px;
+  padding: 20px 22px;
+
+  background: #eef8fc;
+  border-left: 6px solid #0f6cbd;
+  border-bottom: 2px solid #2cb1bc;
+}
+
+.healthcare-cover-letter-header h1 {
+  margin: 0;
+
+  color: #0f6cbd;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 32px;
+  font-weight: 800;
+}
+
+.healthcare-cover-letter-title {
+  margin: 8px 0 0;
+
+  color: #2cb1bc;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.healthcare-cover-letter-contact {
+  max-width: 245px;
+  margin: 2px 0 0;
+
+  color: #64748b;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 12px;
+  line-height: 1.6;
+  text-align: right;
 }

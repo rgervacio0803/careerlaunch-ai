@@ -972,6 +972,8 @@ ${jobDescription}`,
           <CoverLetter
             coverLetter={coverLetter}
             jobTitle={jobTitle}
+            selectedTemplate={selectedTemplate}
+            structuredResume={structuredResume}
             copyToClipboard={copyToClipboard}
             downloadCoverLetter={downloadCoverLetter}
             handleInterviewCoach={handleInterviewCoach}

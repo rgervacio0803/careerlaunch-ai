@@ -1,6 +1,11 @@
+import CoverLetterHeader from "../ResumeTemplates/CoverLetterHeader";
+
 function CoverLetter({
   coverLetter,
   jobTitle,
+  selectedTemplate,
+  structuredResume,
+
   copyToClipboard,
   downloadCoverLetter,
   handleInterviewCoach,
@@ -34,19 +39,19 @@ function CoverLetter({
       <div className="cover-letter-builder">
         <div className="cover-letter-details-panel">
           <div className="cover-letter-panel-heading">
-            <p className="cover-letter-panel-kicker">Application Details</p>
+            <p className="cover-letter-panel-kicker">Step 1</p>
 
-            <h3>Personalize Your Cover Letter</h3>
+            <h3>Application Details</h3>
 
             <p>
-              Confirm the company and add the hiring manager’s name when
-              available.
+              Review your application details before generating or updating your
+              cover letter.
             </p>
           </div>
 
           <div className="cover-letter-info-grid">
             <div className="cover-letter-field">
-              <label>Company</label>
+              <label>Target Company</label>
 
               <input type="text" value={companyName} readOnly />
             </div>
@@ -75,11 +80,13 @@ function CoverLetter({
               {/* LEFT SIDE */}
 
               <div className="cover-letter-update-notice-content">
-                <h4>🔄 Cover Letter Needs Updating</h4>
+                <h4>🔄 Cover Letter Update Available</h4>
 
-                <p>You've updated your application details.</p>
+                <p>You've changed your application details.</p>
 
-                <p>Update your cover letter to keep everything in sync.</p>
+                <p>
+                  Update your cover letter to include the latest information.
+                </p>
               </div>
 
               {/* RIGHT SIDE */}
@@ -98,20 +105,20 @@ function CoverLetter({
         </div>
 
         <div className="cover-letter-preview-panel">
-          <div className="cover-letter-preview-header">
+          <div className="optimized-header cover-letter-preview-header">
             <div>
               <h3>Cover Letter Preview</h3>
 
               <p>Review your letter before copying or downloading it.</p>
             </div>
 
-            <div className="cover-letter-actions">
+            <div className="optimized-actions-top cover-letter-actions">
               <button
                 type="button"
                 className="copy-btn"
                 onClick={() => copyToClipboard(coverLetter)}
               >
-                Copy
+                Copy Letter
               </button>
 
               <button
@@ -124,7 +131,14 @@ function CoverLetter({
             </div>
           </div>
 
-          <div className="cover-letter-paper">
+          <div
+            className={`cover-letter-paper cover-letter-${selectedTemplate}`}
+          >
+            <CoverLetterHeader
+              template={selectedTemplate}
+              structuredResume={structuredResume}
+            />
+
             <div className="cover-letter-recipient">
               <p>{coverLetterDate}</p>
 
