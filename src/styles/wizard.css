@@ -427,3 +427,13 @@
   border-radius: 999px;
   font-weight: 800;
 }
+
+.large-upload-box.dragging {
+  border-color: #2563eb;
+  background: #eff6ff;
+  transform: scale(1.01);
+}
+
+.large-upload-box.dragging h3 {
+  color: #1d4ed8;
+}

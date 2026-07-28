@@ -1,10 +1,16 @@
+import { useState } from "react";
+
 function UploadStep({
   resumeText,
   setResumeText,
   resumeFile,
   fileInputRef,
   handleResumeUpload,
+  handlePastedResume,
+  setCurrentStep,
 }) {
+  const [isDragging, setIsDragging] = useState(false);
+
   return (
     <section className="wizard-step-page">
       <div className="step-page-header">
@@ -17,7 +23,31 @@ function UploadStep({
       </div>
 
       <div className="upload-workspace">
-        <label className="large-upload-box">
+        <label
+          className={`large-upload-box ${isDragging ? "dragging" : ""}`}
+          onDragEnter={(event) => {
+            event.preventDefault();
+            setIsDragging(true);
+          }}
+          onDragOver={(event) => {
+            event.preventDefault();
+            setIsDragging(true);
+          }}
+          onDragLeave={(event) => {
+            event.preventDefault();
+            setIsDragging(false);
+          }}
+          onDrop={(event) => {
+            event.preventDefault();
+            setIsDragging(false);
+
+            const droppedFile = event.dataTransfer.files?.[0];
+
+            if (droppedFile) {
+              handleResumeUpload(droppedFile);
+            }
+          }}
+        >
           <div className="large-upload-icon">⬆</div>
 
           <h3>Drop your resume here</h3>
@@ -47,6 +77,17 @@ function UploadStep({
           />
         </div>
       </div>
+      {resumeText.trim() && (
+        <div className="analysis-actions">
+          <button
+            type="button"
+            className="interview-button"
+            onClick={handlePastedResume}
+          >
+            Continue →
+          </button>
+        </div>
+      )}
     </section>
   );
 }

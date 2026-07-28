@@ -86,6 +86,7 @@ function App() {
   const [rewritePlanStep, setRewritePlanStep] = useState(0);
   const resumePreviewRef = useRef(null);
   const coverLetterPreviewRef = useRef(null);
+  const [showResetModal, setShowResetModal] = useState(false);
 
   async function handleAnalyze() {
     if (!resumeText.trim() && !resumeFile) {
@@ -327,57 +328,49 @@ function App() {
   }
 
   async function downloadRewrittenResume() {
-  if (!resumePreviewRef.current) return;
+    if (!resumePreviewRef.current) return;
 
-  const canvas = await html2canvas(resumePreviewRef.current, {
-    scale: 2,
-    useCORS: true,
-    backgroundColor: "#ffffff",
-  });
+    const canvas = await html2canvas(resumePreviewRef.current, {
+      scale: 2,
+      useCORS: true,
+      backgroundColor: "#ffffff",
+    });
 
-  const imgData = canvas.toDataURL("image/png");
+    const imgData = canvas.toDataURL("image/png");
 
-  const pdf = new jsPDF("p", "mm", "a4");
+    const pdf = new jsPDF("p", "mm", "a4");
 
-  const pageWidth = pdf.internal.pageSize.getWidth();
-  const pageHeight = pdf.internal.pageSize.getHeight();
+    const pageWidth = pdf.internal.pageSize.getWidth();
+    const pageHeight = pdf.internal.pageSize.getHeight();
 
-  const margin = 10;
-  const imgWidth = pageWidth - margin * 2;
-  const imgHeight = (canvas.height * imgWidth) / canvas.width;
+    const margin = 10;
+    const imgWidth = pageWidth - margin * 2;
+    const imgHeight = (canvas.height * imgWidth) / canvas.width;
 
-  if (imgHeight <= pageHeight - margin * 2) {
-    pdf.addImage(imgData, "PNG", margin, margin, imgWidth, imgHeight);
-  } else {
-    let heightLeft = imgHeight;
-    let position = margin;
+    if (imgHeight <= pageHeight - margin * 2) {
+      pdf.addImage(imgData, "PNG", margin, margin, imgWidth, imgHeight);
+    } else {
+      let heightLeft = imgHeight;
+      let position = margin;
 
-    pdf.addImage(imgData, "PNG", margin, position, imgWidth, imgHeight);
-    heightLeft -= pageHeight - margin * 2;
-
-    while (heightLeft > 0) {
-      position = heightLeft - imgHeight + margin;
-
-      pdf.addPage();
-
-      pdf.addImage(
-        imgData,
-        "PNG",
-        margin,
-        position,
-        imgWidth,
-        imgHeight,
-      );
-
+      pdf.addImage(imgData, "PNG", margin, position, imgWidth, imgHeight);
       heightLeft -= pageHeight - margin * 2;
+
+      while (heightLeft > 0) {
+        position = heightLeft - imgHeight + margin;
+
+        pdf.addPage();
+
+        pdf.addImage(imgData, "PNG", margin, position, imgWidth, imgHeight);
+
+        heightLeft -= pageHeight - margin * 2;
+      }
     }
+
+    pdf.save(`${selectedTemplate}-resume.pdf`);
   }
 
-  pdf.save(`${selectedTemplate}-resume.pdf`);
-}
-
   async function downloadThemedCoverLetter() {
-    
     if (!coverLetterPreviewRef.current) return;
 
     const canvas = await html2canvas(coverLetterPreviewRef.current, {
@@ -574,6 +567,42 @@ function App() {
     try {
       const formData = new FormData();
       formData.append("resume", file);
+
+      const response = await fetch("http://localhost:5000/parse-resume", {
+        method: "POST",
+        body: formData,
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        setError(data.error || "Unable to analyze resume.");
+        return;
+      }
+
+      setResumeProfile(data);
+      setCurrentStep(2);
+    } catch (error) {
+      console.error(error);
+      setError("Unable to analyze resume. Please try again.");
+    } finally {
+      setResumeAnalyzing(false);
+    }
+  }
+
+  async function handlePastedResume() {
+    if (!resumeText.trim()) return;
+
+    setLoadingMessage(
+      "Please wait while CareerLaunch AI analyzes your resume.",
+    );
+    setResumeAnalyzing(true);
+    setError("");
+
+    try {
+      const formData = new FormData();
+
+      formData.append("resumeText", resumeText.trim());
 
       const response = await fetch("http://localhost:5000/parse-resume", {
         method: "POST",
@@ -934,6 +963,8 @@ ${jobDescription}`,
             resumeFile={resumeFile}
             fileInputRef={fileInputRef}
             handleResumeUpload={handleResumeUpload}
+            handlePastedResume={handlePastedResume}
+            setCurrentStep={setCurrentStep}
           />
         )}
 
@@ -974,7 +1005,7 @@ ${jobDescription}`,
 
             <button
               className="secondary-button"
-              onClick={handleStartOver}
+              onClick={() => setShowResetModal(true)}
               disabled={loading}
             >
               Clear / Start Over
@@ -1066,6 +1097,58 @@ ${jobDescription}`,
             </div>
           </div>
         )}
+
+        {showResetModal && (
+  <div
+    style={{
+      position: "fixed",
+      top: "20px",
+      left: "20px",
+      zIndex: 99999,
+      padding: "20px",
+      background: "red",
+      color: "white",
+    }}
+  >
+    RESET MODAL STATE IS TRUE
+  </div>
+)}
+
+      {showResetModal && (
+        <div className="reset-modal-overlay">
+          <div className="reset-modal">
+            <h2>Start Over?</h2>
+
+            <p>
+              This will clear your uploaded resume, job description, analysis,
+              and generated documents.
+            </p>
+
+            <div className="reset-modal-actions">
+              <button
+                type="button"
+                className="secondary-button"
+                onClick={() => setShowResetModal(false)}
+              >
+                Cancel
+              </button>
+
+              <button
+                type="button"
+                className="reset-confirm-button"
+                onClick={() => {
+                  setShowResetModal(false);
+                  handleStartOver();
+                }}
+              >
+                Start Over
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+
       {toastMessage && <div className="toast">{toastMessage}</div>}
     </div>
   );
