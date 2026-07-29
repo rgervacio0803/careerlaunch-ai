@@ -282,7 +282,7 @@ function App() {
 
       setRewrittenResume(data.rewrittenResume);
       setStructuredResume(data.structuredResume);
-      setSelectedTemplate(recommendation.template.toLowerCase());
+     setSelectedTemplate(recommendation.templateId);
 
       setShowOptimizationComplete(true);
 
@@ -801,6 +801,18 @@ ${jobDescription}`,
     setCurrentStep(1);
     setSelectedTemplate("modern");
 
+    setCompanyName("");
+    setHiringManager("");
+    setLastGeneratedHiringManager("");
+    setCompanyAddress("");
+    setCoverLetterDate(
+      new Date().toLocaleDateString("en-US", {
+        month: "long",
+        day: "numeric",
+        year: "numeric",
+      }),
+    );
+
     setResumeInsights(null);
     setRewritePlan(null);
 
@@ -903,40 +915,157 @@ ${jobDescription}`,
     return <Landing onStart={() => setShowLanding(false)} />;
   }
 
-  function getRecommendedTemplate() {
-    const title = jobTitle.toLowerCase();
+function getRecommendedTemplate() {
+  const applicationText = [
+    jobTitle,
+    jobDescription,
+    resumeText,
+    structuredResume ? JSON.stringify(structuredResume) : "",
+  ]
+    .join(" ")
+    .toLowerCase();
 
-    if (
-      title.includes("developer") ||
-      title.includes("engineer") ||
-      title.includes("frontend") ||
-      title.includes("backend") ||
-      title.includes("software")
-    ) {
-      return {
-        template: "Modern",
-        reason:
-          "Modern highlights technical skills and is ideal for software engineering roles.",
-      };
-    }
+  const healthcareKeywords = [
+    "registered nurse",
+    "licensed vocational nurse",
+    "licensed practical nurse",
+    "clinical laboratory scientist",
+    "clinical lab scientist",
+    "medical laboratory scientist",
+    "medical technologist",
+    "cytogenetics",
+    "cytogenetic technologist",
+    "fish technologist",
+    "laboratory technician",
+    "lab technician",
+    "phlebotomist",
+    "patient care",
+    "patient assessment",
+    "healthcare",
+    "health care",
+    "hospital",
+    "clinical",
+    "medical",
+    "nursing",
+    "nurse",
+    "physician",
+    "pharmacist",
+    "radiology",
+    "therapist",
+    "specimen",
+    "diagnostic testing",
+    "laboratory testing",
+    "quality control",
+    "clia",
+    "cap accreditation",
+    "hipaa",
+  ];
 
-    if (
-      title.includes("manager") ||
-      title.includes("director") ||
-      title.includes("executive")
-    ) {
-      return {
-        template: "Professional",
-        reason: "Professional emphasizes leadership and corporate experience.",
-      };
-    }
+  const technologyKeywords = [
+    "frontend",
+    "front-end",
+    "backend",
+    "back-end",
+    "full stack",
+    "full-stack",
+    "software developer",
+    "software engineer",
+    "web developer",
+    "react",
+    "javascript",
+    "typescript",
+    "node.js",
+    "python",
+    "java",
+    "html",
+    "css",
+    "database",
+    "cloud",
+    "aws",
+    "azure",
+    "github",
+    "api",
+    "programming",
+    "developer",
+    "engineer",
+  ];
 
+  const leadershipKeywords = [
+    "manager",
+    "management",
+    "director",
+    "executive",
+    "vice president",
+    "department head",
+    "team lead",
+    "supervisor",
+    "leadership",
+    "strategic planning",
+    "operations management",
+    "budget management",
+    "stakeholder",
+    "cross-functional",
+    "managed a team",
+    "led a team",
+    "oversaw",
+  ];
+
+  function calculateScore(keywords) {
+    return keywords.reduce((score, keyword) => {
+      return applicationText.includes(keyword) ? score + 1 : score;
+    }, 0);
+  }
+
+  const healthcareScore = calculateScore(healthcareKeywords);
+  const technologyScore = calculateScore(technologyKeywords);
+  const leadershipScore = calculateScore(leadershipKeywords);
+
+  if (
+    healthcareScore >= technologyScore &&
+    healthcareScore >= leadershipScore &&
+    healthcareScore >= 2
+  ) {
     return {
-      template: "Minimal",
+      template: "Healthcare Professional",
+      templateId: "healthcare-professional",
       reason:
-        "Minimal provides a clean layout suitable for many professional roles.",
+        "Healthcare Professional was selected based on your clinical background, healthcare terminology, certifications, and target role.",
     };
   }
+
+  if (
+    technologyScore >= healthcareScore &&
+    technologyScore >= leadershipScore &&
+    technologyScore >= 2
+  ) {
+    return {
+      template: "Modern",
+      templateId: "modern",
+      reason:
+        "Modern was selected based on your technical skills, tools, and target technology role.",
+    };
+  }
+
+  if (
+    leadershipScore >= healthcareScore &&
+    leadershipScore >= technologyScore &&
+    leadershipScore >= 2
+  ) {
+    return {
+      template: "Professional",
+      templateId: "professional",
+      reason:
+        "Professional was selected based on your leadership experience, management responsibilities, and business impact.",
+    };
+  }
+
+  return {
+    template: "Minimal",
+    templateId: "minimal",
+    reason:
+      "Minimal was selected because it provides a clean, versatile format for your experience and target position.",
+  };
+}
 
   const recommendation = getRecommendedTemplate();
 
@@ -952,7 +1081,7 @@ ${jobDescription}`,
       <WizardHeader
         currentStep={currentStep}
         onBack={() => setCurrentStep((prev) => Math.max(prev - 1, 1))}
-        onReset={handleStartOver}
+        onReset={() => setShowResetModal(true)}
       />
 
       <main className="container">
@@ -1037,7 +1166,7 @@ ${jobDescription}`,
           <AIRewritePlan
             rewritePlan={rewritePlan}
             onContinue={async () => {
-              setSelectedTemplate(recommendation.template.toLowerCase());
+              setSelectedTemplate(recommendation.templateId);
               await handleRewriteResume();
             }}
           />
@@ -1080,9 +1209,7 @@ ${jobDescription}`,
             interviewQuestions={interviewQuestions}
             jobTitle={jobTitle}
             downloadInterviewPrep={downloadInterviewPrep}
-            downloadReport={downloadReport}
-            downloadRewrittenResume={downloadRewrittenResume}
-            handleReset={handleStartOver}
+            handleReset={() => setShowResetModal(true)}
           />
         )}
       </main>
@@ -1097,22 +1224,6 @@ ${jobDescription}`,
             </div>
           </div>
         )}
-
-        {showResetModal && (
-  <div
-    style={{
-      position: "fixed",
-      top: "20px",
-      left: "20px",
-      zIndex: 99999,
-      padding: "20px",
-      background: "red",
-      color: "white",
-    }}
-  >
-    RESET MODAL STATE IS TRUE
-  </div>
-)}
 
       {showResetModal && (
         <div className="reset-modal-overlay">
@@ -1147,7 +1258,6 @@ ${jobDescription}`,
           </div>
         </div>
       )}
-
 
       {toastMessage && <div className="toast">{toastMessage}</div>}
     </div>

@@ -2,8 +2,6 @@ function InterviewPrep({
   interviewQuestions,
   jobTitle,
   downloadInterviewPrep,
-  downloadReport,
-  downloadRewrittenResume,
   handleReset,
 }) {
   return (
@@ -72,28 +70,20 @@ function InterviewPrep({
         </div>
       </div>
 
-      <div className="completion-card">
-        <h2>✓ CareerLaunch AI Analysis Complete</h2>
-        <p>Your resume analysis, optimized resume, and interview prep are ready.</p>
+<div className="completion-card">
+  <h2>✓ CareerLaunch AI Analysis Complete</h2>
 
-        <div className="completion-actions">
-          <button className="download-btn" onClick={downloadReport}>
-            Download ATS Report
-          </button>
+  <p>
+    Your resume analysis, optimized resume, cover letter, and interview prep
+    are complete.
+  </p>
 
-          <button className="download-btn" onClick={downloadRewrittenResume}>
-            Download Optimized Resume
-          </button>
-
-          <button className="download-btn" onClick={downloadInterviewPrep}>
-            Download Interview Prep
-          </button>
-
-          <button className="secondary-button" onClick={handleReset}>
-            Start New Analysis
-          </button>
-        </div>
-      </div>
+  <div className="completion-actions">
+    <button className="secondary-button" onClick={handleReset}>
+      Start New Analysis
+    </button>
+  </div>
+</div>
     </section>
   );
 }
