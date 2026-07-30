@@ -1065,7 +1065,7 @@ function getRecommendedTemplate() {
     reason:
       "Minimal was selected because it provides a clean, versatile format for your experience and target position.",
   };
-}
+} 
 
   const recommendation = getRecommendedTemplate();
 
