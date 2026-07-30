@@ -874,3 +874,263 @@
   line-height: 1.6;
   text-align: right;
 }
+
+.cover-letter-paper {
+  height: auto;
+  max-height: none;
+  overflow: visible;
+}
+
+.cover-letter-preview-panel {
+  overflow: visible;
+}
+
+.optimize-page .analysis-actions {
+  margin-top: 48px;
+}
+
+/* ========================================
+   INTERVIEW PREP POLISH
+======================================== */
+
+.interview-page {
+  width: 100%;
+}
+
+.interview-top-actions {
+  display: flex;
+  justify-content: center;
+  margin: 28px 0 36px;
+}
+
+.interview-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 28px;
+  align-items: start;
+}
+
+.interview-panel {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 20px;
+  padding: 26px;
+  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.07);
+}
+
+.interview-panel h3 {
+  margin: 0 0 22px;
+  font-size: 1.25rem;
+  line-height: 1.4;
+  color: #172033;
+}
+
+.interview-card-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.interview-card {
+  padding: 22px;
+  background: #f8fafc;
+  border: 1px solid #e6eaf0;
+  border-radius: 16px;
+}
+
+.interview-question-number {
+  display: inline-flex;
+  align-items: center;
+  margin-bottom: 12px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: #e8efff;
+  color: #3157a4;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.interview-card h4 {
+  margin: 0;
+  color: #172033;
+  font-size: 1.03rem;
+  line-height: 1.55;
+}
+
+.interview-answer {
+  margin-top: 18px;
+  padding-top: 18px;
+  border-top: 1px solid #dfe4eb;
+}
+
+.interview-answer .answer-label {
+  margin: 0 0 8px;
+  color: #3157a4;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.interview-answer p:last-child {
+  margin: 0;
+  color: #4b5563;
+  line-height: 1.7;
+}
+
+.employer-panel {
+  grid-column: 1 / -1;
+}
+
+.employer-question-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.employer-question {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 18px;
+  background: #f8fafc;
+  border: 1px solid #e6eaf0;
+  border-radius: 14px;
+}
+
+.employer-question-number {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 32px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #172033;
+  color: #ffffff;
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.employer-question p {
+  margin: 4px 0 0;
+  color: #374151;
+  line-height: 1.6;
+}
+
+.completion-card {
+  margin-top: 36px;
+  padding: 38px 28px;
+  text-align: center;
+  background: #ffffff;
+  border: 1px solid #dfe5ee;
+  border-radius: 22px;
+  box-shadow: 0 14px 32px rgba(15, 23, 42, 0.08);
+}
+
+.completion-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 58px;
+  height: 58px;
+  margin: 0 auto 18px;
+  border-radius: 50%;
+  background: #e8f7ee;
+  color: #18794e;
+  font-size: 1.7rem;
+  font-weight: 800;
+}
+
+.completion-card h2 {
+  margin: 0 0 12px;
+  color: #172033;
+}
+
+.completion-card > p {
+  max-width: 650px;
+  margin: 0 auto;
+  color: #667085;
+  line-height: 1.7;
+}
+
+.completion-actions {
+  display: flex;
+  justify-content: center;
+  margin-top: 24px;
+}
+
+@media (max-width: 900px) {
+  .interview-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .employer-panel {
+    grid-column: auto;
+  }
+
+  .employer-question-list {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 600px) {
+  .interview-panel {
+    padding: 20px;
+  }
+
+  .interview-card {
+    padding: 18px;
+  }
+
+  .interview-top-actions .primary-action-button {
+    width: 100%;
+  }
+}
+
+/* Keep Healthcare Professional resume within one page */
+.healthcare-professional-resume {
+  padding: 42px 48px;
+}
+
+.healthcare-professional-header {
+  padding-bottom: 14px;
+  margin-bottom: 20px;
+}
+
+.healthcare-professional-section {
+  margin-bottom: 18px;
+}
+
+.healthcare-professional-section h2 {
+  margin-bottom: 10px;
+  padding-bottom: 6px;
+}
+
+.healthcare-professional-section p {
+  margin-bottom: 7px;
+  line-height: 1.5;
+}
+
+.healthcare-professional-skills {
+  gap: 7px 16px;
+}
+
+.healthcare-professional-skills span {
+  padding: 6px 10px;
+}
+
+.healthcare-professional-job {
+  margin-bottom: 16px;
+}
+
+.healthcare-professional-job-header {
+  margin-bottom: 6px;
+}
+
+.healthcare-professional-job li {
+  margin-bottom: 5px;
+  line-height: 1.45;
+}
