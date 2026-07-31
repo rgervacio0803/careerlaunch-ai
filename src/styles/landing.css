@@ -368,10 +368,10 @@
   border-radius: 24px;
   background: linear-gradient(135deg, #eef6ff, #faf5ff);
   border: 1px solid #dbeafe;
+
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
-  gap: 40px;
 }
 
 .success-left {
@@ -381,15 +381,16 @@
 }
 
 .success-icon {
-  width: 82px;
-  height: 82px;
+  width: 94px;
+  height: 94px;
   border-radius: 50%;
   background: white;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 42px;
+  font-size: 46px;
   box-shadow: 0 12px 30px rgba(15, 23, 42, 0.08);
+  flex-shrink: 0;
 }
 
 .success-left h3 {
@@ -459,4 +460,31 @@
     justify-content: space-between;
     flex-wrap: wrap;
   }
+}
+
+.success-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 36px;
+  width: 100%;
+}
+
+.success-content h3 {
+  margin: 0 0 10px;
+  font-size: 2rem;
+  font-weight: 700;
+  color: #172033;
+}
+
+.success-content p {
+  margin: 0;
+  max-width: 720px;
+  color: #52607a;
+  line-height: 1.7;
+}
+
+.success-icon {
+  flex-shrink: 0;
+  font-size: 3rem;
 }

@@ -128,7 +128,7 @@ function Landing({ onStart }) {
   </div>
 
   <div className="success-banner">
-    <div className="success-left">
+   <div className="success-content">
       <div className="success-icon">🛡️</div>
 
       <div>
@@ -140,22 +140,7 @@ function Landing({ onStart }) {
       </div>
     </div>
 
-    <div className="success-stats">
-      <div>
-        <strong>10K+</strong>
-        <span>Resumes Improved</span>
-      </div>
-
-      <div>
-        <strong>4.9/5</strong>
-        <span>User Rating</span>
-      </div>
-
-      <div>
-        <strong>90%</strong>
-        <span>Interview Confidence</span>
-      </div>
-    </div>
+    
   </div>
 </section>
     </div>
