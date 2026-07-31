@@ -488,3 +488,35 @@
   flex-shrink: 0;
   font-size: 3rem;
 }
+
+@media (max-width: 480px) {
+  .landing-nav {
+    padding: 16px 20px;
+    gap: 12px;
+  }
+
+  .landing-logo {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 1.05rem;
+    line-height: 1;
+    white-space: nowrap;
+  }
+
+  .landing-logo span {
+    display: inline;
+  }
+
+  .landing-links a {
+    display: none;
+  }
+
+  .landing-links button {
+    min-width: 138px;
+    padding: 12px 16px;
+    font-size: 0.9rem;
+    line-height: 1.1;
+    white-space: nowrap;
+  }
+}

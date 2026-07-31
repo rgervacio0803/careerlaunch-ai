@@ -57,8 +57,7 @@
   border: 1px solid #e5e7eb;
   border-radius: 18px;
   padding: 42px;
-  max-height: 760px;
-  overflow-y: auto;
+  
 }
 
 .optimize-page .analysis-actions {
