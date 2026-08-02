@@ -9,7 +9,7 @@ const PDFParser = require("pdf2json");
 
 const app = express();
 const upload = multer({ storage: multer.memoryStorage() });
-const PORT = 5000;
+const PORT = process.env.PORT || 5000;
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
