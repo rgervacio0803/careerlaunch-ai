@@ -27,6 +27,9 @@ import ResumeOptimizationProgress from "./components/ResumeOptimizationProgress"
 import RewritePlanProgress from "./components/RewritePlanProgress";
 import ResumeOptimizationComplete from "./components/ResumeOptimizationComplete";
 
+const API_URL =
+  import.meta.env.VITE_API_URL || "http://localhost:5000";
+
 function App() {
   const resume = useResume();
 
@@ -125,7 +128,7 @@ function App() {
         formData.append("resume", resumeFile);
       }
 
-      const response = await fetch("http://localhost:5000/analyze", {
+      const response = await fetch(`${API_URL}/analyze`, {
         method: "POST",
         body: formData,
       });
@@ -160,7 +163,7 @@ function App() {
         formData.append("resume", resumeFile);
       }
 
-      const response = await fetch("http://localhost:5000/resume-insights", {
+      const response = await fetch(`${API_URL}/resume-insights`, {
         method: "POST",
         body: formData,
       });
@@ -199,7 +202,7 @@ function App() {
         formData.append("resume", resumeFile);
       }
 
-      const response = await fetch("http://localhost:5000/rewrite-plan", {
+      const response = await fetch(`${API_URL}/rewrite-plan`, {
         method: "POST",
         body: formData,
       });
@@ -272,7 +275,7 @@ function App() {
         formData.append("resume", resumeFile);
       }
 
-      const response = await fetch("http://localhost:5000/rewrite", {
+      const response = await fetch(`${API_URL}/rewrite`, {
         method: "POST",
         body: formData,
       });
@@ -312,7 +315,7 @@ function App() {
         formData.append("resume", resumeFile);
       }
 
-      const response = await fetch("http://localhost:5000/structure-resume", {
+      const response = await fetch(`${API_URL}/structure-resume`, {
         method: "POST",
         body: formData,
       });
@@ -450,7 +453,7 @@ function App() {
         formData.append("resume", resumeFile);
       }
 
-      const response = await fetch("http://localhost:5000/interview", {
+      const response = await fetch(`${API_URL}/interview`, {
         method: "POST",
         body: formData,
       });
@@ -568,7 +571,7 @@ function App() {
       const formData = new FormData();
       formData.append("resume", file);
 
-      const response = await fetch("http://localhost:5000/parse-resume", {
+      const response = await fetch(`${API_URL}/parse-resume`, {
         method: "POST",
         body: formData,
       });
@@ -604,7 +607,7 @@ function App() {
 
       formData.append("resumeText", resumeText.trim());
 
-      const response = await fetch("http://localhost:5000/parse-resume", {
+      const response = await fetch(`${API_URL}/parse-resume`, {
         method: "POST",
         body: formData,
       });
@@ -669,7 +672,7 @@ ${jobDescription}`,
         formData.append("resume", resumeFile);
       }
 
-      const response = await fetch("http://localhost:5000/cover-letter", {
+      const response = await fetch(`${API_URL}/cover-letter`, {
         method: "POST",
         body: formData,
       });
