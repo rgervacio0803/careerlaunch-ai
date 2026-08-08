@@ -124,7 +124,14 @@ The atsScore must be a realistic number from 0 to 100 based on keyword match, re
 
 Identify 3-5 resumeStrengths that show where the resume already matches the job description well.
 
-Extract the most likely job title from the job description and return it as jobTitle. If no clear title exists, return "Target Position".
+JOB TITLE EXTRACTION:
+- Identify the actual job title or target role from the job description.
+- The title may appear anywhere in the pasted text, including the first few lines, a heading, a sentence such as "Job Title:", "Position:", "Role:", "We are hiring a...", or within the responsibilities.
+- Prefer the employer's specific stated title when one is present.
+- If no explicit title is present but the responsibilities clearly identify a role, infer the most likely professional title from those responsibilities.
+- Do not use the candidate's current resume title as the target job title.
+- Do not return generic placeholders such as "Target Position", "Target Role", "Job", or "Unknown".
+- If the job title truly cannot be determined, return an empty string "".
 
 Resume:
 ${resumeText}

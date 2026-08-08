@@ -7,7 +7,7 @@
     <ResumePage className="professional-resume-paper">
       <header className="professional-resume-header">
         <h1>{resume.name || "Candidate Name"}</h1>
-        <p>{resume.title || "Target Role"}</p>
+        {resume.title && <p>{resume.title}</p>}
         {resume.contact && <span>{resume.contact}</span>}
       </header>
 

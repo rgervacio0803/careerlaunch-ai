@@ -7,7 +7,7 @@ function MinimalResume({ resume }) {
     <ResumePage className="minimal-resume-paper">
       <header className="minimal-resume-header">
         <h1>{resume.name || "Candidate Name"}</h1>
-        <p>{resume.title || "Target Role"}</p>
+        {resume.title && <p>{resume.title}</p>}
         {resume.contact && <span>{resume.contact}</span>}
       </header>
 

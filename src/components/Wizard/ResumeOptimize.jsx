@@ -1,3 +1,4 @@
+import { useState } from "react";
 import ModernResume from "../ResumeTemplates/ModernResume";
 import ProfessionalResume from "../ResumeTemplates/ProfessionalResume";
 import MinimalResume from "../ResumeTemplates/MinimalResume";
@@ -71,6 +72,7 @@ const templateOptions = [
 function ResumeOptimize({
   rewrittenResume,
   structuredResume,
+  setStructuredResume,
   recommendation,
   selectedTemplate,
   setSelectedTemplate,
@@ -80,6 +82,10 @@ function ResumeOptimize({
   downloadRewrittenResume,
   handleCoverLetter,
 }) {
+  const [isEditingResume, setIsEditingResume] = useState(false);
+  const [skillsText, setSkillsText] = useState(
+    (structuredResume?.skills || []).join(", "),
+  );
   return (
     <section className="wizard-step-page optimize-page">
       <div className="step-page-header">
@@ -100,7 +106,233 @@ function ResumeOptimize({
             </p>
           </div>
 
+          {isEditingResume && (
+            <div className="resume-editor">
+              <h3>Edit Resume</h3>
+              <p>Make any final changes before downloading your resume.</p>
+
+              <div className="resume-editor-field">
+                <label>Professional Title</label>
+
+                <input
+                  type="text"
+                  value={structuredResume?.title || ""}
+                  onChange={(e) =>
+                    setStructuredResume({
+                      ...structuredResume,
+                      title: e.target.value,
+                    })
+                  }
+                  placeholder="Professional title"
+                />
+              </div>
+              <div className="resume-editor-field">
+                <label>Name</label>
+
+                <input
+                  type="text"
+                  value={structuredResume?.name || ""}
+                  onChange={(e) =>
+                    setStructuredResume({
+                      ...structuredResume,
+                      name: e.target.value,
+                    })
+                  }
+                  placeholder="Your name"
+                />
+              </div>
+
+              <div className="resume-editor-field">
+                <label>Contact</label>
+
+                <input
+                  type="text"
+                  value={structuredResume?.contact || ""}
+                  onChange={(e) =>
+                    setStructuredResume({
+                      ...structuredResume,
+                      contact: e.target.value,
+                    })
+                  }
+                  placeholder="Email, phone, city, LinkedIn"
+                />
+              </div>
+
+              <div className="resume-editor-field">
+                <label>Professional Summary</label>
+
+                <textarea
+                  value={structuredResume?.summary || ""}
+                  onChange={(e) =>
+                    setStructuredResume({
+                      ...structuredResume,
+                      summary: e.target.value,
+                    })
+                  }
+                  placeholder="Professional summary"
+                  rows={6}
+                />
+              </div>
+
+              <div className="resume-editor-field">
+                <label>Skills</label>
+
+                <textarea
+                  value={skillsText}
+                  onChange={(e) => {
+                    const value = e.target.value;
+
+                    setSkillsText(value);
+
+                    setStructuredResume({
+                      ...structuredResume,
+                      skills: value
+                        .split(",")
+                        .map((skill) => skill.trim())
+                        .filter(Boolean),
+                    });
+                  }}
+                  placeholder="React, JavaScript, CSS, Redux"
+                  rows={4}
+                />
+
+                <small>Separate each skill with a comma.</small>
+              </div>
+              <div className="resume-editor-section">
+                <h4>Professional Experience</h4>
+
+                {(structuredResume?.experience || []).map((job, jobIndex) => (
+                  <div className="resume-editor-job" key={jobIndex}>
+                    <div className="resume-editor-field">
+                      <label>Job Title</label>
+
+                      <input
+                        type="text"
+                        value={job.jobTitle || ""}
+                        onChange={(e) => {
+                          const updatedExperience = [
+                            ...structuredResume.experience,
+                          ];
+
+                          updatedExperience[jobIndex] = {
+                            ...job,
+                            jobTitle: e.target.value,
+                          };
+
+                          setStructuredResume({
+                            ...structuredResume,
+                            experience: updatedExperience,
+                          });
+                        }}
+                      />
+                    </div>
+
+                    <div className="resume-editor-field">
+                      <label>Company</label>
+
+                      <input
+                        type="text"
+                        value={job.company || ""}
+                        onChange={(e) => {
+                          const updatedExperience = [
+                            ...structuredResume.experience,
+                          ];
+
+                          updatedExperience[jobIndex] = {
+                            ...job,
+                            company: e.target.value,
+                          };
+
+                          setStructuredResume({
+                            ...structuredResume,
+                            experience: updatedExperience,
+                          });
+                        }}
+                      />
+                    </div>
+
+                    <div className="resume-editor-field">
+                      <label>Dates</label>
+
+                      <input
+                        type="text"
+                        value={job.dates || ""}
+                        onChange={(e) => {
+                          const updatedExperience = [
+                            ...structuredResume.experience,
+                          ];
+
+                          updatedExperience[jobIndex] = {
+                            ...job,
+                            dates: e.target.value,
+                          };
+
+                          setStructuredResume({
+                            ...structuredResume,
+                            experience: updatedExperience,
+                          });
+                        }}
+                      />
+                    </div>
+
+                    <div className="resume-editor-field">
+                      <label>Bullet Points</label>
+
+                      <textarea
+                        value={(job.bullets || []).join("\n")}
+                        onChange={(e) => {
+                          const updatedExperience = [
+                            ...structuredResume.experience,
+                          ];
+
+                          updatedExperience[jobIndex] = {
+                            ...job,
+                            bullets: e.target.value.split("\n"),
+                          };
+
+                          setStructuredResume({
+                            ...structuredResume,
+                            experience: updatedExperience,
+                          });
+                        }}
+                        rows={6}
+                        placeholder="One bullet point per line"
+                      />
+                    </div>
+                  </div>
+                ))}
+
+                <button
+                  type="button"
+                  className="secondary-button"
+                  onClick={() =>
+                    setStructuredResume({
+                      ...structuredResume,
+                      experience: [
+                        {
+                          jobTitle: "",
+                          company: "",
+                          dates: "",
+                          bullets: [],
+                        },
+                        ...(structuredResume?.experience || []),
+                      ],
+                    })
+                  }
+                >
+                  + Add Experience
+                </button>
+              </div>
+            </div>
+          )}
+
           <div className="optimized-actions-top">
+            <button
+              className="secondary-button"
+              onClick={() => setIsEditingResume((current) => !current)}
+            >
+              {isEditingResume ? "Done Editing" : "Edit Resume"}
+            </button>
             <button
               className="copy-btn"
               onClick={() => copyToClipboard(rewrittenResume)}

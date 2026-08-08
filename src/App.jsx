@@ -141,7 +141,16 @@ function App() {
       }
       setResult(data);
       await handleResumeInsights();
-      setJobTitle(data.jobTitle || "Target Position");
+      const detectedJobTitle = data.jobTitle?.trim();
+
+      if (
+        !jobTitle.trim() &&
+        detectedJobTitle &&
+        detectedJobTitle !== "Target Position" &&
+        detectedJobTitle !== "Target Role"
+      ) {
+        setJobTitle(detectedJobTitle);
+      }
       setCurrentStep(3);
     } catch (error) {
       console.error(error);
@@ -283,7 +292,10 @@ function App() {
       console.log("Rewrite data:", data);
 
       setRewrittenResume(data.rewrittenResume);
-      setStructuredResume(data.structuredResume);
+      setStructuredResume({
+        ...data.structuredResume,
+        title: jobTitle || data.jobTitle || data.structuredResume?.title || "",
+      });
       setSelectedTemplate(recommendation.templateId);
 
       setShowOptimizationComplete(true);
@@ -323,7 +335,10 @@ function App() {
 
       console.log("Structured Resume:", data);
 
-      setStructuredResume(data.structuredResume);
+      setStructuredResume({
+        ...data.structuredResume,
+        title: jobTitle || data.jobTitle || data.structuredResume?.title || "",
+      });
     } catch (error) {
       console.error(error);
     }
@@ -1175,7 +1190,7 @@ ${jobDescription}`,
 
     doc.addPage();
 
-y = 18;
+    y = 18;
 
     // THIRD ROW: Resume Suggestions + Career Advice
 
@@ -1741,6 +1756,7 @@ y = 18;
           <ResumeOptimize
             rewrittenResume={rewrittenResume}
             structuredResume={structuredResume}
+            setStructuredResume={setStructuredResume}
             recommendation={recommendation}
             selectedTemplate={selectedTemplate}
             setSelectedTemplate={setSelectedTemplate}
