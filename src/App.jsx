@@ -344,94 +344,212 @@ function App() {
     }
   }
 
-  async function downloadRewrittenResume() {
-    if (!resumePreviewRef.current) return;
+async function downloadRewrittenResume() {
+  if (!resumePreviewRef.current) return;
 
-    const canvas = await html2canvas(resumePreviewRef.current, {
-      scale: 2,
-      useCORS: true,
-      backgroundColor: "#ffffff",
-    });
+  const canvas = await html2canvas(resumePreviewRef.current, {
+    scale: 2,
+    useCORS: true,
+    backgroundColor: "#ffffff",
+  });
 
-    const imgData = canvas.toDataURL("image/png");
+  const pdf = new jsPDF("p", "mm", "letter");
 
-    const pdf = new jsPDF("p", "mm", "a4");
+  const pageWidth = pdf.internal.pageSize.getWidth();
+  const pageHeight = pdf.internal.pageSize.getHeight();
 
-    const pageWidth = pdf.internal.pageSize.getWidth();
-    const pageHeight = pdf.internal.pageSize.getHeight();
+  const margin = 10;
 
-    const margin = 10;
-    const imgWidth = pageWidth - margin * 2;
-    const imgHeight = (canvas.height * imgWidth) / canvas.width;
+  const usableWidth = pageWidth - margin * 2;
+  const usableHeight = pageHeight - margin * 2;
 
-    if (imgHeight <= pageHeight - margin * 2) {
-      pdf.addImage(imgData, "PNG", margin, margin, imgWidth, imgHeight);
-    } else {
-      let heightLeft = imgHeight;
-      let position = margin;
+  // This tells us how many canvas pixels fit on one PDF page.
+  const pixelsPerMm = canvas.width / usableWidth;
+  const pageHeightPixels = Math.floor(
+    usableHeight * pixelsPerMm
+  );
 
-      pdf.addImage(imgData, "PNG", margin, position, imgWidth, imgHeight);
-      heightLeft -= pageHeight - margin * 2;
+  let sourceY = 0;
+  let pageNumber = 0;
 
-      while (heightLeft > 0) {
-        position = heightLeft - imgHeight + margin;
+  while (sourceY < canvas.height) {
+    const sliceHeight = Math.min(
+      pageHeightPixels,
+      canvas.height - sourceY
+    );
 
-        pdf.addPage();
+    // Create a temporary canvas containing ONLY this page.
+    const pageCanvas = document.createElement("canvas");
 
-        pdf.addImage(imgData, "PNG", margin, position, imgWidth, imgHeight);
+    pageCanvas.width = canvas.width;
+    pageCanvas.height = sliceHeight;
 
-        heightLeft -= pageHeight - margin * 2;
-      }
+    const context = pageCanvas.getContext("2d");
+
+    context.fillStyle = "#ffffff";
+    context.fillRect(
+      0,
+      0,
+      pageCanvas.width,
+      pageCanvas.height
+    );
+
+    context.drawImage(
+      canvas,
+      0,
+      sourceY,
+      canvas.width,
+      sliceHeight,
+      0,
+      0,
+      canvas.width,
+      sliceHeight
+    );
+
+    const pageImage = pageCanvas.toDataURL("image/png");
+
+    const renderedHeight =
+      sliceHeight / pixelsPerMm;
+
+    if (pageNumber > 0) {
+      pdf.addPage();
     }
 
-    pdf.save(`${selectedTemplate}-resume.pdf`);
+    pdf.addImage(
+      pageImage,
+      "PNG",
+      margin,
+      margin,
+      usableWidth,
+      renderedHeight
+    );
+
+    sourceY += sliceHeight;
+    pageNumber += 1;
   }
+
+  pdf.save(`${selectedTemplate}-resume.pdf`);
+}
 
   async function downloadThemedCoverLetter() {
-    if (!coverLetterPreviewRef.current) return;
+  if (!coverLetterPreviewRef.current) return;
 
-    const canvas = await html2canvas(coverLetterPreviewRef.current, {
-      scale: 2,
-      useCORS: true,
-      backgroundColor: "#ffffff",
-    });
+  const canvas = await html2canvas(coverLetterPreviewRef.current, {
+    scale: 2,
+    useCORS: true,
+    backgroundColor: "#ffffff",
+  });
 
-    const imgData = canvas.toDataURL("image/png");
+  const pdf = new jsPDF("p", "mm", "letter");
 
-    const pdf = new jsPDF("p", "mm", "letter");
+  const pageWidth = pdf.internal.pageSize.getWidth();
+  const pageHeight = pdf.internal.pageSize.getHeight();
 
-    const pageWidth = pdf.internal.pageSize.getWidth();
-    const pageHeight = pdf.internal.pageSize.getHeight();
+  const margin = 10;
 
-    const margin = 10;
-    const imgWidth = pageWidth - margin * 2;
-    const imgHeight = (canvas.height * imgWidth) / canvas.width;
+  const usableWidth = pageWidth - margin * 2;
+  const usableHeight = pageHeight - margin * 2;
 
-    if (imgHeight <= pageHeight - margin * 2) {
-      pdf.addImage(imgData, "PNG", margin, margin, imgWidth, imgHeight);
-    } else {
-      let heightLeft = imgHeight;
-      let position = margin;
+  // Calculate how many canvas pixels fit on one PDF page.
+  const pixelsPerMm = canvas.width / usableWidth;
+  const pageHeightPixels = Math.floor(
+    usableHeight * pixelsPerMm
+  );
 
-      pdf.addImage(imgData, "PNG", margin, position, imgWidth, imgHeight);
-      heightLeft -= pageHeight - margin * 2;
+  if (canvas.height <= pageHeightPixels * 1.12) {
+  const imgData = canvas.toDataURL("image/png");
 
-      while (heightLeft > 0) {
-        position = heightLeft - imgHeight + margin;
+  const scale = Math.min(
+    usableWidth / canvas.width,
+    usableHeight / canvas.height
+  );
 
-        pdf.addPage();
-        pdf.addImage(imgData, "PNG", margin, position, imgWidth, imgHeight);
+  const renderedWidth = canvas.width * scale;
+  const renderedHeight = canvas.height * scale;
 
-        heightLeft -= pageHeight - margin * 2;
-      }
+  const x = (pageWidth - renderedWidth) / 2;
+
+  pdf.addImage(
+    imgData,
+    "PNG",
+    x,
+    margin,
+    renderedWidth,
+    renderedHeight
+  );
+
+  const safeCompanyName = companyName
+    ? companyName.toLowerCase().replace(/[^a-z0-9]+/g, "-")
+    : "company";
+
+  pdf.save(`${safeCompanyName}-cover-letter.pdf`);
+  return;
+}
+
+  let sourceY = 0;
+  let pageNumber = 0;
+
+  while (sourceY < canvas.height) {
+    const sliceHeight = Math.min(
+      pageHeightPixels,
+      canvas.height - sourceY
+    );
+
+    // Create a temporary canvas containing only this page.
+    const pageCanvas = document.createElement("canvas");
+
+    pageCanvas.width = canvas.width;
+    pageCanvas.height = sliceHeight;
+
+    const context = pageCanvas.getContext("2d");
+
+    context.fillStyle = "#ffffff";
+    context.fillRect(
+      0,
+      0,
+      pageCanvas.width,
+      pageCanvas.height
+    );
+
+    context.drawImage(
+      canvas,
+      0,
+      sourceY,
+      canvas.width,
+      sliceHeight,
+      0,
+      0,
+      canvas.width,
+      sliceHeight
+    );
+
+    const pageImage = pageCanvas.toDataURL("image/png");
+
+    const renderedHeight = sliceHeight / pixelsPerMm;
+
+    if (pageNumber > 0) {
+      pdf.addPage();
     }
 
-    const safeCompanyName = companyName
-      ? companyName.toLowerCase().replace(/[^a-z0-9]+/g, "-")
-      : "company";
+    pdf.addImage(
+      pageImage,
+      "PNG",
+      margin,
+      margin,
+      usableWidth,
+      renderedHeight
+    );
 
-    pdf.save(`${safeCompanyName}-cover-letter.pdf`);
+    sourceY += sliceHeight;
+    pageNumber += 1;
   }
+
+  const safeCompanyName = companyName
+    ? companyName.toLowerCase().replace(/[^a-z0-9]+/g, "-")
+    : "company";
+
+  pdf.save(`${safeCompanyName}-cover-letter.pdf`);
+}
 
   async function handleInterviewCoach() {
     if (!resumeText.trim() && !resumeFile) {

@@ -1,6 +1,6 @@
- import ResumePage from "./ResumePage";
- 
- function ProfessionalResume({ resume }) {
+import ResumePage from "./ResumePage";
+
+function ProfessionalResume({ resume }) {
   if (!resume) return null;
 
   return (
@@ -59,7 +59,17 @@
           </ul>
         </section>
       )}
-   </ResumePage>
+      {resume.certifications?.length > 0 && (
+        <section className="professional-section">
+          <h2>Certifications</h2>
+          <ul>
+            {resume.certifications.map((item, index) => (
+              <li key={index}>{item}</li>
+            ))}
+          </ul>
+        </section>
+      )}
+    </ResumePage>
   );
 }
 

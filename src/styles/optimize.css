@@ -162,7 +162,7 @@
 .cover-letter-paper {
   width: 100%;
   max-width: 816px;
-  min-height: 1056px;
+  min-height: 0;
 
   margin: 24px auto 0;
   padding: 72px 76px;
@@ -1132,4 +1132,220 @@
 .healthcare-professional-job li {
   margin-bottom: 5px;
   line-height: 1.45;
+}
+
+/* =========================================
+   RESUME EDITOR
+   ========================================= */
+
+.resume-editor-section {
+  margin-top: 24px;
+}
+
+.resume-editor-section h4 {
+  margin: 0 0 14px;
+  font-size: 16px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.resume-editor-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 16px;
+}
+
+.resume-editor-field label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #334155;
+}
+
+.resume-editor-field input,
+.resume-editor-field textarea {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 10px 12px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #0f172a;
+  font-family: inherit;
+  font-size: 13px;
+  line-height: 1.5;
+  outline: none;
+}
+
+.resume-editor-field input {
+  min-height: 40px;
+}
+
+.resume-editor-field textarea {
+  resize: vertical;
+}
+
+.resume-editor-field input:focus,
+.resume-editor-field textarea:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.resume-editor-field small {
+  font-size: 11px;
+  color: #64748b;
+}
+
+/* Individual job cards */
+
+.resume-editor-job {
+  position: relative;
+  margin-bottom: 18px;
+  padding: 18px;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  background: #f8fafc;
+}
+
+/* Remove Experience button */
+
+.resume-editor-job > .secondary-button {
+  width: auto;
+  margin: 0 0 16px auto;
+  display: block;
+  padding: 7px 12px;
+  border: 1px solid #fecaca;
+  border-radius: 7px;
+  background: #fff;
+  color: #dc2626;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.resume-editor-job > .secondary-button:hover {
+  background: #fef2f2;
+}
+
+/* Add Experience button */
+
+.resume-editor-section > .secondary-button {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1px dashed #2563eb;
+  border-radius: 8px;
+  background: #eff6ff;
+  color: #2563eb;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.resume-editor-section > .secondary-button:hover {
+  background: #dbeafe;
+}
+
+/* Make the Edit Resume panel use the available width */
+.resume-editor {
+  width: 100%;
+  max-width: 900px;
+  margin: 28px auto 0;
+  padding: 24px;
+  box-sizing: border-box;
+
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+}
+
+.resume-editor > h3 {
+  margin: 0 0 6px;
+  font-size: 22px;
+  color: #0f172a;
+}
+
+.resume-editor > p {
+  margin: 0 0 24px;
+  color: #64748b;
+  font-size: 14px;
+}
+
+.resume-editor-job-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 0.8fr;
+  gap: 14px;
+}
+
+@media (max-width: 800px) {
+  .resume-editor-job-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+.optimized-actions-top {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 170px;
+}
+
+.optimized-actions-top button {
+  width: 100%;
+  min-height: 42px;
+  padding: 10px 16px;
+  border-radius: 9px;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.optimized-actions-top .copy-btn {
+  background: #2563eb;
+  color: #ffffff;
+  border: none;
+}
+
+.optimized-actions-top .download-btn {
+  background: #059669;
+  color: #ffffff;
+  border: none;
+}
+
+.optimized-actions-top .secondary-button {
+  background: #dbeafe;
+  color: #1e3a8a;
+  border: 1px solid #bfdbfe;
+}
+
+.resume-editor-basic-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.resume-editor-field-full {
+  grid-column: 1 / -1;
+}
+
+@media (max-width: 800px) {
+  .resume-editor-basic-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .resume-editor-field-full {
+    grid-column: auto;
+  }
+}
+
+.resume-editor-section > h4 {
+  padding-bottom: 8px;
+  margin-bottom: 16px;
+  border-bottom: 1px solid #e2e8f0;
+  font-size: 15px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.optimized-actions-top {
+  position: sticky;
+  top: 20px;
+  align-self: flex-start;
 }

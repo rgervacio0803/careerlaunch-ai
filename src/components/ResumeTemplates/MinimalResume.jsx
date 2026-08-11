@@ -52,6 +52,13 @@ function MinimalResume({ resume }) {
           <p>{resume.education.join(" / ")}</p>
         </section>
       )}
+
+      {resume.certifications?.length > 0 && (
+        <section className="minimal-section">
+          <h2>Certifications</h2>
+          <p>{resume.certifications.join(" / ")}</p>
+        </section>
+      )}
     </ResumePage>
   );
 }
