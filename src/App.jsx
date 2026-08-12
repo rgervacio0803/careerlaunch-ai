@@ -344,212 +344,308 @@ function App() {
     }
   }
 
-async function downloadRewrittenResume() {
-  if (!resumePreviewRef.current) return;
+  async function downloadRewrittenResume() {
+    if (!resumePreviewRef.current) return;
 
-  const canvas = await html2canvas(resumePreviewRef.current, {
-    scale: 2,
-    useCORS: true,
-    backgroundColor: "#ffffff",
-  });
+    const canvas = await html2canvas(resumePreviewRef.current, {
+      scale: 2,
+      useCORS: true,
+      backgroundColor: "#ffffff",
+    });
 
-  const pdf = new jsPDF("p", "mm", "letter");
+    const pdf = new jsPDF("p", "mm", "letter");
 
-  const pageWidth = pdf.internal.pageSize.getWidth();
-  const pageHeight = pdf.internal.pageSize.getHeight();
+    const pageWidth = pdf.internal.pageSize.getWidth();
+    const pageHeight = pdf.internal.pageSize.getHeight();
 
-  const margin = 10;
+    const margin = 10;
 
-  const usableWidth = pageWidth - margin * 2;
-  const usableHeight = pageHeight - margin * 2;
+    const usableWidth = pageWidth - margin * 2;
+    const usableHeight = pageHeight - margin * 2;
 
-  // This tells us how many canvas pixels fit on one PDF page.
-  const pixelsPerMm = canvas.width / usableWidth;
-  const pageHeightPixels = Math.floor(
-    usableHeight * pixelsPerMm
-  );
+    // This tells us how many canvas pixels fit on one PDF page.
+    const pixelsPerMm = canvas.width / usableWidth;
+    const pageHeightPixels = Math.floor(usableHeight * pixelsPerMm);
 
-  let sourceY = 0;
-  let pageNumber = 0;
+    let sourceY = 0;
+    let pageNumber = 0;
 
-  while (sourceY < canvas.height) {
-    const sliceHeight = Math.min(
-      pageHeightPixels,
-      canvas.height - sourceY
-    );
+    function getJobBoundaries() {
+      const previewRect = resumePreviewRef.current.getBoundingClientRect();
 
-    // Create a temporary canvas containing ONLY this page.
-    const pageCanvas = document.createElement("canvas");
+      const scaleY = canvas.height / resumePreviewRef.current.offsetHeight;
 
-    pageCanvas.width = canvas.width;
-    pageCanvas.height = sliceHeight;
+      return Array.from(
+        resumePreviewRef.current.querySelectorAll(".resume-job-entry"),
+      ).map((job) => {
+        const rect = job.getBoundingClientRect();
 
-    const context = pageCanvas.getContext("2d");
-
-    context.fillStyle = "#ffffff";
-    context.fillRect(
-      0,
-      0,
-      pageCanvas.width,
-      pageCanvas.height
-    );
-
-    context.drawImage(
-      canvas,
-      0,
-      sourceY,
-      canvas.width,
-      sliceHeight,
-      0,
-      0,
-      canvas.width,
-      sliceHeight
-    );
-
-    const pageImage = pageCanvas.toDataURL("image/png");
-
-    const renderedHeight =
-      sliceHeight / pixelsPerMm;
-
-    if (pageNumber > 0) {
-      pdf.addPage();
+        return {
+          top: Math.round((rect.top - previewRect.top) * scaleY),
+          bottom: Math.round((rect.bottom - previewRect.top) * scaleY),
+        };
+      });
     }
 
-    pdf.addImage(
-      pageImage,
-      "PNG",
-      margin,
-      margin,
-      usableWidth,
-      renderedHeight
-    );
+    const jobBoundaries = getJobBoundaries();
 
-    sourceY += sliceHeight;
-    pageNumber += 1;
+    function findSafeBreak(startY, idealEndY) {
+      const ctx = canvas.getContext("2d");
+
+      // Prefer keeping an entire job together when possible
+      const crossingJob = jobBoundaries.find((job) => {
+        const jobHeight = job.bottom - job.top;
+
+        return (
+          job.top > startY &&
+          job.top < idealEndY &&
+          job.bottom > idealEndY &&
+          jobHeight <= pageHeightPixels
+        );
+      });
+
+      if (crossingJob) {
+        const spaceUsedBeforeJob = crossingJob.top - startY;
+
+        // Only move the whole job if it won't leave most of the page empty
+        if (spaceUsedBeforeJob >= pageHeightPixels * 0.45) {
+          return crossingJob.top;
+        }
+      }
+
+      const searchStart = Math.max(
+        startY + Math.floor(pageHeightPixels * 0.75),
+        idealEndY - 180,
+      );
+
+      const searchEnd = Math.min(idealEndY, canvas.height - 1);
+
+      for (let y = searchEnd; y >= searchStart; y -= 2) {
+        const row = ctx.getImageData(0, y, canvas.width, 1).data;
+
+        let darkPixels = 0;
+
+        for (let i = 0; i < row.length; i += 4) {
+          const r = row[i];
+          const g = row[i + 1];
+          const b = row[i + 2];
+
+          if (r < 245 || g < 245 || b < 245) {
+            darkPixels += 1;
+          }
+        }
+
+        const darkRatio = darkPixels / canvas.width;
+
+        if (darkRatio < 0.01) {
+          return y;
+        }
+      }
+
+      return idealEndY;
+    }
+
+    while (sourceY < canvas.height) {
+      const idealEndY = Math.min(sourceY + pageHeightPixels, canvas.height);
+
+      const safeEndY =
+        idealEndY < canvas.height
+          ? findSafeBreak(sourceY, idealEndY)
+          : idealEndY;
+
+      const sliceHeight = safeEndY - sourceY;
+
+      // Create a temporary canvas containing ONLY this page.
+      const pageCanvas = document.createElement("canvas");
+
+      pageCanvas.width = canvas.width;
+      pageCanvas.height = sliceHeight;
+
+      const context = pageCanvas.getContext("2d");
+
+      context.fillStyle = "#ffffff";
+      context.fillRect(0, 0, pageCanvas.width, pageCanvas.height);
+
+      context.drawImage(
+        canvas,
+        0,
+        sourceY,
+        canvas.width,
+        sliceHeight,
+        0,
+        0,
+        canvas.width,
+        sliceHeight,
+      );
+
+      const pageImage = pageCanvas.toDataURL("image/png");
+
+      const renderedHeight = sliceHeight / pixelsPerMm;
+
+      if (pageNumber > 0) {
+        pdf.addPage();
+      }
+
+      pdf.addImage(
+        pageImage,
+        "PNG",
+        margin,
+        margin,
+        usableWidth,
+        renderedHeight,
+      );
+
+      sourceY += sliceHeight;
+      pageNumber += 1;
+    }
+
+    pdf.save(`${selectedTemplate}-resume.pdf`);
   }
-
-  pdf.save(`${selectedTemplate}-resume.pdf`);
-}
 
   async function downloadThemedCoverLetter() {
-  if (!coverLetterPreviewRef.current) return;
+    if (!coverLetterPreviewRef.current) return;
 
-  const canvas = await html2canvas(coverLetterPreviewRef.current, {
-    scale: 2,
-    useCORS: true,
-    backgroundColor: "#ffffff",
-  });
+    const canvas = await html2canvas(coverLetterPreviewRef.current, {
+      scale: 2,
+      useCORS: true,
+      backgroundColor: "#ffffff",
+    });
 
-  const pdf = new jsPDF("p", "mm", "letter");
+    const pdf = new jsPDF("p", "mm", "letter");
 
-  const pageWidth = pdf.internal.pageSize.getWidth();
-  const pageHeight = pdf.internal.pageSize.getHeight();
+    const pageWidth = pdf.internal.pageSize.getWidth();
+    const pageHeight = pdf.internal.pageSize.getHeight();
 
-  const margin = 10;
+    const margin = 10;
 
-  const usableWidth = pageWidth - margin * 2;
-  const usableHeight = pageHeight - margin * 2;
+    const usableWidth = pageWidth - margin * 2;
+    const usableHeight = pageHeight - margin * 2;
 
-  // Calculate how many canvas pixels fit on one PDF page.
-  const pixelsPerMm = canvas.width / usableWidth;
-  const pageHeightPixels = Math.floor(
-    usableHeight * pixelsPerMm
-  );
+    // Calculate how many canvas pixels fit on one PDF page.
+    const pixelsPerMm = canvas.width / usableWidth;
+    const pageHeightPixels = Math.floor(usableHeight * pixelsPerMm);
 
-  if (canvas.height <= pageHeightPixels * 1.12) {
-  const imgData = canvas.toDataURL("image/png");
+    if (canvas.height <= pageHeightPixels * 1.12) {
+      const imgData = canvas.toDataURL("image/png");
 
-  const scale = Math.min(
-    usableWidth / canvas.width,
-    usableHeight / canvas.height
-  );
+      const scale = Math.min(
+        usableWidth / canvas.width,
+        usableHeight / canvas.height,
+      );
 
-  const renderedWidth = canvas.width * scale;
-  const renderedHeight = canvas.height * scale;
+      const renderedWidth = canvas.width * scale;
+      const renderedHeight = canvas.height * scale;
 
-  const x = (pageWidth - renderedWidth) / 2;
+      const x = (pageWidth - renderedWidth) / 2;
 
-  pdf.addImage(
-    imgData,
-    "PNG",
-    x,
-    margin,
-    renderedWidth,
-    renderedHeight
-  );
+      pdf.addImage(imgData, "PNG", x, margin, renderedWidth, renderedHeight);
 
-  const safeCompanyName = companyName
-    ? companyName.toLowerCase().replace(/[^a-z0-9]+/g, "-")
-    : "company";
+      const safeCompanyName = companyName
+        ? companyName.toLowerCase().replace(/[^a-z0-9]+/g, "-")
+        : "company";
 
-  pdf.save(`${safeCompanyName}-cover-letter.pdf`);
-  return;
-}
-
-  let sourceY = 0;
-  let pageNumber = 0;
-
-  while (sourceY < canvas.height) {
-    const sliceHeight = Math.min(
-      pageHeightPixels,
-      canvas.height - sourceY
-    );
-
-    // Create a temporary canvas containing only this page.
-    const pageCanvas = document.createElement("canvas");
-
-    pageCanvas.width = canvas.width;
-    pageCanvas.height = sliceHeight;
-
-    const context = pageCanvas.getContext("2d");
-
-    context.fillStyle = "#ffffff";
-    context.fillRect(
-      0,
-      0,
-      pageCanvas.width,
-      pageCanvas.height
-    );
-
-    context.drawImage(
-      canvas,
-      0,
-      sourceY,
-      canvas.width,
-      sliceHeight,
-      0,
-      0,
-      canvas.width,
-      sliceHeight
-    );
-
-    const pageImage = pageCanvas.toDataURL("image/png");
-
-    const renderedHeight = sliceHeight / pixelsPerMm;
-
-    if (pageNumber > 0) {
-      pdf.addPage();
+      pdf.save(`${safeCompanyName}-cover-letter.pdf`);
+      return;
     }
 
-    pdf.addImage(
-      pageImage,
-      "PNG",
-      margin,
-      margin,
-      usableWidth,
-      renderedHeight
-    );
+    let sourceY = 0;
+    let pageNumber = 0;
 
-    sourceY += sliceHeight;
-    pageNumber += 1;
+    function findSafeBreak(startY, idealEndY) {
+      const ctx = canvas.getContext("2d");
+
+      const searchStart = Math.max(
+        startY + Math.floor(pageHeightPixels * 0.75),
+        idealEndY - 180,
+      );
+
+      const searchEnd = Math.min(idealEndY, canvas.height - 1);
+
+      for (let y = searchEnd; y >= searchStart; y -= 2) {
+        const row = ctx.getImageData(0, y, canvas.width, 1).data;
+
+        let darkPixels = 0;
+
+        for (let i = 0; i < row.length; i += 4) {
+          const r = row[i];
+          const g = row[i + 1];
+          const b = row[i + 2];
+
+          if (r < 245 || g < 245 || b < 245) {
+            darkPixels += 1;
+          }
+        }
+
+        const darkRatio = darkPixels / canvas.width;
+
+        if (darkRatio < 0.01) {
+          return y;
+        }
+      }
+
+      return idealEndY;
+    }
+
+    while (sourceY < canvas.height) {
+      const idealEndY = Math.min(sourceY + pageHeightPixels, canvas.height);
+
+      const safeEndY =
+        idealEndY < canvas.height
+          ? findSafeBreak(sourceY, idealEndY)
+          : idealEndY;
+
+      const sliceHeight = safeEndY - sourceY;
+
+      // Create a temporary canvas containing only this page.
+      const pageCanvas = document.createElement("canvas");
+
+      pageCanvas.width = canvas.width;
+      pageCanvas.height = sliceHeight;
+
+      const context = pageCanvas.getContext("2d");
+
+      context.fillStyle = "#ffffff";
+      context.fillRect(0, 0, pageCanvas.width, pageCanvas.height);
+
+      context.drawImage(
+        canvas,
+        0,
+        sourceY,
+        canvas.width,
+        sliceHeight,
+        0,
+        0,
+        canvas.width,
+        sliceHeight,
+      );
+
+      const pageImage = pageCanvas.toDataURL("image/png");
+
+      const renderedHeight = sliceHeight / pixelsPerMm;
+
+      if (pageNumber > 0) {
+        pdf.addPage();
+      }
+
+      pdf.addImage(
+        pageImage,
+        "PNG",
+        margin,
+        margin,
+        usableWidth,
+        renderedHeight,
+      );
+
+      sourceY += sliceHeight;
+      pageNumber += 1;
+    }
+
+    const safeCompanyName = companyName
+      ? companyName.toLowerCase().replace(/[^a-z0-9]+/g, "-")
+      : "company";
+
+    pdf.save(`${safeCompanyName}-cover-letter.pdf`);
   }
-
-  const safeCompanyName = companyName
-    ? companyName.toLowerCase().replace(/[^a-z0-9]+/g, "-")
-    : "company";
-
-  pdf.save(`${safeCompanyName}-cover-letter.pdf`);
-}
 
   async function handleInterviewCoach() {
     if (!resumeText.trim() && !resumeFile) {
