@@ -88,6 +88,7 @@ function App() {
   const [rewritePlanStep, setRewritePlanStep] = useState(0);
   const resumePreviewRef = useRef(null);
   const coverLetterPreviewRef = useRef(null);
+  const interviewPrepRef = useRef(null);
   const [showResetModal, setShowResetModal] = useState(false);
 
   async function handleAnalyze() {
@@ -525,29 +526,6 @@ function App() {
     const pixelsPerMm = canvas.width / usableWidth;
     const pageHeightPixels = Math.floor(usableHeight * pixelsPerMm);
 
-    if (canvas.height <= pageHeightPixels * 1.12) {
-      const imgData = canvas.toDataURL("image/png");
-
-      const scale = Math.min(
-        usableWidth / canvas.width,
-        usableHeight / canvas.height,
-      );
-
-      const renderedWidth = canvas.width * scale;
-      const renderedHeight = canvas.height * scale;
-
-      const x = (pageWidth - renderedWidth) / 2;
-
-      pdf.addImage(imgData, "PNG", x, margin, renderedWidth, renderedHeight);
-
-      const safeCompanyName = companyName
-        ? companyName.toLowerCase().replace(/[^a-z0-9]+/g, "-")
-        : "company";
-
-      pdf.save(`${safeCompanyName}-cover-letter.pdf`);
-      return;
-    }
-
     let sourceY = 0;
     let pageNumber = 0;
 
@@ -584,6 +562,36 @@ function App() {
       }
 
       return idealEndY;
+    }
+
+    const overflowAmount = canvas.height - pageHeightPixels;
+
+    // If the letter only exceeds one page by a small amount,
+    // scale the complete letter down to fit on one page.
+    if (
+      canvas.height > pageHeightPixels &&
+      overflowAmount <= pageHeightPixels * 0.3
+    ) {
+      const imgData = canvas.toDataURL("image/png");
+
+      const scale = Math.min(
+        usableWidth / canvas.width,
+        usableHeight / canvas.height,
+      );
+
+      const renderedWidth = canvas.width * scale;
+      const renderedHeight = canvas.height * scale;
+
+      const x = (pageWidth - renderedWidth) / 2;
+
+      pdf.addImage(imgData, "PNG", x, margin, renderedWidth, renderedHeight);
+
+      const safeCompanyName = companyName
+        ? companyName.toLowerCase().replace(/[^a-z0-9]+/g, "-")
+        : "company";
+
+      pdf.save(`${safeCompanyName}-cover-letter.pdf`);
+      return;
     }
 
     while (sourceY < canvas.height) {
@@ -698,92 +706,150 @@ function App() {
     }
   }
 
-  function downloadInterviewPrep() {
-    if (!interviewQuestions) return;
+ async function downloadInterviewPrep() {
+  if (!interviewPrepRef.current) return;
 
-    const doc = new jsPDF();
-    const pageHeight = doc.internal.pageSize.getHeight();
-    const margin = 20;
-    const maxWidth = 170;
-    let y = 20;
+  const preview = interviewPrepRef.current;
 
-    function addTitle(text) {
-      if (y > pageHeight - 25) {
-        doc.addPage();
-        y = 20;
-      }
+  preview.classList.add("interview-pdf-mode");
 
-      doc.setFontSize(14);
-      doc.setFont(undefined, "bold");
-      doc.text(text, margin, y);
-      y += 10;
+  try {
+    // Give the browser a moment to apply the single-column PDF layout.
+    await new Promise((resolve) => requestAnimationFrame(resolve));
+
+    const pdf = new jsPDF("p", "mm", "letter");
+
+    const pageWidth = pdf.internal.pageSize.getWidth();
+    const pageHeight = pdf.internal.pageSize.getHeight();
+
+    const margin = 10;
+    const usableWidth = pageWidth - margin * 2;
+    const usableHeight = pageHeight - margin * 2;
+
+    let y = margin;
+    let pageNumber = 0;
+
+    const panels = Array.from(
+      preview.querySelectorAll(".interview-panel")
+    );
+
+    async function captureElement(element) {
+      return await html2canvas(element, {
+        scale: 2,
+        useCORS: true,
+        backgroundColor: "#ffffff",
+      });
     }
 
-    function addQuestionAnswer(item) {
-      doc.setFontSize(10);
-      doc.setFont(undefined, "bold");
-
-      const questionLines = doc.splitTextToSize(
-        `Question: ${item.question}`,
-        maxWidth,
-      );
-
-      if (y + questionLines.length * 6 > pageHeight - 20) {
-        doc.addPage();
-        y = 20;
-      }
-
-      doc.text(questionLines, margin, y);
-      y += questionLines.length * 6 + 4;
-
-      doc.setFont(undefined, "normal");
-
-      const answerLines = doc.splitTextToSize(
-        `Suggested Answer: ${item.answer}`,
-        maxWidth,
-      );
-
-      if (y + answerLines.length * 6 > pageHeight - 20) {
-        doc.addPage();
-        y = 20;
-      }
-
-      doc.text(answerLines, margin, y);
-      y += answerLines.length * 6 + 8;
+    function addNewPage() {
+      pdf.addPage();
+      pageNumber += 1;
+      y = margin;
     }
 
-    doc.setFontSize(16);
-    doc.setFont(undefined, "bold");
-    doc.text("Interview Prep Guide", margin, y);
-    y += 14;
+    async function addCanvasToPdf(canvas, extraGap = 5) {
+      const imgData = canvas.toDataURL("image/png");
 
-    addTitle("Technical Questions");
-    interviewQuestions.technicalQuestions?.forEach(addQuestionAnswer);
+      const renderedHeight =
+        (canvas.height * usableWidth) / canvas.width;
 
-    addTitle("Behavioral Questions");
-    interviewQuestions.behavioralQuestions?.forEach(addQuestionAnswer);
-
-    addTitle("Career Switch Questions");
-    interviewQuestions.careerSwitchQuestions?.forEach(addQuestionAnswer);
-
-    addTitle("Questions to Ask the Employer");
-    doc.setFontSize(10);
-    doc.setFont(undefined, "normal");
-
-    interviewQuestions.employerQuestions?.forEach((question) => {
-      const lines = doc.splitTextToSize(`• ${question}`, maxWidth);
-
-      if (y + lines.length * 6 > pageHeight - 20) {
-        doc.addPage();
-        y = 20;
+      // If the next complete item will not fit,
+      // move the whole item to the next page.
+      if (
+        y + renderedHeight > pageHeight - margin &&
+        y > margin
+      ) {
+        addNewPage();
       }
 
-      doc.text(lines, margin, y);
-      y += lines.length * 6 + 4;
-    });
+      // Safety fallback for an unusually tall single card.
+      if (renderedHeight > usableHeight) {
+        const scale = usableHeight / renderedHeight;
 
-    doc.save("interview-prep-guide.pdf");
+        const scaledWidth = usableWidth * scale;
+        const scaledHeight = renderedHeight * scale;
+
+        const x = (pageWidth - scaledWidth) / 2;
+
+        pdf.addImage(
+          imgData,
+          "PNG",
+          x,
+          y,
+          scaledWidth,
+          scaledHeight
+        );
+
+        y += scaledHeight + extraGap;
+        return;
+      }
+
+      pdf.addImage(
+        imgData,
+        "PNG",
+        margin,
+        y,
+        usableWidth,
+        renderedHeight
+      );
+
+      y += renderedHeight + extraGap;
+    }
+
+    for (const panel of panels) {
+      const heading = panel.querySelector("h3");
+
+      // Start each major section cleanly.
+      if (y > margin + 10) {
+        y += 4;
+      }
+
+      if (heading) {
+        const headingCanvas = await captureElement(heading);
+
+        const headingHeight =
+          (headingCanvas.height * usableWidth) /
+          headingCanvas.width;
+
+        if (
+          y + headingHeight + 25 >
+          pageHeight - margin
+        ) {
+          addNewPage();
+        }
+
+        await addCanvasToPdf(headingCanvas, 5);
+      }
+
+      // Regular Technical / Behavioral / Career Switch cards
+      const cards = Array.from(
+        panel.querySelectorAll(".interview-card")
+      );
+
+      for (const card of cards) {
+        const cardCanvas = await captureElement(card);
+        await addCanvasToPdf(cardCanvas, 6);
+      }
+
+      // Employer questions use a different card class
+      const employerQuestions = Array.from(
+        panel.querySelectorAll(".employer-question")
+      );
+
+      for (const question of employerQuestions) {
+        const questionCanvas = await captureElement(question);
+        await addCanvasToPdf(questionCanvas, 3);
+      }
+    }
+
+    pdf.save("interview-prep-guide.pdf");
+  } catch (error) {
+    console.error("Interview Prep PDF error:", error);
+  } finally {
+    // Always restore the normal two-column app layout.
+    preview.classList.remove("interview-pdf-mode");
   }
+}
 
   async function handleResumeUpload(file) {
     if (!file) return;
@@ -2005,6 +2071,7 @@ ${jobDescription}`,
             interviewQuestions={interviewQuestions}
             jobTitle={jobTitle}
             downloadInterviewPrep={downloadInterviewPrep}
+            interviewPrepRef={interviewPrepRef}
             handleReset={() => setShowResetModal(true)}
           />
         )}

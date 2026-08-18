@@ -166,3 +166,38 @@
 .interview-button:hover {
   background: #115e59;
 }
+
+/* =========================================
+   INTERVIEW PREP PDF MODE
+   ========================================= */
+
+.interview-pdf-mode {
+  display: block !important;
+}
+
+.interview-pdf-mode .interview-panel {
+  width: 100%;
+  margin-bottom: 24px;
+}
+
+.interview-pdf-mode .interview-card-list {
+  display: block;
+}
+
+.interview-pdf-mode .interview-card {
+  width: 100%;
+  margin-bottom: 18px;
+  break-inside: avoid;
+}
+
+.interview-pdf-mode .employer-panel {
+  width: 100%;
+}
+
+.interview-pdf-mode .employer-question-list {
+  display: block;
+}
+
+.interview-pdf-mode .employer-question {
+  margin-bottom: 10px;
+}

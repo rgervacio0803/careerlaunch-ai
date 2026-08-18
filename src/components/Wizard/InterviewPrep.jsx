@@ -2,6 +2,7 @@ function InterviewPrep({
   interviewQuestions,
   jobTitle,
   downloadInterviewPrep,
+  interviewPrepRef,
   handleReset,
 }) {
   const renderQuestionSection = (title, questions = []) => {
@@ -52,20 +53,20 @@ function InterviewPrep({
         </button>
       </div>
 
-      <div className="interview-grid">
+      <div ref={interviewPrepRef} className="interview-grid">
         {renderQuestionSection(
           "💻 Technical Questions",
-          interviewQuestions.technicalQuestions
+          interviewQuestions.technicalQuestions,
         )}
 
         {renderQuestionSection(
           "🤝 Behavioral Questions",
-          interviewQuestions.behavioralQuestions
+          interviewQuestions.behavioralQuestions,
         )}
 
         {renderQuestionSection(
           "🔄 Career Switch Questions",
-          interviewQuestions.careerSwitchQuestions
+          interviewQuestions.careerSwitchQuestions,
         )}
 
         <div className="interview-panel employer-panel">
