@@ -825,7 +825,7 @@
 .executive-blue-layout {
   display: grid;
   grid-template-columns: 220px minmax(0, 1fr);
-  min-height: 1000px;
+  align-items: start;
 }
 
 .executive-blue-sidebar {

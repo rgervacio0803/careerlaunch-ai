@@ -368,6 +368,33 @@ function App() {
     const pixelsPerMm = canvas.width / usableWidth;
     const pageHeightPixels = Math.floor(usableHeight * pixelsPerMm);
 
+    const overflowAmount = canvas.height - pageHeightPixels;
+
+    // If the resume is only slightly taller than one page,
+    // scale the whole resume down so we don't create
+    // an almost-empty second page.
+    if (
+      canvas.height > pageHeightPixels &&
+      overflowAmount <= pageHeightPixels * 0.12
+    ) {
+      const imgData = canvas.toDataURL("image/png");
+
+      const scale = Math.min(
+        usableWidth / canvas.width,
+        usableHeight / canvas.height,
+      );
+
+      const renderedWidth = canvas.width * scale;
+      const renderedHeight = canvas.height * scale;
+
+      const x = (pageWidth - renderedWidth) / 2;
+
+      pdf.addImage(imgData, "PNG", x, margin, renderedWidth, renderedHeight);
+
+      pdf.save(`${selectedTemplate}-resume.pdf`);
+      return;
+    }
+
     let sourceY = 0;
     let pageNumber = 0;
 
@@ -604,6 +631,37 @@ function App() {
 
       const sliceHeight = safeEndY - sourceY;
 
+      // Skip a final page that contains only a tiny leftover fragment.
+      if (safeEndY === canvas.height && pageNumber > 0) {
+        const ctx = canvas.getContext("2d");
+
+        const sample = ctx.getImageData(
+          0,
+          sourceY,
+          canvas.width,
+          sliceHeight,
+        ).data;
+
+        let nonWhitePixels = 0;
+        const totalPixels = sample.length / 4;
+
+        for (let i = 0; i < sample.length; i += 4) {
+          const r = sample[i];
+          const g = sample[i + 1];
+          const b = sample[i + 2];
+
+          if (r < 245 || g < 245 || b < 245) {
+            nonWhitePixels += 1;
+          }
+        }
+
+        const contentRatio = nonWhitePixels / totalPixels;
+
+        if (contentRatio < 0.01) {
+          break;
+        }
+      }
+
       // Create a temporary canvas containing only this page.
       const pageCanvas = document.createElement("canvas");
 
@@ -706,150 +764,124 @@ function App() {
     }
   }
 
- async function downloadInterviewPrep() {
-  if (!interviewPrepRef.current) return;
+  async function downloadInterviewPrep() {
+    if (!interviewPrepRef.current) return;
 
-  const preview = interviewPrepRef.current;
+    const preview = interviewPrepRef.current;
 
-  preview.classList.add("interview-pdf-mode");
+    preview.classList.add("interview-pdf-mode");
 
-  try {
-    // Give the browser a moment to apply the single-column PDF layout.
-    await new Promise((resolve) => requestAnimationFrame(resolve));
+    try {
+      // Give the browser a moment to apply the single-column PDF layout.
+      await new Promise((resolve) => requestAnimationFrame(resolve));
 
-    const pdf = new jsPDF("p", "mm", "letter");
+      const pdf = new jsPDF("p", "mm", "letter");
 
-    const pageWidth = pdf.internal.pageSize.getWidth();
-    const pageHeight = pdf.internal.pageSize.getHeight();
+      const pageWidth = pdf.internal.pageSize.getWidth();
+      const pageHeight = pdf.internal.pageSize.getHeight();
 
-    const margin = 10;
-    const usableWidth = pageWidth - margin * 2;
-    const usableHeight = pageHeight - margin * 2;
+      const margin = 10;
+      const usableWidth = pageWidth - margin * 2;
+      const usableHeight = pageHeight - margin * 2;
 
-    let y = margin;
-    let pageNumber = 0;
+      let y = margin;
+      let pageNumber = 0;
 
-    const panels = Array.from(
-      preview.querySelectorAll(".interview-panel")
-    );
+      const panels = Array.from(preview.querySelectorAll(".interview-panel"));
 
-    async function captureElement(element) {
-      return await html2canvas(element, {
-        scale: 2,
-        useCORS: true,
-        backgroundColor: "#ffffff",
-      });
-    }
-
-    function addNewPage() {
-      pdf.addPage();
-      pageNumber += 1;
-      y = margin;
-    }
-
-    async function addCanvasToPdf(canvas, extraGap = 5) {
-      const imgData = canvas.toDataURL("image/png");
-
-      const renderedHeight =
-        (canvas.height * usableWidth) / canvas.width;
-
-      // If the next complete item will not fit,
-      // move the whole item to the next page.
-      if (
-        y + renderedHeight > pageHeight - margin &&
-        y > margin
-      ) {
-        addNewPage();
+      async function captureElement(element) {
+        return await html2canvas(element, {
+          scale: 2,
+          useCORS: true,
+          backgroundColor: "#ffffff",
+        });
       }
 
-      // Safety fallback for an unusually tall single card.
-      if (renderedHeight > usableHeight) {
-        const scale = usableHeight / renderedHeight;
-
-        const scaledWidth = usableWidth * scale;
-        const scaledHeight = renderedHeight * scale;
-
-        const x = (pageWidth - scaledWidth) / 2;
-
-        pdf.addImage(
-          imgData,
-          "PNG",
-          x,
-          y,
-          scaledWidth,
-          scaledHeight
-        );
-
-        y += scaledHeight + extraGap;
-        return;
+      function addNewPage() {
+        pdf.addPage();
+        pageNumber += 1;
+        y = margin;
       }
 
-      pdf.addImage(
-        imgData,
-        "PNG",
-        margin,
-        y,
-        usableWidth,
-        renderedHeight
-      );
+      async function addCanvasToPdf(canvas, extraGap = 5) {
+        const imgData = canvas.toDataURL("image/png");
 
-      y += renderedHeight + extraGap;
-    }
+        const renderedHeight = (canvas.height * usableWidth) / canvas.width;
 
-    for (const panel of panels) {
-      const heading = panel.querySelector("h3");
-
-      // Start each major section cleanly.
-      if (y > margin + 10) {
-        y += 4;
-      }
-
-      if (heading) {
-        const headingCanvas = await captureElement(heading);
-
-        const headingHeight =
-          (headingCanvas.height * usableWidth) /
-          headingCanvas.width;
-
-        if (
-          y + headingHeight + 25 >
-          pageHeight - margin
-        ) {
+        // If the next complete item will not fit,
+        // move the whole item to the next page.
+        if (y + renderedHeight > pageHeight - margin && y > margin) {
           addNewPage();
         }
 
-        await addCanvasToPdf(headingCanvas, 5);
+        // Safety fallback for an unusually tall single card.
+        if (renderedHeight > usableHeight) {
+          const scale = usableHeight / renderedHeight;
+
+          const scaledWidth = usableWidth * scale;
+          const scaledHeight = renderedHeight * scale;
+
+          const x = (pageWidth - scaledWidth) / 2;
+
+          pdf.addImage(imgData, "PNG", x, y, scaledWidth, scaledHeight);
+
+          y += scaledHeight + extraGap;
+          return;
+        }
+
+        pdf.addImage(imgData, "PNG", margin, y, usableWidth, renderedHeight);
+
+        y += renderedHeight + extraGap;
       }
 
-      // Regular Technical / Behavioral / Career Switch cards
-      const cards = Array.from(
-        panel.querySelectorAll(".interview-card")
-      );
+      for (const panel of panels) {
+        const heading = panel.querySelector("h3");
 
-      for (const card of cards) {
-        const cardCanvas = await captureElement(card);
-        await addCanvasToPdf(cardCanvas, 6);
+        // Start each major section cleanly.
+        if (y > margin + 10) {
+          y += 4;
+        }
+
+        if (heading) {
+          const headingCanvas = await captureElement(heading);
+
+          const headingHeight =
+            (headingCanvas.height * usableWidth) / headingCanvas.width;
+
+          if (y + headingHeight + 25 > pageHeight - margin) {
+            addNewPage();
+          }
+
+          await addCanvasToPdf(headingCanvas, 5);
+        }
+
+        // Regular Technical / Behavioral / Career Switch cards
+        const cards = Array.from(panel.querySelectorAll(".interview-card"));
+
+        for (const card of cards) {
+          const cardCanvas = await captureElement(card);
+          await addCanvasToPdf(cardCanvas, 6);
+        }
+
+        // Employer questions use a different card class
+        const employerQuestions = Array.from(
+          panel.querySelectorAll(".employer-question"),
+        );
+
+        for (const question of employerQuestions) {
+          const questionCanvas = await captureElement(question);
+          await addCanvasToPdf(questionCanvas, 3);
+        }
       }
 
-      // Employer questions use a different card class
-      const employerQuestions = Array.from(
-        panel.querySelectorAll(".employer-question")
-      );
-
-      for (const question of employerQuestions) {
-        const questionCanvas = await captureElement(question);
-        await addCanvasToPdf(questionCanvas, 3);
-      }
+      pdf.save("interview-prep-guide.pdf");
+    } catch (error) {
+      console.error("Interview Prep PDF error:", error);
+    } finally {
+      // Always restore the normal two-column app layout.
+      preview.classList.remove("interview-pdf-mode");
     }
-
-    pdf.save("interview-prep-guide.pdf");
-  } catch (error) {
-    console.error("Interview Prep PDF error:", error);
-  } finally {
-    // Always restore the normal two-column app layout.
-    preview.classList.remove("interview-pdf-mode");
   }
-}
 
   async function handleResumeUpload(file) {
     if (!file) return;
@@ -1325,6 +1357,13 @@ ${jobDescription}`,
       28 + keywordsContentHeight,
     );
 
+    // Move the entire Strengths / Missing Keywords row
+    // to the next page if it will not fit.
+    if (y + secondRowCardHeight > pageHeight - margin) {
+      doc.addPage();
+      y = 18;
+    }
+
     drawCard(margin, y, halfCardWidth, secondRowCardHeight);
 
     drawCard(
@@ -1468,10 +1507,6 @@ ${jobDescription}`,
 
     y += secondRowCardHeight + 7;
 
-    doc.addPage();
-
-    y = 18;
-
     // THIRD ROW: Resume Suggestions + Career Advice
 
     const suggestions = result.resumeSuggestions || [];
@@ -1517,6 +1552,12 @@ ${jobDescription}`,
       22 + suggestionsHeight,
       22 + careerAdviceHeight,
     );
+
+    // Only start a new page if the bottom cards will not fit.
+    if (y + thirdRowCardHeight > pageHeight - margin) {
+      doc.addPage();
+      y = 18;
+    }
 
     const suggestionsCardX = margin;
     const careerAdviceCardX = margin + halfCardWidth + cardGap;
@@ -1573,7 +1614,7 @@ ${jobDescription}`,
 
     y += thirdRowCardHeight + 7;
 
-    doc.save("ats-analysis-report-test.pdf");
+    doc.save("ats-analysis-report.pdf");
     return;
 
     function addHeader() {
