@@ -13,7 +13,7 @@ function ResumeExperience({
 
       {experience.map((job, index) => (
         <article key={index} className={`resume-job-entry ${jobClass}`}>
-          <div className={headerClass}>
+         <div className={`resume-job-header ${headerClass}`}>
             <div>
               <h3>{job.jobTitle}</h3>
 

@@ -399,57 +399,84 @@ function App() {
     let pageNumber = 0;
 
     function getJobBoundaries() {
-      const previewRect = resumePreviewRef.current.getBoundingClientRect();
+  const previewRect =
+    resumePreviewRef.current.getBoundingClientRect();
 
-      const scaleY = canvas.height / resumePreviewRef.current.offsetHeight;
+  const scaleY =
+    canvas.height / resumePreviewRef.current.offsetHeight;
 
-      return Array.from(
-        resumePreviewRef.current.querySelectorAll(".resume-job-entry"),
-      ).map((job) => {
-        const rect = job.getBoundingClientRect();
+  return Array.from(
+    resumePreviewRef.current.querySelectorAll(".resume-job-entry"),
+  ).map((job) => {
+    const jobRect = job.getBoundingClientRect();
 
-        return {
-          top: Math.round((rect.top - previewRect.top) * scaleY),
-          bottom: Math.round((rect.bottom - previewRect.top) * scaleY),
-        };
-      });
+    const header = job.querySelector(".resume-job-header");
+    const firstBullet = job.querySelector("ul li");
+
+    const top = Math.round(
+      (jobRect.top - previewRect.top) * scaleY,
+    );
+
+    const bottom = Math.round(
+      (jobRect.bottom - previewRect.top) * scaleY,
+    );
+
+    let protectedBottom = top;
+
+    if (header) {
+      const headerRect = header.getBoundingClientRect();
+
+      protectedBottom = Math.round(
+        (headerRect.bottom - previewRect.top) * scaleY,
+      );
     }
+
+    if (firstBullet) {
+      const bulletRect = firstBullet.getBoundingClientRect();
+
+      protectedBottom = Math.round(
+        (bulletRect.bottom - previewRect.top) * scaleY,
+      );
+    }
+
+    return {
+      top,
+      bottom,
+      protectedBottom,
+    };
+  });
+}
 
     const jobBoundaries = getJobBoundaries();
 
     function findSafeBreak(startY, idealEndY) {
       const ctx = canvas.getContext("2d");
 
-      // Prefer keeping an entire job together when possible
-      const crossingJob = jobBoundaries.find((job) => {
-        const jobHeight = job.bottom - job.top;
-
+      // Prevent a job title/header from being stranded at the bottom of a page.
+      const protectedJob = jobBoundaries.find((job) => {
         return (
           job.top > startY &&
           job.top < idealEndY &&
-          job.bottom > idealEndY &&
-          jobHeight <= pageHeightPixels
+          job.protectedBottom > idealEndY
         );
       });
 
-      if (crossingJob) {
-        const spaceUsedBeforeJob = crossingJob.top - startY;
-
-        // Only move the whole job if it won't leave most of the page empty
-        if (spaceUsedBeforeJob >= pageHeightPixels * 0.45) {
-          return crossingJob.top;
-        }
+      if (protectedJob) {
+        return protectedJob.top;
       }
 
       const searchStart = Math.max(
         startY + Math.floor(pageHeightPixels * 0.75),
-        idealEndY - 180,
+        idealEndY - 100,
       );
 
       const searchEnd = Math.min(idealEndY, canvas.height - 1);
 
       for (let y = searchEnd; y >= searchStart; y -= 2) {
-        const row = ctx.getImageData(0, y, canvas.width, 1).data;
+        const scanStartX = Math.floor(canvas.width * 0.22);
+        const scanWidth = canvas.width - scanStartX;
+
+        const row = ctx.getImageData(scanStartX, y, scanWidth, 1).data;
 
         let darkPixels = 0;
 
@@ -463,10 +490,18 @@ function App() {
           }
         }
 
-        const darkRatio = darkPixels / canvas.width;
+        const darkRatio = darkPixels / scanWidth;
 
         if (darkRatio < 0.01) {
-          return y;
+          // Never allow a page break inside the protected
+          // beginning of a job (title, company, date, first bullet).
+          const insideProtectedJob = jobBoundaries.some((job) => {
+            return y > job.top && y < job.protectedBottom;
+          });
+
+          if (!insideProtectedJob) {
+            return y;
+          }
         }
       }
 
