@@ -38,13 +38,14 @@
 .landing-links {
   display: flex;
   align-items: center;
-  gap: 30px;
+  gap: 26px;
 }
 
 .landing-links a {
   text-decoration: none;
   color: #334155;
   font-weight: 700;
+  font-size: 15px;
 }
 
 .landing-links button,
@@ -61,7 +62,7 @@
 }
 
 .landing-hero {
-  width: min(1500px, 92%);
+  width: min(1750px, 94%);
   max-width: none;
   margin: 0 auto;
   padding: 90px 0;
@@ -86,7 +87,7 @@
 .landing-left h1 {
   max-width: 720px;
   margin: 0 0 26px;
-  font-size: clamp(48px, 5vw, 72px);
+  font-size: clamp(52px, 4vw, 80px);
   line-height: 1.02;
   letter-spacing: -0.06em;
 }
@@ -149,6 +150,15 @@
   padding: 30px;
   border-radius: 30px;
   box-shadow: 0 30px 80px rgba(15, 23, 42, 0.14);
+}
+
+.landing-preview {
+  width: 110%;
+}
+
+.preview-shell {
+  transform: scale(1.08);
+  transform-origin: center left;
 }
 
 .preview-sidebar {
@@ -255,7 +265,7 @@
 
 .landing-features {
   background: white;
-  padding: 80px 7%;
+  padding: 55px 7% 70px;
   text-align: center;
   border-top: 1px solid #e5e7eb;
 }
@@ -279,9 +289,9 @@
 }
 
 .feature-row {
-  width: min(1350px, 92%);
+  width: min(1500px, 94%);
   max-width: none;
-  margin: 44px auto 0;
+  margin: 32px auto 0;
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 24px;
@@ -363,8 +373,8 @@
 .success-banner {
   width: min(1700px, 95%);
   max-width: none;
-  margin: 70px auto 0;
-  padding: 38px;
+  margin: 48px auto 0;
+  padding: 46px 52px;
   border-radius: 24px;
   background: linear-gradient(135deg, #eef6ff, #faf5ff);
   border: 1px solid #dbeafe;
@@ -395,7 +405,7 @@
 
 .success-left h3 {
   margin: 0;
-  font-size: 26px;
+  font-size: 30px;
 }
 
 .success-left p {
@@ -519,4 +529,89 @@
     line-height: 1.1;
     white-space: nowrap;
   }
+
+  .success-banner {
+    width: calc(100% - 32px);
+    margin: 36px auto 0;
+    padding: 32px 24px;
+  }
+
+  .success-content {
+    flex-direction: column;
+    gap: 18px;
+    text-align: center;
+  }
+
+  .success-icon {
+    width: 72px;
+    height: 72px;
+    font-size: 36px;
+  }
+
+  .success-content h3 {
+    font-size: 26px;
+    line-height: 1.15;
+    margin: 0 0 10px;
+  }
+
+  .success-content p {
+    max-width: 100%;
+    font-size: 15px;
+    line-height: 1.6;
+  }
+
+  .landing-trust {
+  margin-top: 20px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px 8px;
+  font-size: 12px;
+}
+
+.landing-trust span {
+  white-space: nowrap;
+}
+
+.landing-trust span:last-child {
+  grid-column: 1 / -1;
+  justify-self: center;
+}
+
+  .landing-preview {
+    width: 100%;
+    margin-top: 28px;
+  }
+
+  .preview-shell {
+    transform: none;
+    width: 100%;
+  }
+
+  .feature-row {
+  width: 100%;
+  margin-top: 30px;
+  gap: 18px;
+}
+
+.feature-item {
+  padding: 24px 28px;
+  border-radius: 20px;
+}
+
+.feature-icon {
+  width: 56px;
+  height: 56px;
+  font-size: 26px;
+  margin-bottom: 18px;
+}
+
+.feature-item h3 {
+  font-size: 24px;
+  margin-bottom: 10px;
+}
+
+.feature-item p {
+  line-height: 1.6;
+  margin-bottom: 16px;
+}
 }
