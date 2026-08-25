@@ -77,17 +77,16 @@ function UploadStep({
           />
         </div>
       </div>
-      {resumeText.trim() && (
-        <div className="analysis-actions">
-          <button
-            type="button"
-            className="interview-button"
-            onClick={handlePastedResume}
-          >
-            Continue →
-          </button>
-        </div>
-      )}
+      <div className="analysis-actions">
+        <button
+          type="button"
+          className="interview-button"
+          onClick={handlePastedResume}
+          disabled={!resumeText.trim() && !resumeFile}
+        >
+          Continue →
+        </button>
+      </div>
     </section>
   );
 }

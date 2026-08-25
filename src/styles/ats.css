@@ -215,3 +215,35 @@
   color: #0f172a;
   background: #e0ecff;
 }
+
+@media (max-width: 800px) {
+  .ats-summary-card {
+    padding: 24px 20px;
+  }
+
+  .ats-score-layout {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 26px;
+  }
+
+  .circle-score {
+    width: 100%;
+    order: -1;
+    margin: 0 auto;
+  }
+
+  .ats-score-bullets {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .ats-score-bullets ul {
+    padding-left: 22px;
+  }
+
+  .ats-score-bullets li {
+    font-size: 15px;
+    line-height: 1.6;
+  }
+}
