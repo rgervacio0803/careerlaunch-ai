@@ -1,11 +1,10 @@
 import { useLayoutEffect, useRef, useState } from "react";
 
+const PAGE_WIDTH = 816;
 
-const PAGE_WIDTH = 794;
-
-function ResumeThumbnail({ children, className = "" }) {
+function CoverLetterThumbnail({ children }) {
   const frameRef = useRef(null);
-  const [scale, setScale] = useState(0.35);
+  const [scale, setScale] = useState(0.4);
 
   useLayoutEffect(() => {
     const updateScale = () => {
@@ -24,12 +23,9 @@ function ResumeThumbnail({ children, className = "" }) {
   }, []);
 
   return (
-    <div
-      ref={frameRef}
-      className={`resume-thumbnail-frame ${className}`}
-    >
+    <div ref={frameRef} className="cover-letter-thumbnail-frame">
       <div
-        className="resume-thumbnail-page"
+        className="cover-letter-thumbnail-page"
         style={{
           transform: `translateX(-50%) scale(${scale})`,
         }}
@@ -40,4 +36,4 @@ function ResumeThumbnail({ children, className = "" }) {
   );
 }
 
-export default ResumeThumbnail;
+export default CoverLetterThumbnail;

@@ -1564,4 +1564,29 @@
     grid-template-columns: 1fr;
     gap: 28px;
   }
+
+  /* =========================================
+   RESPONSIVE RESUME PREVIEW
+========================================= */
+
+/* Desktop: show the full-size resume preview */
+.mobile-resume-preview {
+  display: none;
+}
+
+.desktop-resume-preview {
+  display: block;
+}
+
+/* Mobile: show the scaled resume page instead */
+@media (max-width: 480px) {
+  .mobile-resume-preview {
+    display: block;
+    width: 100%;
+  }
+
+  .desktop-resume-preview {
+    display: none;
+  }
+}
 }

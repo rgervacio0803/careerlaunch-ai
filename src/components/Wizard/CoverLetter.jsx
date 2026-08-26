@@ -1,4 +1,5 @@
 import CoverLetterHeader from "../ResumeTemplates/CoverLetterHeader";
+import CoverLetterThumbnail from "../ResumeTemplates/CoverLetterThumbnail";
 
 function CoverLetter({
   coverLetter,
@@ -132,25 +133,50 @@ function CoverLetter({
             </div>
           </div>
 
-          <div
-            ref={coverLetterPreviewRef}
-            className={`cover-letter-paper cover-letter-${selectedTemplate}`}
-          >
-            <CoverLetterHeader
-              template={selectedTemplate}
-              structuredResume={structuredResume}
-            />
+          <>
+            <div className="mobile-cover-letter-preview">
+              <CoverLetterThumbnail>
+                <div
+                  className={`cover-letter-paper cover-letter-${selectedTemplate}`}
+                >
+                  <CoverLetterHeader
+                    template={selectedTemplate}
+                    structuredResume={structuredResume}
+                  />
 
-            <div className="cover-letter-recipient">
-              <p>{coverLetterDate}</p>
+                  <div className="cover-letter-recipient">
+                    <p>{coverLetterDate}</p>
 
-              {hiringManager && <p>{hiringManager}</p>}
+                    {hiringManager && <p>{hiringManager}</p>}
 
-              {companyName && <p>{companyName}</p>}
+                    {companyName && <p>{companyName}</p>}
+                  </div>
+
+                  <pre className="cover-letter-text">{coverLetter}</pre>
+                </div>
+              </CoverLetterThumbnail>
             </div>
 
-            <pre className="cover-letter-text">{coverLetter}</pre>
-          </div>
+            <div
+              ref={coverLetterPreviewRef}
+              className={`cover-letter-paper cover-letter-${selectedTemplate} desktop-cover-letter-preview`}
+            >
+              <CoverLetterHeader
+                template={selectedTemplate}
+                structuredResume={structuredResume}
+              />
+
+              <div className="cover-letter-recipient">
+                <p>{coverLetterDate}</p>
+
+                {hiringManager && <p>{hiringManager}</p>}
+
+                {companyName && <p>{companyName}</p>}
+              </div>
+
+              <pre className="cover-letter-text">{coverLetter}</pre>
+            </div>
+          </>
         </div>
       </div>
 

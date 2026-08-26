@@ -470,19 +470,33 @@ function ResumeOptimize({
               )?.name || "Resume"}{" "}
               Preview
             </h3>
-            <div ref={resumePreviewRef} className="pdf-capture-area">
-              {(() => {
-                const selectedOption = templateOptions.find(
-                  (template) => template.id === selectedTemplate,
-                );
 
-                if (!selectedOption) return null;
+            {(() => {
+              const selectedOption = templateOptions.find(
+                (template) => template.id === selectedTemplate,
+              );
 
-                const SelectedTemplateComponent = selectedOption.component;
+              if (!selectedOption) return null;
 
-                return <SelectedTemplateComponent resume={structuredResume} />;
-              })()}
-            </div>
+              const SelectedTemplateComponent = selectedOption.component;
+
+              return (
+                <>
+                  <div className="mobile-resume-preview">
+                    <ResumeThumbnail>
+                      <SelectedTemplateComponent resume={structuredResume} />
+                    </ResumeThumbnail>
+                  </div>
+
+                  <div
+                    ref={resumePreviewRef}
+                    className="pdf-capture-area desktop-resume-preview"
+                  >
+                    <SelectedTemplateComponent resume={structuredResume} />
+                  </div>
+                </>
+              );
+            })()}
           </div>
         )}
       </div>
