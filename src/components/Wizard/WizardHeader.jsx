@@ -7,9 +7,8 @@ function WizardHeader({ currentStep, onBack, onReset }) {
         <h1>CareerLaunch AI</h1>
 
         <p className="subtitle">
-          Upload your resume and paste a job description to get ATS feedback,
-          an optimized resume rewrite, a tailored cover letter, and interview
-          prep.
+          Upload your resume and paste a job description to get ATS feedback, an
+          optimized resume rewrite, a tailored cover letter, and interview prep.
         </p>
       </header>
 
@@ -29,17 +28,23 @@ function WizardHeader({ currentStep, onBack, onReset }) {
           <p>ATS Analysis</p>
         </div>
 
-        <div className={currentStep === 4 ? "step active" : "step"}>
+        <div
+          className={
+            currentStep === 4 || currentStep === 5 || currentStep === 6
+              ? "step active"
+              : "step"
+          }
+        >
           <span>4</span>
           <p>Optimize</p>
         </div>
 
-        <div className={currentStep === 5 ? "step active" : "step"}>
+        <div className={currentStep === 7 ? "step active" : "step"}>
           <span>5</span>
           <p>Cover Letter</p>
         </div>
 
-        <div className={currentStep === 6 ? "step active" : "step"}>
+        <div className={currentStep === 8 ? "step active" : "step"}>
           <span>6</span>
           <p>Interview Prep</p>
         </div>

@@ -28,7 +28,7 @@ function CoverLetter({
   return (
     <section className="wizard-step-page optimize-page">
       <div className="step-page-header">
-        <p className="step-kicker">Step 7</p>
+        <p className="step-kicker">Step 5</p>
 
         <h2>Cover Letter Builder</h2>
 

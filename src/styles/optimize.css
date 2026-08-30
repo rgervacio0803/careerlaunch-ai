@@ -894,10 +894,18 @@
   width: 100%;
 }
 
+.interview-page .step-page-header {
+  margin-bottom: 18px;
+}
+
 .interview-top-actions {
   display: flex;
   justify-content: center;
-  margin: 28px 0 36px;
+  margin: 0 0 24px;
+}
+
+.interview-top-actions .primary-action-button {
+  margin-top: 0;
 }
 
 .interview-grid {

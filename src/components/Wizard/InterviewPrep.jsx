@@ -86,11 +86,10 @@ function InterviewPrep({
       <div className="completion-card">
         <div className="completion-icon">✓</div>
 
-        <h2>CareerLaunch AI Analysis Complete</h2>
-
+        <h2>Your Career Toolkit Is Ready</h2>
         <p>
-          Your resume analysis, optimized resume, cover letter, and interview
-          preparation are complete.
+          Your optimized resume, tailored cover letter, and personalized
+          interview preparation are ready.
         </p>
 
         <div className="completion-actions">
