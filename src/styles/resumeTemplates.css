@@ -1559,17 +1559,11 @@
   line-height: 1.65;
 }
 
-@media (max-width: 480px) {
-  .template-gallery-grid {
-    grid-template-columns: 1fr;
-    gap: 28px;
-  }
-
-  /* =========================================
+/* =========================================
    RESPONSIVE RESUME PREVIEW
 ========================================= */
 
-/* Desktop: show the full-size resume preview */
+/* Default: desktop/tablet preview */
 .mobile-resume-preview {
   display: none;
 }
@@ -1578,8 +1572,17 @@
   display: block;
 }
 
-/* Mobile: show the scaled resume page instead */
+
+/* =========================================
+   PHONE — 480px AND BELOW
+========================================= */
+
 @media (max-width: 480px) {
+  .template-gallery-grid {
+    grid-template-columns: 1fr;
+    gap: 28px;
+  }
+
   .mobile-resume-preview {
     display: block;
     width: 100%;
@@ -1589,4 +1592,15 @@
     display: none;
   }
 }
+
+
+/* =========================================
+   TABLET — 481px TO 800px
+========================================= */
+
+@media (min-width: 481px) and (max-width: 800px) {
+  .template-gallery-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 24px;
+  }
 }

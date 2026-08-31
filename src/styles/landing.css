@@ -499,6 +499,79 @@
   font-size: 3rem;
 }
 
+/* ========================================
+   TABLET LANDING PAGE
+   481px - 800px
+======================================== */
+
+@media (min-width: 481px) and (max-width: 800px) {
+  .landing-nav {
+    padding: 18px 24px;
+    gap: 20px;
+  }
+
+  .landing-logo {
+    font-size: 1.05rem;
+    white-space: nowrap;
+  }
+
+  .landing-links {
+    gap: 14px;
+  }
+
+  .landing-links a {
+    display: none;
+  }
+
+  .landing-links button {
+    min-width: 140px;
+    padding: 12px 18px;
+    white-space: nowrap;
+  }
+
+  .landing-hero {
+    grid-template-columns: 1fr;
+    gap: 40px;
+    padding: 52px 32px;
+  }
+
+  .landing-left {
+    max-width: 680px;
+    margin: 0 auto;
+    text-align: center;
+  }
+
+  .landing-left h1 {
+    font-size: 46px;
+    line-height: 1.08;
+  }
+
+  .landing-subtitle {
+    max-width: 620px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .landing-actions {
+    justify-content: center;
+  }
+
+  .landing-trust {
+    justify-content: center;
+  }
+
+  .landing-preview {
+    width: 100%;
+    max-width: 680px;
+    margin: 0 auto;
+  }
+
+  .feature-row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 22px;
+  }
+}
+
 @media (max-width: 480px) {
   .landing-nav {
     padding: 16px 20px;
