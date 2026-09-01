@@ -530,10 +530,15 @@
   }
 
   .landing-hero {
-    grid-template-columns: 1fr;
-    gap: 40px;
-    padding: 52px 32px;
-  }
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 52px 32px;
+  box-sizing: border-box;
+
+  grid-template-columns: 1fr;
+  gap: 40px;
+}
 
   .landing-left {
     max-width: 680px;
@@ -566,9 +571,93 @@
     margin: 0 auto;
   }
 
+  .preview-shell {
+  width: 100%;
+  transform: none;
+}
+
   .feature-row {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 22px;
+  }
+}
+
+/* ========================================
+   SMALL LAPTOP
+   801px - 1100px
+======================================== */
+
+@media (min-width: 801px) and (max-width: 1100px) {
+  .landing-nav {
+    padding: 0 5%;
+  }
+
+  .landing-links {
+  gap: 14px;
+}
+
+.landing-links a {
+  font-size: 14px;
+  white-space: nowrap;
+}
+
+  .landing-links button {
+    padding: 0 18px;
+  }
+
+  .landing-hero {
+    width: 92%;
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 64px 0;
+
+    grid-template-columns: 1fr;
+    gap: 44px;
+  }
+
+  .landing-left {
+    max-width: 760px;
+    margin: 0 auto;
+    text-align: center;
+  }
+
+  .landing-left h1 {
+    max-width: 760px;
+    margin-left: auto;
+    margin-right: auto;
+    font-size: 50px;
+    line-height: 1.06;
+  }
+
+  .landing-subtitle {
+    max-width: 680px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .landing-actions {
+    justify-content: center;
+  }
+
+  .landing-trust {
+    justify-content: center;
+  }
+
+  .landing-preview {
+    width: 100%;
+    max-width: 760px;
+    margin: 0 auto;
+  }
+
+  .preview-shell {
+    width: 100%;
+    transform: none;
+  }
+
+  .feature-row {
+    width: min(92%, 1000px);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 24px;
   }
 }
 
