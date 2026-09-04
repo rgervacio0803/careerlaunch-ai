@@ -1473,4 +1473,15 @@
   font-size: 15px;
   font-weight: 800;
 }
+
+.cover-letter-panel-heading {
+  padding-left: 16px;
+  padding-right: 16px;
+}
+
+.cover-letter-preview-header {
+  padding-left: 16px;
+  padding-right: 16px;
+  box-sizing: border-box;
+}
 }

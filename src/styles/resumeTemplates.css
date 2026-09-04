@@ -1591,6 +1591,30 @@
   .desktop-resume-preview {
     display: none;
   }
+
+  .ai-template-recommendation {
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 16px;
+  padding: 24px 20px;
+}
+
+.ai-template-recommendation > div:last-child {
+  width: 100%;
+  min-width: 0;
+}
+
+.ai-template-recommendation h3 {
+  margin-left: 0;
+  margin-right: 0;
+}
+
+.recommended-template-name {
+  font-size: 30px;
+  line-height: 1.15;
+  overflow-wrap: break-word;
+}
 }
 
 
