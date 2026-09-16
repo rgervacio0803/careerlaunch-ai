@@ -118,6 +118,10 @@
   padding-left: 22px;
 }
 
+.modern-job li {
+  padding-left: 4px;
+}
+
 @media (max-width: 800px) {
   .modern-resume-paper {
     padding: 28px;
@@ -247,6 +251,16 @@
   color: #4b5563;
   font-size: 14px;
   white-space: nowrap;
+}
+
+.professional-job ul {
+  margin: 10px 0 0;
+  padding-left: 22px;
+}
+
+.professional-job li {
+  margin-bottom: 4px;
+  line-height: 1.45;
 }
 
 .template-card-grid {
