@@ -41,6 +41,10 @@
   gap: 26px;
 }
 
+.mobile-menu-button {
+  display: none;
+}
+
 .landing-links a {
   text-decoration: none;
   color: #334155;
@@ -1039,7 +1043,7 @@
    801px - 1200px
 ======================================== */
 
-@media (min-width: 801px) and (max-width: 1200px) {
+@media (min-width: 801px) and (max-width: 1500px) {
   .landing-nav {
     padding: 0 5%;
   }
