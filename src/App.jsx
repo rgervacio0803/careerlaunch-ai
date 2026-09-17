@@ -349,10 +349,19 @@ function App() {
     if (!resumePreviewRef.current) return;
 
     const canvas = await html2canvas(resumePreviewRef.current, {
-      scale: 2,
-      useCORS: true,
-      backgroundColor: "#ffffff",
+  scale: 2,
+  useCORS: true,
+  backgroundColor: "#ffffff",
+  onclone: (clonedDocument) => {
+    const listItems = clonedDocument.querySelectorAll(
+       ".modern-job li, .professional-job li, .minimal-job li, .executive-job li, .tech-job li, .executive-elite-job li, .executive-blue-job li, .healthcare-professional-job li"
+    );
+
+    listItems.forEach((li) => {
+      li.style.paddingLeft = "6px";
     });
+  },
+});
 
     const pdf = new jsPDF("p", "mm", "letter");
 
