@@ -349,19 +349,19 @@ function App() {
     if (!resumePreviewRef.current) return;
 
     const canvas = await html2canvas(resumePreviewRef.current, {
-  scale: 2,
-  useCORS: true,
-  backgroundColor: "#ffffff",
-  onclone: (clonedDocument) => {
-    const listItems = clonedDocument.querySelectorAll(
-       ".modern-job li, .professional-job li, .minimal-job li, .executive-job li, .tech-job li, .executive-elite-job li, .executive-blue-job li, .healthcare-professional-job li"
-    );
+      scale: 2,
+      useCORS: true,
+      backgroundColor: "#ffffff",
+      onclone: (clonedDocument) => {
+        const listItems = clonedDocument.querySelectorAll(
+          ".modern-job li, .professional-job li, .minimal-job li, .executive-job li, .tech-job li, .executive-elite-job li, .executive-blue-job li, .healthcare-professional-job li",
+        );
 
-    listItems.forEach((li) => {
-      li.style.paddingLeft = "6px";
+        listItems.forEach((li) => {
+          li.style.paddingLeft = "6px";
+        });
+      },
     });
-  },
-});
 
     const pdf = new jsPDF("p", "mm", "letter");
 
@@ -408,53 +408,47 @@ function App() {
     let pageNumber = 0;
 
     function getJobBoundaries() {
-  const previewRect =
-    resumePreviewRef.current.getBoundingClientRect();
+      const previewRect = resumePreviewRef.current.getBoundingClientRect();
 
-  const scaleY =
-    canvas.height / resumePreviewRef.current.offsetHeight;
+      const scaleY = canvas.height / resumePreviewRef.current.offsetHeight;
 
-  return Array.from(
-    resumePreviewRef.current.querySelectorAll(".resume-job-entry"),
-  ).map((job) => {
-    const jobRect = job.getBoundingClientRect();
+      return Array.from(
+        resumePreviewRef.current.querySelectorAll(".resume-job-entry"),
+      ).map((job) => {
+        const jobRect = job.getBoundingClientRect();
 
-    const header = job.querySelector(".resume-job-header");
-    const firstBullet = job.querySelector("ul li");
+        const header = job.querySelector(".resume-job-header");
+        const firstBullet = job.querySelector("ul li");
 
-    const top = Math.round(
-      (jobRect.top - previewRect.top) * scaleY,
-    );
+        const top = Math.round((jobRect.top - previewRect.top) * scaleY);
 
-    const bottom = Math.round(
-      (jobRect.bottom - previewRect.top) * scaleY,
-    );
+        const bottom = Math.round((jobRect.bottom - previewRect.top) * scaleY);
 
-    let protectedBottom = top;
+        let protectedBottom = top;
 
-    if (header) {
-      const headerRect = header.getBoundingClientRect();
+        if (header) {
+          const headerRect = header.getBoundingClientRect();
 
-      protectedBottom = Math.round(
-        (headerRect.bottom - previewRect.top) * scaleY,
-      );
+          protectedBottom = Math.round(
+            (headerRect.bottom - previewRect.top) * scaleY,
+          );
+        }
+
+        if (firstBullet) {
+          const bulletRect = firstBullet.getBoundingClientRect();
+
+          protectedBottom = Math.round(
+            (bulletRect.bottom - previewRect.top) * scaleY,
+          );
+        }
+
+        return {
+          top,
+          bottom,
+          protectedBottom,
+        };
+      });
     }
-
-    if (firstBullet) {
-      const bulletRect = firstBullet.getBoundingClientRect();
-
-      protectedBottom = Math.round(
-        (bulletRect.bottom - previewRect.top) * scaleY,
-      );
-    }
-
-    return {
-      top,
-      bottom,
-      protectedBottom,
-    };
-  });
-}
 
     const jobBoundaries = getJobBoundaries();
 
@@ -892,7 +886,22 @@ function App() {
           const headingHeight =
             (headingCanvas.height * usableWidth) / headingCanvas.width;
 
-          if (y + headingHeight + 25 > pageHeight - margin) {
+          // Measure the first card/question so the section heading
+          // never gets stranded at the bottom of a page.
+          const firstItem =
+            panel.querySelector(".interview-card") ||
+            panel.querySelector(".employer-question");
+
+          let firstItemHeight = 0;
+
+          if (firstItem) {
+            const firstItemCanvas = await captureElement(firstItem);
+
+            firstItemHeight =
+              (firstItemCanvas.height * usableWidth) / firstItemCanvas.width;
+          }
+
+          if (y + headingHeight + 5 + firstItemHeight > pageHeight - margin) {
             addNewPage();
           }
 
