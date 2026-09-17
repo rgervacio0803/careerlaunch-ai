@@ -2019,7 +2019,12 @@ ${jobDescription}`,
   }
 
   if (showLanding) {
-    return <Landing onStart={() => setShowLanding(false)} />;
+    return (
+  <Landing
+    onStart={() => setShowLanding(false)}
+    onStartPro={() => console.log("Pro clicked")}
+  />
+);
   }
 
   const recommendation = getRecommendedTemplate();

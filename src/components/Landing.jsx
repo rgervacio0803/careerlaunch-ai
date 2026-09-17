@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-function Landing({ onStart }) {
+function Landing({ onStart, onStartPro }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
@@ -330,7 +330,7 @@ function Landing({ onStart }) {
 
             <button
               className="pricing-button pricing-button-pro"
-              onClick={onStart}
+              onClick={onStartPro}
             >
               Start with Pro →
             </button>
