@@ -2018,13 +2018,37 @@ ${jobDescription}`,
     };
   }
 
+  async function handleStartPro() {
+    try {
+      const response = await fetch(`${API_URL}/create-checkout-session`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Unable to start checkout.");
+      }
+
+      if (data.url) {
+        window.location.href = data.url;
+      }
+    } catch (error) {
+      console.error("Stripe Checkout error:", error);
+      alert("Unable to start checkout. Please try again.");
+    }
+  }
+
   if (showLanding) {
     return (
-  <Landing
-    onStart={() => setShowLanding(false)}
-    onStartPro={() => console.log("Pro clicked")}
-  />
-);
+      <Landing
+        onStart={() => setShowLanding(false)}
+        onStartPro={handleStartPro}
+      />
+    );
   }
 
   const recommendation = getRecommendedTemplate();

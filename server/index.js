@@ -3,6 +3,7 @@ require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 const OpenAI = require("openai");
+const Stripe = require("stripe");
 const multer = require("multer");
 const mammoth = require("mammoth");
 const PDFParser = require("pdf2json");
@@ -15,11 +16,67 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+
 app.use(cors());
+
+app.post(
+  "/webhook",
+  express.raw({ type: "application/json" }),
+  (req, res) => {
+    const signature = req.headers["stripe-signature"];
+
+    let event;
+
+    try {
+      event = stripe.webhooks.constructEvent(
+        req.body,
+        signature,
+        process.env.STRIPE_WEBHOOK_SECRET,
+      );
+    } catch (error) {
+      console.error("Webhook signature verification failed:", error.message);
+      return res.status(400).send(`Webhook Error: ${error.message}`);
+    }
+
+    console.log("Stripe event received:", event.type);
+
+    res.json({ received: true });
+  },
+);
+
 app.use(express.json({ limit: "5mb" }));
 
 app.get("/", (req, res) => {
   res.json({ message: "Backend is working" });
+});
+
+app.post("/create-checkout-session", async (req, res) => {
+  try {
+    const session = await stripe.checkout.sessions.create({
+      mode: "subscription",
+
+      line_items: [
+        {
+          price: process.env.STRIPE_PRICE_ID,
+          quantity: 1,
+        },
+      ],
+
+      success_url: "http://localhost:5173/?payment=success",
+      cancel_url: "http://localhost:5173/?payment=cancelled",
+    });
+
+    res.json({
+      url: session.url,
+    });
+  } catch (error) {
+    console.error("Stripe Checkout error:", error);
+
+    res.status(500).json({
+      error: "Unable to create checkout session.",
+    });
+  }
 });
 
 function safeDecodeText(text = "") {
