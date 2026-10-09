@@ -1,7 +1,8 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
 import { supabase } from "./supabaseClient";
+import Auth from "./components/Auth";
 
 import "./App.css";
 import "./styles/base.css";
@@ -79,6 +80,29 @@ function App() {
   );
   const [loadingMessage, setLoadingMessage] = useState("");
   const [showLanding, setShowLanding] = useState(true);
+  const [user, setUser] = useState(null);
+  const [authLoading, setAuthLoading] = useState(true);
+  const [showAuth, setShowAuth] = useState(false);
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user ?? null);
+      setAuthLoading(false);
+    });
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+      setAuthLoading(false);
+      if (_event === "SIGNED_IN") {
+        setShowLanding(false);
+      }
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, []);
   const [resumeInsights, setResumeInsights] = useState(null);
   const [rewritePlan, setRewritePlan] = useState(null);
   const [isOptimizingResume, setIsOptimizingResume] = useState(false);
@@ -2043,10 +2067,24 @@ ${jobDescription}`,
     }
   }
 
+  if (authLoading) {
+    return <div>Loading CareerLaunch AI...</div>;
+  }
+
+  if (showAuth && !user) {
+    return <Auth />;
+  }
+
   if (showLanding) {
     return (
       <Landing
-        onStart={() => setShowLanding(false)}
+        onStart={() => {
+          if (user) {
+            setShowLanding(false);
+          } else {
+            setShowAuth(true);
+          }
+        }}
         onStartPro={handleStartPro}
       />
     );
@@ -2056,6 +2094,36 @@ ${jobDescription}`,
 
   return (
     <div className="app">
+    <div className="account-nav">
+      <button
+        type="button"
+        className="back-home-btn"
+        onClick={() => {
+          setShowLanding(true);
+          setShowAuth(false);
+        }}
+      >
+        ← Back to Home
+      </button>
+      <button
+        type="button"
+        className="logout-btn"
+        onClick={async () => {
+          const { error } = await supabase.auth.signOut();
+
+          if (error) {
+            alert("Unable to log out. Please try again.");
+            return;
+          }
+
+          setUser(null);
+          setShowAuth(false);
+          setShowLanding(true);
+        }}
+      >
+        Log Out
+      </button>
+      </div>
       {isOptimizingResume && (
         <ResumeOptimizationProgress currentStep={optimizationStep} />
       )}
