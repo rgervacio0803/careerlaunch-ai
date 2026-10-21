@@ -6,13 +6,11 @@ function CoverLetter({
   jobTitle,
   selectedTemplate,
   structuredResume,
-  coverLetterPreviewRef,
 
-  copyToClipboard,
-  downloadCoverLetter,
-  handleInterviewCoach,
-  handleCoverLetter,
-  setCurrentStep,
+  onCopy,
+  onDownload,
+  onRegenerate,
+  onContinue,
 
   companyName,
 
@@ -53,17 +51,24 @@ function CoverLetter({
 
           <div className="cover-letter-info-grid">
             <div className="cover-letter-field">
-              <label>Target Company</label>
+              <label htmlFor="cover-company">Target Company</label>
 
-              <input type="text" value={companyName} readOnly />
+              <input
+                id="cover-company"
+                type="text"
+                value={companyName}
+                placeholder="Add it in the Job Match step"
+                readOnly
+              />
             </div>
 
             <div className="cover-letter-field">
-              <label>
+              <label htmlFor="cover-hiring-manager">
                 Hiring Manager <span>(Optional)</span>
               </label>
 
               <input
+                id="cover-hiring-manager"
                 type="text"
                 value={hiringManager}
                 onChange={(event) => setHiringManager(event.target.value)}
@@ -72,9 +77,9 @@ function CoverLetter({
             </div>
 
             <div className="cover-letter-field">
-              <label>Date</label>
+              <label htmlFor="cover-date">Date</label>
 
-              <input type="text" value={coverLetterDate} readOnly />
+              <input id="cover-date" type="text" value={coverLetterDate} readOnly />
             </div>
           </div>
           {needsRegeneration && (
@@ -97,7 +102,7 @@ function CoverLetter({
                 <button
                   type="button"
                   className="secondary-button"
-                  onClick={handleCoverLetter}
+                  onClick={onRegenerate}
                 >
                   Update Cover Letter →
                 </button>
@@ -118,7 +123,7 @@ function CoverLetter({
               <button
                 type="button"
                 className="copy-btn"
-                onClick={() => copyToClipboard(coverLetter)}
+                onClick={onCopy}
               >
                 Copy Letter
               </button>
@@ -126,7 +131,7 @@ function CoverLetter({
               <button
                 type="button"
                 className="download-btn"
-                onClick={downloadCoverLetter}
+                onClick={onDownload}
               >
                 Download PDF
               </button>
@@ -158,7 +163,6 @@ function CoverLetter({
             </div>
 
             <div
-              ref={coverLetterPreviewRef}
               className={`cover-letter-paper cover-letter-${selectedTemplate} desktop-cover-letter-preview`}
             >
               <CoverLetterHeader
@@ -184,10 +188,7 @@ function CoverLetter({
         <button
           type="button"
           className="interview-button"
-          onClick={() => {
-            handleInterviewCoach();
-            setCurrentStep(8);
-          }}
+          onClick={onContinue}
         >
           Continue to Interview Prep →
         </button>

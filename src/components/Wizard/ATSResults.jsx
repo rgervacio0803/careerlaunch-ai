@@ -3,8 +3,7 @@ function ATSResults({
   jobTitle,
   copyToClipboard,
   downloadReport,
-  handleRewriteResume,
-  setCurrentStep,
+  onContinue,
 }) {
   return (
     <section className="wizard-step-page analysis-page">
@@ -18,7 +17,9 @@ function ATSResults({
 
       <div className="ats-summary-card">
         <div className="ats-card-header">
-          <div className="ats-icon">🏅</div>
+          <div className="ats-icon" aria-hidden="true">
+            🏅
+          </div>
           <div>
             <h3>ATS Compatibility Score</h3>
             <p>How well your resume matches the job</p>
@@ -38,7 +39,9 @@ function ATSResults({
 
           <div className="circle-score">
             <div className="circle-inner">
-              <span>{result.atsScore}</span>
+              <span aria-label={`ATS score ${result.atsScore ?? "not available"} out of 100`}>
+                {result.atsScore ?? "–"}
+              </span>
             </div>
             <p>OVERALL</p>
           </div>
@@ -107,9 +110,7 @@ function ATSResults({
 
         <button
           className="rewrite-button"
-          onClick={() => {
-            setCurrentStep(4);
-          }}
+          onClick={onContinue}
         >
           Continue to AI Resume Insights →
         </button>

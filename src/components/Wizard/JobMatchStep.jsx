@@ -5,12 +5,6 @@ function JobMatchStep({
   companyName,
   setCompanyName,
 
-  hiringManager,
-  setHiringManager,
-
-  companyAddress,
-  setCompanyAddress,
-
   jobDescription,
   setJobDescription,
 
@@ -33,9 +27,10 @@ function JobMatchStep({
 
       <div className="job-details-workspace">
         <div className="form-group">
-          <label>Job Title</label>
+          <label htmlFor="job-title">Job Title</label>
 
           <input
+            id="job-title"
             className="job-title-input-modern"
             type="text"
             placeholder="Example: Cytogenetic Technologist"
@@ -45,9 +40,10 @@ function JobMatchStep({
         </div>
 
         <div className="form-group">
-          <label>Company Name</label>
+          <label htmlFor="company-name">Company Name</label>
 
           <input
+            id="company-name"
             className="job-title-input-modern"
             type="text"
             placeholder="Example: Kaiser Permanente"
@@ -57,9 +53,10 @@ function JobMatchStep({
         </div>
 
         <div className="form-group">
-          <label>Responsibilities and Duties</label>
+          <label htmlFor="job-description">Responsibilities and Duties</label>
 
           <textarea
+            id="job-description"
             className="job-description-modern"
             placeholder="Paste the job responsibilities, requirements, and duties here..."
             value={jobDescription}

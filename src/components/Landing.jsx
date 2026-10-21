@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-function Landing({ onStart, onStartPro }) {
+function Landing({ onStart }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
@@ -80,8 +80,8 @@ function Landing({ onStart, onStartPro }) {
 
           <div className="landing-trust">
             <span>🛡️ No credit card required</span>
-            <span>⚡ Instant results</span>
-            <span>🔒 Your data is secure</span>
+            <span>⚡ Results in minutes</span>
+            <span>📄 PDF, DOCX, or TXT</span>
           </div>
         </div>
 
@@ -270,8 +270,7 @@ function Landing({ onStart, onStartPro }) {
         <h2>Choose the Plan That Works for You</h2>
 
         <p className="section-subtitle">
-          Start free and upgrade when you're ready to unlock the full
-          CareerLaunch AI toolkit.
+          CareerLaunch AI is free during early access. Pro is coming soon.
         </p>
 
         <div className="pricing-grid">
@@ -283,16 +282,16 @@ function Landing({ onStart, onStartPro }) {
             </div>
 
             <p className="pricing-description">
-              Get started and see how CareerLaunch AI can improve your job
-              application.
+              Everything is included while CareerLaunch AI is in early access.
             </p>
 
             <ul className="pricing-features">
-              <li>✓ 1 resume analysis</li>
               <li>✓ ATS score and keyword analysis</li>
-              <li>✓ Resume insights</li>
-              <li>✓ Preview resume optimization</li>
-              <li>✓ Limited resume templates</li>
+              <li>✓ Resume insights and rewrite plan</li>
+              <li>✓ AI resume optimization</li>
+              <li>✓ All resume templates and PDF downloads</li>
+              <li>✓ Tailored cover letters</li>
+              <li>✓ Personalized interview preparation</li>
             </ul>
 
             <button
@@ -304,7 +303,7 @@ function Landing({ onStart, onStartPro }) {
           </div>
 
           <div className="pricing-card pricing-card-pro">
-            <div className="pricing-popular">Most Popular</div>
+            <div className="pricing-popular">Coming Soon</div>
 
             <p className="pricing-plan-name">CareerLaunch Pro</p>
 
@@ -329,10 +328,11 @@ function Landing({ onStart, onStartPro }) {
             </ul>
 
             <button
+              type="button"
               className="pricing-button pricing-button-pro"
-              onClick={onStartPro}
+              disabled
             >
-              Start with Pro →
+              Coming Soon
             </button>
           </div>
         </div>
@@ -360,18 +360,17 @@ function Landing({ onStart, onStartPro }) {
           <details className="faq-item">
             <summary>Can I use CareerLaunch AI for free?</summary>
             <p>
-              Yes. The free plan lets you analyze one resume, review your ATS
-              score and keyword insights, and explore the resume optimization
-              workflow.
+              Yes. Every feature is free while CareerLaunch AI is in early
+              access. You only need an account.
             </p>
           </details>
 
           <details className="faq-item">
             <summary>What does the Pro plan include?</summary>
             <p>
-              CareerLaunch Pro includes unlimited resume analyses, full AI
-              resume optimization, all professional templates, PDF downloads,
-              tailored cover letters, and personalized interview preparation.
+              CareerLaunch Pro is coming soon. It will add unlimited analyses
+              and support for optimizing your resume for multiple job
+              descriptions.
             </p>
           </details>
 
@@ -398,10 +397,12 @@ function Landing({ onStart, onStartPro }) {
           <details className="faq-item">
             <summary>Is my resume information secure?</summary>
             <p>
-              CareerLaunch AI is designed to process the information you provide
-              so it can generate your career materials. Please avoid including
-              sensitive information that isn't necessary for your resume or job
-              application.
+              Your resume and job description are sent to our server and to
+              OpenAI only to generate your results. We don't save them on our
+              servers. Your progress is kept in your browser tab until you
+              start over, log out, or close the tab. Please leave out sensitive
+              details your resume doesn't need, such as your full address or
+              Social Security number.
             </p>
           </details>
         </div>
