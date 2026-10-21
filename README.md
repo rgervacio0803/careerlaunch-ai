@@ -1,16 +1,54 @@
-# React + Vite
+# CareerLaunch AI
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Upload a resume and paste a job description to get an ATS score, recruiter-style insights, an optimized resume in eight templates, a tailored cover letter, and interview prep. Everything downloads as text-based PDFs that ATS software can read.
 
-Currently, two official plugins are available:
+CareerLaunch AI is free during early access. Users need an account (Supabase Auth).
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## How it fits together
 
-## React Compiler
+- **Frontend** (`/`): React 19 + Vite. Supabase handles sign-up and log-in in the browser.
+- **API server** (`/server`): Express. Reads PDF/DOCX/TXT resumes and calls OpenAI. Every AI endpoint checks the user's Supabase access token and is rate-limited per user.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+Resumes and job descriptions are sent to the server and OpenAI to generate results. The server does not store them. Progress is kept in the browser tab (`sessionStorage`) until the user starts over, logs out, or closes the tab.
 
-## Expanding the ESLint configuration
+## Run it locally
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+You need Node.js 20.19 or newer, a Supabase project, and an OpenAI API key.
+
+1. Frontend settings: copy `.env.example` to `.env.local` and fill in your Supabase URL and publishable key.
+2. Server settings: copy `server/.env.example` to `server/.env` and fill in `OPENAI_API_KEY`, `SUPABASE_URL` and `SUPABASE_PUBLISHABLE_KEY` (same Supabase project).
+3. Install and start both:
+
+```bash
+npm install
+npm run dev            # http://localhost:5173
+
+cd server
+npm install
+npm start              # http://localhost:5000
+```
+
+## Deploying
+
+- Set `VITE_API_URL` on the frontend host to the server's public URL.
+- Set `CLIENT_URL` on the server to the frontend's public URL (comma-separate several). Requests from other sites are blocked.
+- In Supabase → Authentication → URL Configuration, set the Site URL to the frontend URL so confirmation emails link to the right place.
+- Never commit `.env`, `.env.local` or `server/.env`; they are already in `.gitignore`.
+
+## Turning on payments later
+
+Stripe code is in `server/index.js` but off (`ENABLE_PAYMENTS=false`). Before turning it on:
+
+1. Save each user's plan from the webhook (`checkout.session.completed`, `customer.subscription.updated` / `deleted`), for example in a Supabase `profiles` table.
+2. Enforce free-plan limits on the server using that saved plan.
+3. Bring back the Pro checkout button on the landing page and handle `?payment=success`.
+4. Add a link to Stripe's Customer Portal so users can cancel.
+
+## Scripts
+
+| Command | What it does |
+| --- | --- |
+| `npm run dev` | Start the frontend dev server |
+| `npm run build` | Build the frontend into `dist/` |
+| `npm run lint` | Lint the frontend and server |
+| `cd server && npm start` | Start the API server |
