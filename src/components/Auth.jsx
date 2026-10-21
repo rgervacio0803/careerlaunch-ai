@@ -2,13 +2,40 @@ import { useState } from "react";
 import { supabase } from "../supabaseClient";
 import "./Auth.css";
 
+// Supabase's messages, reworded for people who aren't developers.
+function friendlyError(error) {
+  const message = error?.message || "";
+
+  if (/invalid login credentials/i.test(message)) {
+    return "That email and password don't match. Check them and try again, or create an account.";
+  }
+
+  if (/email not confirmed/i.test(message)) {
+    return "Please confirm your email first. Check your inbox (and spam folder) for the link we sent.";
+  }
+
+  if (/rate limit|too many/i.test(message)) {
+    return "Too many attempts. Please wait a minute and try again.";
+  }
+
+  return message || "Something went wrong. Please try again.";
+}
+
 export default function Auth({ onBack }) {
-  const [isSignUp, setIsSignUp] = useState(true);
+  const [mode, setMode] = useState("login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
+
+  const isSignUp = mode === "signup";
+
+  function switchMode(nextMode) {
+    setMode(nextMode);
+    setMessage("");
+    setError("");
+  }
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -17,23 +44,44 @@ export default function Auth({ onBack }) {
     setError("");
 
     try {
-      const { error: authError } = isSignUp
-        ? await supabase.auth.signUp({
-            email,
-            password,
-          })
-        : await supabase.auth.signInWithPassword({
-            email,
-            password,
-          });
+      if (isSignUp) {
+        const { data, error: authError } = await supabase.auth.signUp({
+          email,
+          password,
+        });
+
+        if (authError) throw authError;
+
+        // Supabase doesn't reveal existing emails as an error; an existing
+        // account comes back with no identities instead.
+        if (data.user && data.user.identities?.length === 0) {
+          setMode("login");
+          setError(
+            "An account with this email already exists. Log in with your password instead.",
+          );
+          return;
+        }
+
+        if (data.session) {
+          return; // Email confirmation is off: already logged in.
+        }
+
+        setMessage(
+          "Almost done! Check your email and click the confirmation link, then come back and log in.",
+        );
+        setMode("login");
+        setPassword("");
+        return;
+      }
+
+      const { error: authError } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
 
       if (authError) throw authError;
-
-      if (isSignUp) {
-        setMessage("Check your email to confirm your account.");
-      }
     } catch (err) {
-      setError(err.message || "Authentication failed.");
+      setError(friendlyError(err));
     } finally {
       setLoading(false);
     }
@@ -47,6 +95,27 @@ export default function Auth({ onBack }) {
             ← Back to Home
           </button>
         )}
+
+        <div className="auth-tabs" role="tablist" aria-label="Log in or sign up">
+          <button
+            type="button"
+            role="tab"
+            aria-selected={!isSignUp}
+            className={!isSignUp ? "active" : ""}
+            onClick={() => switchMode("login")}
+          >
+            Log In
+          </button>
+          <button
+            type="button"
+            role="tab"
+            aria-selected={isSignUp}
+            className={isSignUp ? "active" : ""}
+            onClick={() => switchMode("signup")}
+          >
+            Create Account
+          </button>
+        </div>
 
         <h2>{isSignUp ? "Create Your Free Account" : "Welcome Back"}</h2>
 
@@ -89,22 +158,16 @@ export default function Auth({ onBack }) {
           </button>
         </form>
 
-        {message && <p role="status">{message}</p>}
-        {error && <p role="alert">{error}</p>}
-
-        <p>
-          {isSignUp ? "Already have an account?" : "Don't have an account?"}{" "}
-          <button
-            type="button"
-            onClick={() => {
-              setIsSignUp(!isSignUp);
-              setMessage("");
-              setError("");
-            }}
-          >
-            {isSignUp ? "Log In" : "Sign Up"}
-          </button>
-        </p>
+        {message && (
+          <p className="auth-message" role="status">
+            {message}
+          </p>
+        )}
+        {error && (
+          <p className="auth-error" role="alert">
+            {error}
+          </p>
+        )}
       </div>
     </div>
   );
