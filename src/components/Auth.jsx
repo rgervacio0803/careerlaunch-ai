@@ -1,9 +1,8 @@
-
 import { useState } from "react";
 import { supabase } from "../supabaseClient";
 import "./Auth.css";
 
-export default function Auth() {
+export default function Auth({ onBack }) {
   const [isSignUp, setIsSignUp] = useState(true);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -43,6 +42,12 @@ export default function Auth() {
   return (
     <div className="auth-container">
       <div className="auth-card">
+        {onBack && (
+          <button type="button" className="back-home-btn" onClick={onBack}>
+            ← Back to Home
+          </button>
+        )}
+
         <h2>{isSignUp ? "Create Your Free Account" : "Welcome Back"}</h2>
 
         <p>
@@ -52,17 +57,23 @@ export default function Auth() {
         </p>
 
         <form onSubmit={handleSubmit}>
+          <label htmlFor="auth-email">Email address</label>
           <input
+            id="auth-email"
             type="email"
-            placeholder="Email address"
+            autoComplete="email"
+            placeholder="you@example.com"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
           />
 
+          <label htmlFor="auth-password">Password</label>
           <input
+            id="auth-password"
             type="password"
-            placeholder="Password (minimum 12 characters)"
+            autoComplete={isSignUp ? "new-password" : "current-password"}
+            placeholder={isSignUp ? "At least 12 characters" : "Your password"}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             minLength={isSignUp ? 12 : undefined}

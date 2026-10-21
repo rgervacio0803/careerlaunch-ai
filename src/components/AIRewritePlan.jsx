@@ -1,4 +1,4 @@
-function AIRewritePlan({ rewritePlan, onContinue }) {
+function AIRewritePlan({ rewritePlan, alreadyApplied, onContinue }) {
   if (!rewritePlan) return null;
 
   return (
@@ -44,7 +44,7 @@ function AIRewritePlan({ rewritePlan, onContinue }) {
 
       <div className="analysis-actions">
         <button className="rewrite-button" onClick={onContinue}>
-          Apply Rewrite Plan →
+          {alreadyApplied ? "View Optimized Resume →" : "Apply Rewrite Plan →"}
         </button>
       </div>
     </section>

@@ -8,7 +8,11 @@ function ResumeOptimizationProgress({ currentStep }) {
   ];
 
   return (
-    <section className="optimization-progress-page">
+    <section
+      className="optimization-progress-page"
+      role="status"
+      aria-live="polite"
+    >
       <div className="optimization-progress-card">
         <div className="optimization-progress-icon">✨</div>
 

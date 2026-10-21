@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { cleanResume } from "../../utils/resume";
 import ModernResume from "../ResumeTemplates/ModernResume";
 import ProfessionalResume from "../ResumeTemplates/ProfessionalResume";
 import MinimalResume from "../ResumeTemplates/MinimalResume";
@@ -70,18 +71,17 @@ const templateOptions = [
 ];
 
 function ResumeOptimize({
-  rewrittenResume,
   structuredResume,
   setStructuredResume,
   recommendation,
   selectedTemplate,
   setSelectedTemplate,
-  resumePreviewRef,
-  jobTitle,
-  copyToClipboard,
-  downloadRewrittenResume,
-  handleCoverLetter,
+  onCopy,
+  onDownload,
+  onContinue,
 }) {
+  // Blank lines from the editor are dropped from previews and downloads.
+  const previewResume = cleanResume(structuredResume);
   const [isEditingResume, setIsEditingResume] = useState(false);
   const [skillsText, setSkillsText] = useState(
     (structuredResume?.skills || []).join(", "),
@@ -113,9 +113,10 @@ function ResumeOptimize({
 
               <div className="resume-editor-basic-grid">
                 <div className="resume-editor-field">
-                  <label>Professional Title</label>
+                  <label htmlFor="edit-title">Professional Title</label>
 
                   <input
+                    id="edit-title"
                     type="text"
                     value={structuredResume?.title || ""}
                     onChange={(e) =>
@@ -128,9 +129,10 @@ function ResumeOptimize({
                   />
                 </div>
                 <div className="resume-editor-field">
-                  <label>Name</label>
+                  <label htmlFor="edit-name">Name</label>
 
                   <input
+                    id="edit-name"
                     type="text"
                     value={structuredResume?.name || ""}
                     onChange={(e) =>
@@ -144,9 +146,10 @@ function ResumeOptimize({
                 </div>
 
                 <div className="resume-editor-field resume-editor-field-full">
-                  <label>Contact</label>
+                  <label htmlFor="edit-contact">Contact</label>
 
                   <input
+                    id="edit-contact"
                     type="text"
                     value={structuredResume?.contact || ""}
                     onChange={(e) =>
@@ -160,9 +163,10 @@ function ResumeOptimize({
                 </div>
               </div>
               <div className="resume-editor-field">
-                <label>Professional Summary</label>
+                <label htmlFor="edit-summary">Professional Summary</label>
 
                 <textarea
+                    id="edit-summary"
                   value={structuredResume?.summary || ""}
                   onChange={(e) =>
                     setStructuredResume({
@@ -176,9 +180,10 @@ function ResumeOptimize({
               </div>
 
               <div className="resume-editor-field">
-                <label>Skills</label>
+                <label htmlFor="edit-skills">Skills</label>
 
                 <textarea
+                    id="edit-skills"
                   value={skillsText}
                   onChange={(e) => {
                     const value = e.target.value;
@@ -230,9 +235,10 @@ function ResumeOptimize({
 
                     <div className="resume-editor-job-row">
                       <div className="resume-editor-field">
-                        <label>Job Title</label>
+                        <label htmlFor={`job-${jobIndex}-title`}>Job Title</label>
 
                         <input
+                          id={`job-${jobIndex}-title`}
                           type="text"
                           value={job.jobTitle || ""}
                           onChange={(e) => {
@@ -254,9 +260,10 @@ function ResumeOptimize({
                       </div>
 
                       <div className="resume-editor-field">
-                        <label>Company</label>
+                        <label htmlFor={`job-${jobIndex}-company`}>Company</label>
 
                         <input
+                          id={`job-${jobIndex}-company`}
                           type="text"
                           value={job.company || ""}
                           onChange={(e) => {
@@ -278,9 +285,10 @@ function ResumeOptimize({
                       </div>
 
                       <div className="resume-editor-field">
-                        <label>Dates</label>
+                        <label htmlFor={`job-${jobIndex}-dates`}>Dates</label>
 
                         <input
+                          id={`job-${jobIndex}-dates`}
                           type="text"
                           value={job.dates || ""}
                           onChange={(e) => {
@@ -302,9 +310,10 @@ function ResumeOptimize({
                       </div>
                     </div>
                     <div className="resume-editor-field">
-                      <label>Bullet Points</label>
+                      <label htmlFor={`job-${jobIndex}-bullets`}>Bullet Points</label>
 
                       <textarea
+                          id={`job-${jobIndex}-bullets`}
                         value={(job.bullets || []).join("\n")}
                         onChange={(e) => {
                           const updatedExperience = [
@@ -354,9 +363,10 @@ function ResumeOptimize({
                 <h4>Education</h4>
 
                 <div className="resume-editor-field">
-                  <label>Education</label>
+                  <label htmlFor="edit-education">Education</label>
 
                   <textarea
+                    id="edit-education"
                     value={(structuredResume?.education || []).join("\n")}
                     onChange={(e) =>
                       setStructuredResume({
@@ -375,9 +385,10 @@ function ResumeOptimize({
                 <h4>Certifications</h4>
 
                 <div className="resume-editor-field">
-                  <label>Certifications</label>
+                  <label htmlFor="edit-certifications">Certifications</label>
 
                   <textarea
+                    id="edit-certifications"
                     value={(structuredResume?.certifications || []).join("\n")}
                     onChange={(e) =>
                       setStructuredResume({
@@ -404,21 +415,21 @@ function ResumeOptimize({
             </button>
             <button
               className="copy-btn"
-              onClick={() => copyToClipboard(rewrittenResume)}
+              onClick={onCopy}
             >
               Copy Resume
             </button>
 
             <button
               className="download-btn"
-              onClick={() => downloadRewrittenResume(selectedTemplate)}
+              onClick={onDownload}
             >
               Download PDF
             </button>
           </div>
         </div>
 
-        {structuredResume && (
+        {previewResume && (
           <div className="resume-preview-section">
             <div className="ai-template-recommendation">
               <div className="ai-recommendation-icon">🤖</div>
@@ -442,11 +453,7 @@ function ResumeOptimize({
                 const TemplateComponent = template.component;
                 const isSelected = selectedTemplate === template.id;
 
-                const recommendedId = recommendation.template
-                  .toLowerCase()
-                  .replaceAll(" ", "-");
-
-                const isRecommended = recommendedId === template.id;
+                const isRecommended = recommendation.templateId === template.id;
 
                 return (
                   <TemplateCard
@@ -457,7 +464,7 @@ function ResumeOptimize({
                     onSelect={() => setSelectedTemplate(template.id)}
                   >
                     <ResumeThumbnail>
-                      <TemplateComponent resume={structuredResume} />
+                      <TemplateComponent resume={previewResume} />
                     </ResumeThumbnail>
                   </TemplateCard>
                 );
@@ -484,15 +491,12 @@ function ResumeOptimize({
                 <>
                   <div className="mobile-resume-preview">
                     <ResumeThumbnail>
-                      <SelectedTemplateComponent resume={structuredResume} />
+                      <SelectedTemplateComponent resume={previewResume} />
                     </ResumeThumbnail>
                   </div>
 
-                  <div
-                    ref={resumePreviewRef}
-                    className="pdf-capture-area desktop-resume-preview"
-                  >
-                    <SelectedTemplateComponent resume={structuredResume} />
+                  <div className="pdf-capture-area desktop-resume-preview">
+                    <SelectedTemplateComponent resume={previewResume} />
                   </div>
                 </>
               );
@@ -504,9 +508,7 @@ function ResumeOptimize({
       <div className="analysis-actions">
         <button
           className="interview-button"
-          onClick={() => {
-            handleCoverLetter();
-          }}
+          onClick={onContinue}
         >
           Continue to Cover Letter →
         </button>

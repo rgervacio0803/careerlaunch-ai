@@ -1,8 +1,7 @@
 function InterviewPrep({
   interviewQuestions,
   jobTitle,
-  downloadInterviewPrep,
-  interviewPrepRef,
+  onDownload,
   handleReset,
 }) {
   const renderQuestionSection = (title, questions = []) => {
@@ -47,13 +46,13 @@ function InterviewPrep({
         <button
           type="button"
           className="primary-action-button"
-          onClick={downloadInterviewPrep}
+          onClick={onDownload}
         >
           Download Interview Prep PDF
         </button>
       </div>
 
-      <div ref={interviewPrepRef} className="interview-grid">
+      <div className="interview-grid">
         {renderQuestionSection(
           "💻 Technical Questions",
           interviewQuestions.technicalQuestions,
@@ -65,7 +64,7 @@ function InterviewPrep({
         )}
 
         {renderQuestionSection(
-          "🔄 Career Switch Questions",
+          "🔄 Motivation & Fit Questions",
           interviewQuestions.careerSwitchQuestions,
         )}
 
@@ -84,7 +83,9 @@ function InterviewPrep({
       </div>
 
       <div className="completion-card">
-        <div className="completion-icon">✓</div>
+        <div className="completion-icon" aria-hidden="true">
+          ✓
+        </div>
 
         <h2>Your Career Toolkit Is Ready</h2>
         <p>
