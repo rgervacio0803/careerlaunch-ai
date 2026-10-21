@@ -30,6 +30,7 @@ export default function Auth({ onBack }) {
   const [error, setError] = useState("");
 
   const isSignUp = mode === "signup";
+  const isForgot = mode === "forgot";
 
   function switchMode(nextMode) {
     setMode(nextMode);
@@ -44,6 +45,20 @@ export default function Auth({ onBack }) {
     setError("");
 
     try {
+      if (isForgot) {
+        const { error: authError } = await supabase.auth.resetPasswordForEmail(
+          email,
+          { redirectTo: `${window.location.origin}/?reset=1` },
+        );
+
+        if (authError) throw authError;
+
+        setMessage(
+          "If an account exists for that email, we've sent a link to reset your password. Check your inbox and spam folder.",
+        );
+        return;
+      }
+
       if (isSignUp) {
         const { data, error: authError } = await supabase.auth.signUp({
           email,
@@ -117,12 +132,20 @@ export default function Auth({ onBack }) {
           </button>
         </div>
 
-        <h2>{isSignUp ? "Create Your Free Account" : "Welcome Back"}</h2>
+        <h2>
+          {isForgot
+            ? "Reset Your Password"
+            : isSignUp
+              ? "Create Your Free Account"
+              : "Welcome Back"}
+        </h2>
 
         <p>
-          {isSignUp
-            ? "Get started with your free ATS resume analysis."
-            : "Log in to continue with CareerLaunch AI."}
+          {isForgot
+            ? "Enter your email and we'll send you a link to set a new password."
+            : isSignUp
+              ? "Get started with your free ATS resume analysis."
+              : "Log in to continue with CareerLaunch AI."}
         </p>
 
         <form onSubmit={handleSubmit}>
@@ -137,25 +160,53 @@ export default function Auth({ onBack }) {
             required
           />
 
-          <label htmlFor="auth-password">Password</label>
-          <input
-            id="auth-password"
-            type="password"
-            autoComplete={isSignUp ? "new-password" : "current-password"}
-            placeholder={isSignUp ? "At least 12 characters" : "Your password"}
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            minLength={isSignUp ? 12 : undefined}
-            required
-          />
+          {!isForgot && (
+            <>
+              <label htmlFor="auth-password">Password</label>
+              <input
+                id="auth-password"
+                type="password"
+                autoComplete={isSignUp ? "new-password" : "current-password"}
+                placeholder={
+                  isSignUp ? "At least 12 characters" : "Your password"
+                }
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                minLength={isSignUp ? 12 : undefined}
+                required
+              />
+            </>
+          )}
+
+          {mode === "login" && (
+            <button
+              type="button"
+              className="auth-link"
+              onClick={() => switchMode("forgot")}
+            >
+              Forgot password?
+            </button>
+          )}
 
           <button type="submit" disabled={loading}>
             {loading
               ? "Please wait..."
-              : isSignUp
-                ? "Create Free Account"
-                : "Log In"}
+              : isForgot
+                ? "Send Reset Link"
+                : isSignUp
+                  ? "Create Free Account"
+                  : "Log In"}
           </button>
+
+          {isForgot && (
+            <button
+              type="button"
+              className="auth-link auth-link-center"
+              onClick={() => switchMode("login")}
+            >
+              ← Back to Log In
+            </button>
+          )}
         </form>
 
         {message && (

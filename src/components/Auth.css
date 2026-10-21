@@ -128,3 +128,34 @@
   background: #fef2f2;
   color: #b91c1c;
 }
+
+.auth-card form .auth-link,
+.auth-card form .auth-link:hover {
+  width: auto;
+  align-self: flex-end;
+  margin-top: -8px;
+  padding: 0;
+  border: none;
+  background: none;
+  color: #2563eb;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.auth-card form .auth-link-center {
+  align-self: center;
+  margin-top: 0;
+}
+
+.auth-card .auth-primary {
+  width: 100%;
+  padding: 14px;
+  background: #3155a4;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+}
