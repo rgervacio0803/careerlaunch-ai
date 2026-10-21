@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { supabase } from "./supabaseClient";
+import { openedFromPasswordReset, supabase } from "./supabaseClient";
 import { apiRequest } from "./api";
 import useSessionState, { clearSessionState } from "./hooks/useSessionState";
 import {
@@ -25,6 +25,7 @@ import "./styles/components.css";
 import "./styles/resumeTemplates.css";
 
 import Auth from "./components/Auth";
+import ResetPassword from "./components/ResetPassword";
 import Landing from "./components/Landing";
 import WizardHeader from "./components/Wizard/WizardHeader";
 import UploadStep from "./components/Wizard/UploadStep";
@@ -53,6 +54,9 @@ function App() {
   // Account
   const [user, setUser] = useState(null);
   const [authLoading, setAuthLoading] = useState(true);
+  const [resettingPassword, setResettingPassword] = useState(
+    openedFromPasswordReset,
+  );
   const [showLanding, setShowLanding] = useSessionState("showLanding", true);
 
   // Wizard progress (kept across refreshes in this tab)
@@ -122,6 +126,10 @@ function App() {
     } = supabase.auth.onAuthStateChange((event, session) => {
       setUser(session?.user ?? null);
       setAuthLoading(false);
+
+      if (event === "PASSWORD_RECOVERY") {
+        setResettingPassword(true);
+      }
     });
 
     return () => subscription.unsubscribe();
@@ -459,6 +467,30 @@ function App() {
       <div className="app" role="status">
         Loading CareerLaunch AI...
       </div>
+    );
+  }
+
+  if (resettingPassword) {
+    const finishReset = (message) => {
+      window.history.replaceState(null, "", window.location.pathname);
+      setResettingPassword(false);
+      setShowLanding(false);
+      if (message) showToast(message);
+    };
+
+    return (
+      <>
+        <ResetPassword
+          user={user}
+          onDone={() => finishReset("Your password has been updated.")}
+          onCancel={() => finishReset()}
+        />
+        {toastMessage && (
+          <div className="toast" role="status">
+            {toastMessage}
+          </div>
+        )}
+      </>
     );
   }
 
