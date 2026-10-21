@@ -82,3 +82,49 @@
   font-weight: 600;
   cursor: pointer;
 }
+
+.auth-tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+  padding: 4px;
+  margin-bottom: 24px;
+  background: #eef2f7;
+  border-radius: 10px;
+}
+
+.auth-tabs button {
+  padding: 10px 12px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: #475569;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.auth-tabs button.active {
+  background: #ffffff;
+  color: #172554;
+  box-shadow: 0 1px 4px rgba(15, 23, 42, 0.12);
+}
+
+.auth-card .auth-message,
+.auth-card .auth-error {
+  margin: 16px 0 0;
+  padding: 12px 14px;
+  border-radius: 8px;
+  text-align: left;
+  font-size: 14px;
+}
+
+.auth-card .auth-message {
+  background: #ecfdf5;
+  color: #065f46;
+}
+
+.auth-card .auth-error {
+  background: #fef2f2;
+  color: #b91c1c;
+}
