@@ -1,8 +1,10 @@
+import { createElement } from "react";
 // Text-based PDF exports. Everything here writes real text with jsPDF (no
 // screenshots), so the files are searchable and readable by ATS software.
 // jsPDF is loaded on demand to keep it out of the main bundle.
 
 import { cleanResume } from "./resume";
+import { getTemplate } from "../components/ResumeTemplates/templates";
 
 async function createDoc() {
   const { jsPDF } = await import("jspdf");
@@ -83,103 +85,6 @@ function createWriter(doc, { margin = 18, top = 18, bottom = 18 } = {}) {
 // Resume
 // ---------------------------------------------------------------------------
 
-const RESUME_THEMES = {
-  modern: { heading: "#111827", rule: "#d1d5db", accent: "#2563eb" },
-  professional: {
-    heading: "#111827",
-    rule: "#9ca3af",
-    accent: "#374151",
-    center: true,
-  },
-  minimal: { heading: "#111827", rule: "#e5e7eb", accent: "#64748b" },
-  executive: { heading: "#1e3a5f", rule: "#cbd5e1", accent: "#1e3a5f" },
-  tech: { heading: "#0f766e", rule: "#99f6e4", accent: "#0f766e" },
-  "executive-elite": {
-    heading: "#1e3a5f",
-    rule: "#cbd5e1",
-    accent: "#b08d57",
-    center: true,
-  },
-  "executive-blue": {
-    heading: "#174a76",
-    rule: "#4f83b3",
-    accent: "#174a76",
-    band: "#174a76",
-  },
-  "healthcare-professional": {
-    heading: "#0f6cbd",
-    rule: "#2cb1bc",
-    accent: "#0f6cbd",
-  },
-};
-
-function getTheme(templateId) {
-  return RESUME_THEMES[templateId] || RESUME_THEMES.modern;
-}
-
-// Name, title and contact line. Shared by the resume and the cover letter.
-function writeHeader(writer, person, theme) {
-  const { doc, margin, pageWidth } = writer;
-  const name = person.name || "Candidate Name";
-  const x = theme.center ? pageWidth / 2 : margin;
-  const align = theme.center ? "center" : "left";
-
-  if (theme.band) {
-    const lines =
-      1 + (person.title ? 1 : 0) + (person.contact ? writer.split(person.contact).length : 0);
-    const bandHeight = 14 + lines * 5.5;
-
-    doc.setFillColor(...hex(theme.band));
-    doc.rect(0, 0, pageWidth, bandHeight, "F");
-    writer.y = 14;
-
-    writer.font("bold", 20, "#ffffff");
-    doc.text(name, x, writer.y, { align });
-    writer.y += 7;
-
-    if (person.title) {
-      writer.font("normal", 11.5, "#dbeafe");
-      doc.text(person.title, x, writer.y, { align });
-      writer.y += 6;
-    }
-
-    if (person.contact) {
-      writer.font("normal", 9.5, "#e5edf5");
-      writer.split(person.contact).forEach((line) => {
-        doc.text(line, x, writer.y, { align });
-        writer.y += 4.5;
-      });
-    }
-
-    writer.y = bandHeight + 8;
-    return;
-  }
-
-  writer.font("bold", 20, "#111827");
-  doc.text(name, x, writer.y + 6, { align });
-  writer.y += 9;
-
-  if (person.title) {
-    writer.font("normal", 11.5, theme.accent);
-    doc.text(person.title, x, writer.y + 4, { align });
-    writer.y += 6;
-  }
-
-  if (person.contact) {
-    writer.font("normal", 9.5, "#4b5563");
-    writer.split(person.contact).forEach((line) => {
-      doc.text(line, x, writer.y + 4, { align });
-      writer.y += 4.5;
-    });
-  }
-
-  writer.y += 3;
-  doc.setDrawColor(...hex(theme.rule));
-  doc.setLineWidth(0.5);
-  doc.line(writer.margin, writer.y, pageWidth - writer.margin, writer.y);
-  writer.y += 6;
-}
-
 function writeSectionHeading(writer, title, theme, minFollowing = 12) {
   const { doc, margin, pageWidth } = writer;
 
@@ -194,102 +99,19 @@ function writeSectionHeading(writer, title, theme, minFollowing = 12) {
   writer.y += 3;
 }
 
-function writeBullets(writer, items, { size = 10, indent = 5 } = {}) {
-  const { doc, margin } = writer;
-  const lh = writer.lineHeight(size);
-
-  items.forEach((item) => {
-    writer.font("normal", size, "#1f2937");
-    const lines = writer.split(item, writer.width - indent);
-    // Keep short bullets on one page; long ones may split.
-    writer.ensure(lines.length <= 4 ? lines.length * lh : lh);
-    doc.text("•", margin + 1, writer.y + lh * 0.8);
-
-    lines.forEach((line, index) => {
-      if (index > 0) writer.ensure(lh);
-      doc.text(line, margin + indent, writer.y + lh * 0.8);
-      writer.y += lh;
-    });
-
-    writer.y += 0.8;
-  });
-}
-
 export async function downloadResumePdf(rawResume, templateId) {
   const resume = cleanResume(rawResume);
   if (!resume) return;
 
-  const doc = await createDoc();
-  const writer = createWriter(doc);
-  const theme = getTheme(templateId);
-  const { margin, pageWidth } = writer;
+  // Lay out the same template component the preview uses, then turn it into
+  // a text-based PDF, so the download matches the preview.
+  const { downloadElementAsPdf } = await import("./domPdf");
+  const Template = getTemplate(templateId).component;
 
-  writeHeader(writer, resume, theme);
-
-  if (resume.summary) {
-    writeSectionHeading(writer, "Professional Summary", theme);
-    writer.font("normal", 10, "#1f2937");
-    writer.paragraph(resume.summary, { after: 4 });
-  }
-
-  if (resume.skills.length) {
-    writeSectionHeading(writer, "Skills", theme);
-    writer.font("normal", 10, "#1f2937");
-    writer.paragraph(resume.skills.join("  •  "), { after: 4 });
-  }
-
-  if (resume.experience.length) {
-    writeSectionHeading(writer, "Professional Experience", theme, 20);
-
-    resume.experience.forEach((job) => {
-      // Keep the job heading together with its first bullet.
-      const firstBulletLines = job.bullets[0]
-        ? writer.split(job.bullets[0], writer.width - 5).length
-        : 0;
-      writer.ensure(12 + firstBulletLines * writer.lineHeight(10));
-
-      writer.font("normal", 9.5, "#4b5563");
-      const datesWidth = job.dates ? doc.getTextWidth(job.dates) + 4 : 0;
-      const headingTop = writer.y;
-
-      if (job.dates) {
-        doc.text(job.dates, pageWidth - margin, headingTop + writer.lineHeight(10.5) * 0.8, {
-          align: "right",
-        });
-      }
-
-      writer.font("bold", 10.5, "#111827");
-      writer.paragraph(job.jobTitle || job.company, {
-        width: writer.width - datesWidth - 2,
-        size: 10.5,
-      });
-
-      if (job.jobTitle && job.company) {
-        writer.font("italic", 10, theme.accent);
-        writer.paragraph(job.company, { size: 10 });
-      }
-
-      writer.y += 1.2;
-      writeBullets(writer, job.bullets);
-      writer.y += 2.5;
-    });
-
-    writer.y += 1.5;
-  }
-
-  if (resume.education.length) {
-    writeSectionHeading(writer, "Education", theme);
-    writeBullets(writer, resume.education);
-    writer.y += 3;
-  }
-
-  if (resume.certifications.length) {
-    writeSectionHeading(writer, "Certifications", theme);
-    writeBullets(writer, resume.certifications);
-  }
-
-  doc.setProperties({ title: `${resume.name || "Resume"} — Resume` });
-  doc.save(`${slug(resume.name, "candidate")}-resume.pdf`);
+  await downloadElementAsPdf(createElement(Template, { resume }), {
+    fileName: `${slug(resume.name, "candidate")}-resume.pdf`,
+    title: `${resume.name || "Resume"} — Resume`,
+  });
 }
 
 // ---------------------------------------------------------------------------
