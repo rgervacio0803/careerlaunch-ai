@@ -134,6 +134,14 @@ function transformText(text, transform) {
   return text;
 }
 
+// Standard PDF fonts only cover Western European characters; drop the rest
+// (mainly emoji) instead of printing garbage.
+function pdfSafe(text) {
+  return text
+    .replace(/[\u2010-\u2012]/g, "-")
+    .replace(/[^\x20-\xFF\u0152\u0153\u0160\u0161\u0178\u017D\u017E\u0192\u02C6\u02DC\u2013\u2014\u2018-\u201A\u201C-\u201E\u2020-\u2022\u2026\u2030\u2039\u203A\u20AC\u2122]/gu, "");
+}
+
 function boxFromStyle(cs, rect) {
   const fill = parseColor(cs.backgroundColor);
   const gradient = gradientColors(cs.backgroundImage);
@@ -168,6 +176,7 @@ function measure(container, doc, win) {
   const lines = [];
   const atomicBoxes = [];
   const bullets = [];
+  const keepBlocks = [];
   const keepWithNext = [];
 
   const elements = [container, ...container.querySelectorAll("*")];
@@ -222,6 +231,11 @@ function measure(container, doc, win) {
       if (rect.h <= lineHeight * 4.5) bullets.push(rect);
     }
 
+    // Cards marked data-pdf-keep stay on one page when they fit.
+    if (el.hasAttribute("data-pdf-keep") && rect.h < PAGE_HEIGHT * 0.8) {
+      keepBlocks.push(rect);
+    }
+
     // Headings and job headers stay with the line that follows them.
     if (/^H[1-4]$/.test(el.tagName) || /job-header/.test(el.className)) {
       keepWithNext.push(rect);
@@ -251,14 +265,13 @@ function measure(container, doc, win) {
     let line = null;
     const flush = () => {
       if (!line) return;
-      lines.push({
-        ...line,
-        text: transformText(
+      const lineText = pdfSafe(
+        transformText(
           text.slice(line.start, line.end).replace(/\s+/g, " "),
           style.transform,
         ),
-        style,
-      });
+      ).trim();
+      if (lineText) lines.push({ ...line, text: lineText, style });
       line = null;
     };
 
@@ -267,6 +280,7 @@ function measure(container, doc, win) {
     for (const match of text.matchAll(/[^\s-]*-+|[^\s-]+/g)) {
       range.setStart(node, match.index);
       range.setEnd(node, match.index + match[0].length);
+      if (!pdfSafe(match[0])) continue; // e.g. an emoji before a heading
       const rects = [...range.getClientRects()].filter((r) => r.width > 0);
       if (!rects.length) continue;
 
@@ -293,6 +307,7 @@ function measure(container, doc, win) {
     lines,
     atomicBoxes,
     bullets,
+    keepBlocks,
     keepWithNext,
   };
 }
@@ -302,7 +317,8 @@ function measure(container, doc, win) {
 // ---------------------------------------------------------------------------
 
 function pageBreaks(layout) {
-  const { height, lines, atomicBoxes: boxSpans, bullets, keepWithNext } = layout;
+  const { height, lines, atomicBoxes: boxSpans, bullets, keepBlocks, keepWithNext } =
+    layout;
 
   const textSpans = lines.map((l) => [l.y - 1, l.y + l.h + 1]);
   const keepSpans = [];
@@ -320,6 +336,10 @@ function pageBreaks(layout) {
   // From the nicest kind of break to the most forgiving. Each tier only looks
   // within part of the page, so pages don't end with large empty gaps.
   const tiers = [
+    // Whole cards first, accepting a larger gap at the bottom of the page.
+    ...(keepBlocks.length
+      ? [{ floor: 0.55, spans: [...textSpans, ...keepSpans, ...toSpans(boxSpans), ...toSpans(keepBlocks)] }]
+      : []),
     { floor: 0.85, spans: [...textSpans, ...keepSpans, ...toSpans(boxSpans), ...toSpans(bullets)] },
     { floor: 0.8, spans: [...textSpans, ...keepSpans, ...toSpans(boxSpans)] },
     { floor: 0.6, spans: [...textSpans, ...keepSpans] },

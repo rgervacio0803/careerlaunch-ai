@@ -5,6 +5,7 @@ import { createElement } from "react";
 
 import { cleanResume } from "./resume";
 import { getTemplate } from "../components/ResumeTemplates/templates";
+import { InterviewPrepDocument } from "../components/Wizard/InterviewPrepCards";
 
 async function createDoc() {
   const { jsPDF } = await import("jspdf");
@@ -24,80 +25,9 @@ function slug(text, fallback) {
   return value || fallback;
 }
 
-/**
- * Small layout helper: tracks the cursor, wraps text and adds pages.
- */
-function createWriter(doc, { margin = 18, top = 18, bottom = 18 } = {}) {
-  const pageWidth = doc.internal.pageSize.getWidth();
-  const pageHeight = doc.internal.pageSize.getHeight();
-
-  const writer = {
-    doc,
-    margin,
-    pageWidth,
-    pageHeight,
-    width: pageWidth - margin * 2,
-    y: top,
-
-    ensure(height) {
-      if (writer.y + height > pageHeight - bottom) {
-        doc.addPage();
-        writer.y = top;
-        return true;
-      }
-      return false;
-    },
-
-    font(style = "normal", size = 10, color = "#1f2937") {
-      doc.setFont("helvetica", style);
-      doc.setFontSize(size);
-      doc.setTextColor(...hex(color));
-    },
-
-    lineHeight(size) {
-      return size * 0.45;
-    },
-
-    split(text, width = writer.width) {
-      return doc.splitTextToSize(String(text ?? ""), width);
-    },
-
-    // Writes wrapped text at x, moving to a new page between lines if needed.
-    paragraph(text, { x = margin, width, size = 10, after = 0 } = {}) {
-      const lines = writer.split(text, width ?? pageWidth - margin - x);
-      const lh = writer.lineHeight(size);
-
-      lines.forEach((line) => {
-        writer.ensure(lh);
-        doc.text(line, x, writer.y + lh * 0.8);
-        writer.y += lh;
-      });
-
-      writer.y += after;
-      return lines.length;
-    },
-  };
-
-  return writer;
-}
-
 // ---------------------------------------------------------------------------
 // Resume
 // ---------------------------------------------------------------------------
-
-function writeSectionHeading(writer, title, theme, minFollowing = 12) {
-  const { doc, margin, pageWidth } = writer;
-
-  writer.ensure(10 + minFollowing);
-  writer.font("bold", 11, theme.heading);
-  doc.text(title.toUpperCase(), margin, writer.y + 4);
-  writer.y += 6;
-
-  doc.setDrawColor(...hex(theme.rule));
-  doc.setLineWidth(0.3);
-  doc.line(margin, writer.y, pageWidth - margin, writer.y);
-  writer.y += 3;
-}
 
 export async function downloadResumePdf(rawResume, templateId) {
   const resume = cleanResume(rawResume);
@@ -535,64 +465,12 @@ export async function downloadCoverLetterPdf({
 export async function downloadInterviewPdf(interviewQuestions, jobTitle) {
   if (!interviewQuestions) return;
 
-  const doc = await createDoc();
-  const writer = createWriter(doc);
-  const { margin } = writer;
-  const accent = "#2563eb";
+  const { downloadElementAsPdf } = await import("./domPdf");
 
-  writer.font("bold", 18, "#111827");
-  writer.paragraph("Interview Preparation Guide", { size: 18, after: 1 });
-  writer.font("normal", 11, "#4b5563");
-  writer.paragraph(jobTitle || "Target Position", { size: 11, after: 6 });
-
-  const sections = [
-    ["Technical Questions", interviewQuestions.technicalQuestions],
-    ["Behavioral Questions", interviewQuestions.behavioralQuestions],
-    ["Motivation & Fit Questions", interviewQuestions.careerSwitchQuestions],
-  ];
-
-  sections.forEach(([title, items = []]) => {
-    if (!items.length) return;
-
-    writeSectionHeading(writer, title, { heading: accent, rule: "#bfdbfe" }, 25);
-
-    items.forEach((item, index) => {
-      const questionLines = writer.split(
-        `${index + 1}. ${item.question}`,
-        writer.width,
-      ).length;
-      writer.ensure(questionLines * writer.lineHeight(10.5) + 12);
-
-      writer.font("bold", 10.5, "#111827");
-      writer.paragraph(`${index + 1}. ${item.question}`, { size: 10.5, after: 1.5 });
-
-      writer.font("bold", 8.5, "#64748b");
-      writer.paragraph("SUGGESTED ANSWER", { x: margin + 5, size: 8.5, after: 0.5 });
-
-      writer.font("normal", 10, "#1f2937");
-      writer.paragraph(item.answer, { x: margin + 5, size: 10, after: 5 });
-    });
-
-    writer.y += 2;
-  });
-
-  const employerQuestions = interviewQuestions.employerQuestions || [];
-
-  if (employerQuestions.length) {
-    writeSectionHeading(
-      writer,
-      "Questions to Ask the Employer",
-      { heading: accent, rule: "#bfdbfe" },
-    );
-
-    employerQuestions.forEach((question, index) => {
-      writer.font("normal", 10, "#1f2937");
-      writer.paragraph(`${index + 1}. ${question}`, { after: 2 });
-    });
-  }
-
-  doc.setProperties({ title: "Interview Preparation Guide" });
-  doc.save("interview-prep-guide.pdf");
+  await downloadElementAsPdf(
+    createElement(InterviewPrepDocument, { interviewQuestions, jobTitle }),
+    { fileName: "interview-prep-guide.pdf", title: "Interview Preparation Guide" },
+  );
 }
 
 // ---------------------------------------------------------------------------
