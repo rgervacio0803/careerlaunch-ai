@@ -1,34 +1,11 @@
+import { InterviewPrepCards } from "./InterviewPrepCards";
+
 function InterviewPrep({
   interviewQuestions,
   jobTitle,
   onDownload,
   handleReset,
 }) {
-  const renderQuestionSection = (title, questions = []) => {
-    return (
-      <div className="interview-panel">
-        <h3>{title}</h3>
-
-        <div className="interview-card-list">
-          {questions.map((item, index) => (
-            <div key={index} className="interview-card">
-              <div className="interview-question-number">
-                Question {index + 1}
-              </div>
-
-              <h4>{item.question}</h4>
-
-              <div className="interview-answer">
-                <p className="answer-label">Suggested Answer</p>
-                <p>{item.answer}</p>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-    );
-  };
-
   return (
     <section className="wizard-step-page interview-page">
       <div className="step-page-header">
@@ -52,35 +29,7 @@ function InterviewPrep({
         </button>
       </div>
 
-      <div className="interview-grid">
-        {renderQuestionSection(
-          "💻 Technical Questions",
-          interviewQuestions.technicalQuestions,
-        )}
-
-        {renderQuestionSection(
-          "🤝 Behavioral Questions",
-          interviewQuestions.behavioralQuestions,
-        )}
-
-        {renderQuestionSection(
-          "🔄 Motivation & Fit Questions",
-          interviewQuestions.careerSwitchQuestions,
-        )}
-
-        <div className="interview-panel employer-panel">
-          <h3>🏢 Questions to Ask the Employer</h3>
-
-          <div className="employer-question-list">
-            {interviewQuestions.employerQuestions?.map((question, index) => (
-              <div key={index} className="employer-question">
-                <span className="employer-question-number">{index + 1}</span>
-                <p>{question}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
+      <InterviewPrepCards interviewQuestions={interviewQuestions} />
 
       <div className="completion-card">
         <div className="completion-icon" aria-hidden="true">
