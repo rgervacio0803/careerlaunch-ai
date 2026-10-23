@@ -294,7 +294,321 @@ export async function downloadResumePdf(rawResume, templateId) {
 
 // ---------------------------------------------------------------------------
 // Cover letter
+//
+// Mirrors the on-screen preview (.cover-letter-paper in optimize.css and
+// CoverLetterHeader.jsx). Sizes below are the CSS pixel values from those
+// files, converted to PDF units, so the download matches what users see.
+// Georgia isn't built into PDFs, so the closest standard serif (Times) is used.
 // ---------------------------------------------------------------------------
+
+const PX = 25.4 / 96; // millimetres per CSS pixel (a letter page is 816px wide)
+
+const PAGE = { top: 72, side: 76, bottom: 72 };
+
+const BODY_FONT = { family: "times", size: 15 };
+
+const COVER_HEADERS = {
+  modern: {
+    layout: "center",
+    name: { family: "helvetica", size: 30, color: "#0f172a", spacing: 2 },
+    title: { family: "helvetica", style: "bold", size: 14, color: "#0f172a", gap: 6 },
+    contact: { family: "helvetica", size: 11, color: "#64748b", lineHeight: 1.5, gap: 12 },
+    paddingBottom: 18,
+    rule: { color: "#0f172a", width: 1 },
+    marginBottom: 34,
+  },
+  professional: {
+    layout: "center",
+    name: { family: "times", style: "bold", size: 32, color: "#111827", spacing: 2.56, uppercase: true },
+    title: { family: "times", style: "bold", size: 16, color: "#374151", gap: 8 },
+    contact: { family: "times", size: 13, color: "#374151", lineHeight: 1.6, gap: 8 },
+    paddingBottom: 18,
+    rule: { color: "#111827", width: 3, double: true },
+    marginBottom: 34,
+  },
+  executive: {
+    layout: "split",
+    gap: 30,
+    contactMax: 250,
+    name: { family: "times", style: "bold", size: 34, color: "#12263f", lineHeight: 1.1 },
+    title: { family: "times", style: "bold", size: 16, color: "#8a6a2f", spacing: 1.28, uppercase: true, gap: 8 },
+    contact: { family: "times", size: 12, color: "#52606d", lineHeight: 1.6 },
+    paddingBottom: 22,
+    rule: { color: "#1e3a5f", width: 3 },
+    marginBottom: 34,
+  },
+  "executive-elite": {
+    layout: "split",
+    gap: 28,
+    contactMax: 230,
+    name: { family: "times", style: "bold", size: 30, color: "#12263f", lineHeight: 1.15, spacing: 0.6 },
+    title: { family: "helvetica", style: "bold", size: 17, color: "#8a6a2f", spacing: 1.36, uppercase: true, gap: 9 },
+    contact: { family: "times", size: 12, color: "#52606d", lineHeight: 1.6 },
+    paddingBottom: 24,
+    rule: { color: "#1e3a5f", width: 3 },
+    marginBottom: 34,
+  },
+  "executive-blue": {
+    layout: "band",
+    padding: { top: 42, side: 48, bottom: 34 },
+    band: ["#0f3d66", "#1f5f99"],
+    name: { family: "helvetica", style: "bold", size: 34, color: "#ffffff", lineHeight: 1.15 },
+    title: { family: "helvetica", style: "bold", size: 16, color: "#dbeafe", spacing: 1.28, uppercase: true, gap: 10 },
+    contact: { family: "helvetica", size: 13, color: "#eff6ff", lineHeight: 1.6, gap: 16 },
+    marginBottom: 34,
+  },
+  minimal: {
+    layout: "left",
+    name: { family: "helvetica", style: "bold", size: 34, color: "#111827", spacing: -1.36 },
+    title: { family: "helvetica", style: "bold", size: 16, color: "#374151", gap: 8 },
+    contact: { family: "helvetica", size: 14, color: "#64748b", gap: 8 },
+    marginBottom: 34,
+  },
+  tech: {
+    layout: "split",
+    gap: 28,
+    contactMax: 250,
+    defaultTitle: "Technology Professional",
+    name: { family: "helvetica", style: "bold", size: 32, color: "#111827", spacing: -1.28 },
+    title: { family: "helvetica", style: "bold", size: 15, color: "#0ea5e9", gap: 8 },
+    contact: { family: "helvetica", size: 13, color: "#64748b", lineHeight: 1.6 },
+    paddingBottom: 18,
+    rule: { color: "#0ea5e9", width: 2 },
+    marginBottom: 32,
+  },
+  "healthcare-professional": {
+    layout: "split",
+    gap: 28,
+    contactMax: 245,
+    box: {
+      padding: { y: 20, x: 22 },
+      fill: "#eef8fc",
+      left: { color: "#0f6cbd", width: 6 },
+      bottom: { color: "#2cb1bc", width: 2 },
+    },
+    name: { family: "helvetica", style: "bold", size: 32, color: "#0f6cbd" },
+    title: { family: "helvetica", style: "bold", size: 16, color: "#2cb1bc", gap: 8 },
+    contact: { family: "helvetica", size: 12, color: "#64748b", lineHeight: 1.6, gap: 2 },
+    marginBottom: 34,
+  },
+};
+
+function applyFont(doc, spec) {
+  doc.setFont(spec.family, spec.style || "normal");
+  doc.setFontSize(spec.size * 0.75);
+  doc.setTextColor(...hex(spec.color || "#172033"));
+  doc.setCharSpace((spec.spacing || 0) * PX);
+}
+
+/**
+ * Lays out one run of text (all sizes in CSS px) and returns its wrapped
+ * lines, measured size in mm, and a draw() function.
+ */
+function textBlock(doc, rawText, spec, maxWidthPx) {
+  const text = spec.uppercase ? rawText.toUpperCase() : rawText;
+  const maxWidth = maxWidthPx * PX;
+  const charSpace = (spec.spacing || 0) * PX;
+  const lineHeight = spec.size * (spec.lineHeight || 1.2) * PX;
+  const em = spec.size * PX;
+
+  applyFont(doc, spec);
+
+  const measure = (str) =>
+    doc.getTextWidth(str) + charSpace * Math.max(str.length - 1, 0);
+
+  const lines = [];
+  let current = "";
+
+  text.split(/\s+/).filter(Boolean).forEach((word) => {
+    const candidate = current ? `${current} ${word}` : word;
+    if (current && measure(candidate) > maxWidth) {
+      lines.push(current);
+      current = word;
+    } else {
+      current = candidate;
+    }
+  });
+
+  if (current) lines.push(current);
+
+  doc.setCharSpace(0);
+
+  return {
+    lines,
+    width: lines.length ? Math.max(...lines.map(measure)) : 0,
+    height: lines.length * lineHeight,
+    draw(x, top, { align = "left", boxWidth = maxWidth } = {}) {
+      applyFont(doc, spec);
+      lines.forEach((line, index) => {
+        const width = measure(line);
+        const lineX =
+          align === "center"
+            ? x + (boxWidth - width) / 2
+            : align === "right"
+              ? x + boxWidth - width
+              : x;
+        const baseline = top + index * lineHeight + (lineHeight - em) / 2 + em * 0.78;
+        doc.text(line, lineX, baseline);
+      });
+      doc.setCharSpace(0);
+    },
+  };
+}
+
+// A column of name, title and contact, stacked with their CSS margins.
+function stackBlocks(blocks) {
+  let height = 0;
+  const placed = blocks.filter(Boolean).map((block, index) => {
+    const offset = height + (index > 0 ? (block.gap || 0) * PX : 0);
+    height = offset + block.height;
+    return { block, offset };
+  });
+  return { placed, height };
+}
+
+function drawRule(doc, x, y, width, rule) {
+  doc.setFillColor(...hex(rule.color));
+
+  if (rule.double) {
+    const line = (rule.width / 3) * PX;
+    doc.rect(x, y, width, line, "F");
+    doc.rect(x, y + line * 2, width, line, "F");
+  } else {
+    doc.rect(x, y, width, rule.width * PX, "F");
+  }
+
+  return rule.width * PX;
+}
+
+// Draws the template's header and returns the y (mm) where the letter starts.
+function drawCoverLetterHeader(doc, person, templateId) {
+  const theme = COVER_HEADERS[templateId] || COVER_HEADERS.modern;
+  const pageWidthPx = 816;
+  const contentLeft = PAGE.side * PX;
+  const contentWidthPx = pageWidthPx - PAGE.side * 2;
+
+  const name = person.name || "Candidate Name";
+  const title = person.title || theme.defaultTitle || "";
+  const contact = person.contact || "";
+
+  const block = (text, spec, widthPx) =>
+    text ? Object.assign(textBlock(doc, text, spec, widthPx), { gap: spec.gap }) : null;
+
+  // Executive Blue: full-width colored band across the top of the page.
+  if (theme.layout === "band") {
+    const pad = theme.padding;
+    const innerPx = pageWidthPx - pad.side * 2;
+    const stack = stackBlocks([
+      block(name, theme.name, innerPx),
+      block(title, theme.title, innerPx),
+      block(contact, theme.contact, innerPx),
+    ]);
+    const bandHeight = (pad.top + pad.bottom) * PX + stack.height;
+    const pageWidth = pageWidthPx * PX;
+
+    // 135deg gradient, approximated with thin vertical strips.
+    const [from, to] = theme.band.map(hex);
+    const strips = 120;
+    for (let i = 0; i < strips; i += 1) {
+      const t = i / (strips - 1);
+      doc.setFillColor(...from.map((c, k) => Math.round(c + (to[k] - c) * t)));
+      doc.rect((pageWidth / strips) * i, 0, pageWidth / strips + 0.2, bandHeight, "F");
+    }
+
+    stack.placed.forEach(({ block: b, offset }) =>
+      b.draw(pad.side * PX, pad.top * PX + offset),
+    );
+
+    return bandHeight + theme.marginBottom * PX;
+  }
+
+  const top = PAGE.top * PX;
+  const box = theme.box;
+  const insetLeftPx = box ? box.left.width + box.padding.x : 0;
+  const insetRightPx = box ? box.padding.x : 0;
+  const innerLeft = contentLeft + insetLeftPx * PX;
+  const innerWidthPx = contentWidthPx - insetLeftPx - insetRightPx;
+  const contentTop = top + (box ? box.padding.y * PX : 0);
+
+  // 1. Measure.
+  const drawCalls = [];
+  let height;
+
+  if (theme.layout === "split") {
+    const contactBlock = block(contact, theme.contact, theme.contactMax);
+    const contactWidthPx = contactBlock ? contactBlock.width / PX : 0;
+    const leftWidthPx = innerWidthPx - (contactBlock ? contactWidthPx + theme.gap : 0);
+    const left = stackBlocks([
+      block(name, theme.name, leftWidthPx),
+      block(title, theme.title, leftWidthPx),
+    ]);
+
+    left.placed.forEach(({ block: b, offset }) =>
+      drawCalls.push(() => b.draw(innerLeft, contentTop + offset)),
+    );
+
+    let contactBottom = 0;
+    if (contactBlock) {
+      const contactTop = (theme.contact.gap || 0) * PX;
+      const x = innerLeft + (innerWidthPx - contactWidthPx) * PX;
+      drawCalls.push(() =>
+        contactBlock.draw(x, contentTop + contactTop, {
+          align: "right",
+          boxWidth: contactBlock.width,
+        }),
+      );
+      contactBottom = contactTop + contactBlock.height;
+    }
+
+    height = Math.max(left.height, contactBottom);
+  } else {
+    const align = theme.layout === "center" ? "center" : "left";
+    const stack = stackBlocks([
+      block(name, theme.name, innerWidthPx),
+      block(title, theme.title, innerWidthPx),
+      block(contact, theme.contact, innerWidthPx),
+    ]);
+
+    stack.placed.forEach(({ block: b, offset }) =>
+      drawCalls.push(() =>
+        b.draw(innerLeft, contentTop + offset, { align, boxWidth: innerWidthPx * PX }),
+      ),
+    );
+
+    height = stack.height;
+  }
+
+  // 2. Background box (Healthcare), drawn before the text.
+  let y = contentTop + height;
+
+  if (box) {
+    y += box.padding.y * PX;
+    const bottomWidth = box.bottom.width * PX;
+    const boxHeight = y - top + bottomWidth;
+    const width = contentWidthPx * PX;
+
+    doc.setFillColor(...hex(box.fill));
+    doc.rect(contentLeft, top, width, boxHeight, "F");
+    doc.setFillColor(...hex(box.bottom.color));
+    doc.rect(contentLeft, y, width, bottomWidth, "F");
+    doc.setFillColor(...hex(box.left.color));
+    doc.rect(contentLeft, top, box.left.width * PX, boxHeight, "F");
+
+    y += bottomWidth;
+  }
+
+  // 3. Text.
+  drawCalls.forEach((draw) => draw());
+
+  if (!box) {
+    y += (theme.paddingBottom || 0) * PX;
+    if (theme.rule) {
+      y += drawRule(doc, contentLeft, y, contentWidthPx * PX, theme.rule);
+    }
+  }
+
+  return y + theme.marginBottom * PX;
+}
 
 export async function downloadCoverLetterPdf({
   structuredResume,
@@ -307,39 +621,88 @@ export async function downloadCoverLetterPdf({
   if (!coverLetter) return;
 
   const doc = await createDoc();
-  const writer = createWriter(doc, { margin: 22, top: 20, bottom: 22 });
-  const theme = getTheme(templateId);
   const person = cleanResume(structuredResume) || {};
+  const pageHeight = doc.internal.pageSize.getHeight();
+  const left = PAGE.side * PX;
+  const widthPx = 816 - PAGE.side * 2;
+  const bottomLimit = pageHeight - PAGE.bottom * PX;
 
-  writeHeader(writer, person, theme);
+  let y = drawCoverLetterHeader(doc, person, templateId);
 
-  writer.font("normal", 11, "#1f2937");
-  writer.paragraph(coverLetterDate || "", { size: 11, after: 3 });
+  const recipientLines = [
+    coverLetterDate,
+    hiringManager?.trim(),
+    companyName?.trim(),
+  ].filter(Boolean);
 
-  if (hiringManager?.trim()) {
-    writer.paragraph(hiringManager.trim(), { size: 11 });
-  }
+  const bodyLines = coverLetter.replace(/\r\n?/g, "\n").trim().split("\n");
 
-  if (companyName?.trim()) {
-    writer.paragraph(companyName.trim(), { size: 11 });
-  }
+  // The preview's spacing first; if the letter would spill onto a second
+  // page, tighten the spacing (then the size) a step at a time so it fits.
+  const sizes = [
+    [15, 1.8], [15, 1.7], [15, 1.6], [15, 1.5], [15, 1.4],
+    [14.5, 1.4], [14, 1.4], [13.5, 1.35], [13, 1.35],
+  ].map(([size, body]) => ({ size, body, recipient: Math.min(1.65, body) }));
 
-  writer.y += 5;
+  function layout({ size, recipient, body }) {
+    const recipientSpec = { ...BODY_FONT, size, color: "#334155", lineHeight: recipient };
+    const bodySpec = { ...BODY_FONT, size, color: "#172033", lineHeight: body };
+    const steps = [];
 
-  coverLetter
-    .split(/\n\s*\n/)
-    .map((paragraph) => paragraph.trim())
-    .filter(Boolean)
-    .forEach((paragraph) => {
-      writer.font("normal", 11, "#1f2937");
-      // Keep short closing lines ("Sincerely," + name) on their own lines.
-      paragraph.split("\n").forEach((line) => {
-        writer.paragraph(line, { size: 11 });
-      });
-      writer.y += 4;
+    recipientLines.forEach((line, index) => {
+      steps.push({ text: line, spec: recipientSpec });
+      if (index < recipientLines.length - 1) steps.push({ space: 4 * PX });
     });
 
-  doc.setProperties({ title: "Cover Letter" });
+    if (recipientLines.length) steps.push({ space: 28 * PX });
+
+    // Keep the letter's own line breaks and blank lines (white-space: pre-wrap).
+    bodyLines.forEach((line) => {
+      if (line.trim()) {
+        steps.push({ text: line, spec: bodySpec });
+      } else {
+        steps.push({ space: size * body * PX });
+      }
+    });
+
+    const height = steps.reduce(
+      (total, step) =>
+        total +
+        (step.space ??
+          textBlock(doc, step.text, step.spec, widthPx).lines.length *
+            step.spec.size *
+            step.spec.lineHeight *
+            PX),
+      0,
+    );
+
+    return { steps, height };
+  }
+
+  const available = bottomLimit - y;
+  const chosen =
+    sizes.map(layout).find((option) => option.height <= available) ||
+    layout(sizes[0]);
+
+  chosen.steps.forEach((step) => {
+    if (step.space) {
+      y += step.space;
+      return;
+    }
+
+    const lineHeight = step.spec.size * step.spec.lineHeight * PX;
+
+    textBlock(doc, step.text, step.spec, widthPx).lines.forEach((line) => {
+      if (y + lineHeight > bottomLimit) {
+        doc.addPage();
+        y = PAGE.top * PX;
+      }
+      textBlock(doc, line, step.spec, 100000).draw(left, y);
+      y += lineHeight;
+    });
+  });
+
+  doc.setProperties({ title: `${person.name || "Cover Letter"} — Cover Letter` });
   doc.save(`${slug(companyName, "company")}-cover-letter.pdf`);
 }
 
