@@ -940,6 +940,41 @@ app.use((error, req, res, next) => {
     return res.status(error.status).json({ error: error.message });
   }
 
+  // Problems on the OpenAI side (after the SDK's own automatic retries).
+  if (error instanceof OpenAI.APIError) {
+    const code = error.code || error.error?.code;
+
+    if (code === "insufficient_quota" || code === "billing_hard_limit_reached") {
+      console.error(
+        "OpenAI credits or monthly spending limit reached. Add credits or raise the limit at platform.openai.com/settings/organization/billing.",
+      );
+      return res.status(503).json({
+        error:
+          "CareerLaunch AI is temporarily unavailable. Please try again later.",
+      });
+    }
+
+    if (error.status === 429) {
+      console.error("OpenAI rate limit:", error.message);
+      return res.status(503).json({
+        error: "CareerLaunch AI is busy right now. Please wait a minute and try again.",
+      });
+    }
+
+    if (error.status === 401) {
+      console.error("OpenAI rejected the API key. Check OPENAI_API_KEY.");
+      return res.status(503).json({
+        error:
+          "CareerLaunch AI is temporarily unavailable. Please try again later.",
+      });
+    }
+
+    console.error("OpenAI error:", error.status, error.message);
+    return res.status(502).json({
+      error: "The AI service had a problem. Please try again in a moment.",
+    });
+  }
+
   console.error(error);
   res.status(500).json({ error: "Something went wrong. Please try again." });
 });
