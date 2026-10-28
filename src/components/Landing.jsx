@@ -397,12 +397,13 @@ function Landing({ onStart }) {
           <details className="faq-item">
             <summary>Is my resume information secure?</summary>
             <p>
-              Your resume and job description are sent to our server and to
-              OpenAI only to generate your results. We don't save them on our
-              servers. Your progress is kept in your browser tab until you
-              start over, log out, or close the tab. Please leave out sensitive
-              details your resume doesn't need, such as your full address or
-              Social Security number.
+              Your resume and job description are sent to OpenAI only to
+              generate your results. Each application you analyze is saved
+              privately to your account so you can come back to it, and only
+              you can see it. You can delete any saved application at any time
+              from My Applications. Please leave out sensitive details your
+              resume doesn't need, such as your full address or Social Security
+              number.
             </p>
           </details>
         </div>

@@ -9,7 +9,7 @@ CareerLaunch AI is free during early access. Users need an account (Supabase Aut
 - **Frontend** (`/`): React 19 + Vite. Supabase handles sign-up and log-in in the browser.
 - **API server** (`/server`): Express. Reads PDF/DOCX/TXT resumes and calls OpenAI. Every AI endpoint checks the user's Supabase access token and is rate-limited per user.
 
-Resumes and job descriptions are sent to the server and OpenAI to generate results. The server does not store them. Progress is kept in the browser tab (`sessionStorage`) until the user starts over, logs out, or closes the tab.
+Resumes and job descriptions are sent to the server and OpenAI to generate results; the API server itself stores nothing. Once an application has an ATS analysis, the browser saves it to the user's account in the Supabase `applications` table (protected by row-level security, so users only see their own rows). Users can reopen or delete saved applications from **My Applications**. The current wizard state is also kept in the browser tab (`sessionStorage`) so a refresh doesn't lose work.
 
 ## Run it locally
 
@@ -17,7 +17,8 @@ You need Node.js 20.19 or newer, a Supabase project, and an OpenAI API key.
 
 1. Frontend settings: copy `.env.example` to `.env.local` and fill in your Supabase URL and publishable key.
 2. Server settings: copy `server/.env.example` to `server/.env` and fill in `OPENAI_API_KEY`, `SUPABASE_URL` and `SUPABASE_PUBLISHABLE_KEY` (same Supabase project).
-3. Install and start both:
+3. Database: in Supabase, open **SQL Editor → New query**, paste `supabase/migrations/20261027_create_applications.sql`, and click **Run**. This creates the `applications` table used for saved applications.
+4. Install and start both:
 
 ```bash
 npm install

@@ -1,0 +1,154 @@
+/* =========================================
+   MY APPLICATIONS
+   ========================================= */
+
+.applications-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+  max-width: 860px;
+  margin: 0 auto 28px;
+}
+
+.applications-actions .primary-action-button,
+.applications-actions .secondary-button {
+  width: auto;
+  margin-top: 0;
+  padding: 12px 22px;
+}
+
+.application-card-actions .primary-action-button {
+  width: auto;
+}
+
+.applications-loading {
+  text-align: center;
+  color: #64748b;
+}
+
+.applications-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 0;
+  list-style: none;
+}
+
+.application-card {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 20px 22px;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 16px;
+  box-shadow: 0 8px 22px rgba(15, 23, 42, 0.05);
+}
+
+.application-card-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.application-card h3 {
+  margin: 0;
+  color: #0f172a;
+  font-size: 18px;
+  overflow-wrap: anywhere;
+}
+
+.application-company {
+  margin: 4px 0 0;
+  color: #2563eb;
+  font-weight: 600;
+}
+
+.application-meta {
+  margin: 6px 0 0;
+  color: #64748b;
+  font-size: 14px;
+}
+
+.application-score {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 64px;
+  width: 64px;
+  height: 64px;
+  border: 3px solid #22c55e;
+  border-radius: 50%;
+  color: #16a34a;
+}
+
+.application-score strong {
+  font-size: 20px;
+  line-height: 1;
+}
+
+.application-score span {
+  margin-top: 2px;
+  color: #64748b;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+}
+
+.application-card-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.application-card-actions .primary-action-button {
+  margin-top: 0;
+  padding: 10px 20px;
+}
+
+.application-delete {
+  padding: 10px 14px;
+  border: 1px solid #fecaca;
+  border-radius: 10px;
+  background: #ffffff;
+  color: #b91c1c;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.application-delete:hover {
+  background: #fef2f2;
+}
+
+.application-delete:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.save-status {
+  margin-left: auto;
+  align-self: center;
+  color: #64748b;
+  font-size: 13px;
+}
+
+.save-status.error {
+  color: #b91c1c;
+}
+
+@media (max-width: 640px) {
+  .application-card {
+    flex-wrap: wrap;
+  }
+
+  .application-card-actions {
+    width: 100%;
+  }
+
+  .application-card-actions .primary-action-button {
+    flex: 1;
+  }
+}
