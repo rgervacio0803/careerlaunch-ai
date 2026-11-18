@@ -138,7 +138,8 @@
 }
 
 .cover-letter-actions .copy-btn,
-.cover-letter-actions .download-btn {
+.cover-letter-actions .download-btn,
+.cover-letter-actions .download-word-btn {
   width: auto;
   margin: 0;
   padding: 10px 16px;

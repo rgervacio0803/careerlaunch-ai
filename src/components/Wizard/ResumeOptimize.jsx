@@ -13,6 +13,7 @@ function ResumeOptimize({
   setSelectedTemplate,
   onCopy,
   onDownload,
+  onDownloadWord,
   onContinue,
 }) {
   // Blank lines from the editor are dropped from previews and downloads.
@@ -360,6 +361,14 @@ function ResumeOptimize({
               onClick={onDownload}
             >
               Download PDF
+            </button>
+
+            <button
+              type="button"
+              className="download-word-btn"
+              onClick={onDownloadWord}
+            >
+              Download Word
             </button>
           </div>
         </div>
