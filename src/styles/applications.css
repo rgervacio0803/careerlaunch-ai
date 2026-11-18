@@ -39,13 +39,36 @@
 
 .application-card {
   display: flex;
-  align-items: center;
-  gap: 20px;
+  flex-direction: column;
+  gap: 14px;
   padding: 20px 22px;
   background: #ffffff;
   border: 1px solid #e5e7eb;
+  border-left: 5px solid #94a3b8;
   border-radius: 16px;
   box-shadow: 0 8px 22px rgba(15, 23, 42, 0.05);
+}
+
+.application-card.status-applied {
+  border-left-color: #2563eb;
+}
+
+.application-card.status-interviewing {
+  border-left-color: #f59e0b;
+}
+
+.application-card.status-offer {
+  border-left-color: #16a34a;
+}
+
+.application-card.status-rejected {
+  border-left-color: #cbd5e1;
+}
+
+.application-card-row {
+  display: flex;
+  align-items: center;
+  gap: 20px;
 }
 
 .application-card-main {
@@ -100,8 +123,201 @@
 
 .application-card-actions {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 10px;
+}
+
+.status-select select {
+  padding: 9px 12px;
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  background: #f8fafc;
+  color: #0f172a;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.application-details-toggle {
+  width: auto;
+  padding: 10px 14px;
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  background: #ffffff;
+  color: #334155;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.application-details-toggle:hover {
+  background: #f1f5f9;
+}
+
+.application-link {
+  display: inline-block;
+  margin-top: 6px;
+  color: #2563eb;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.application-link:hover {
+  text-decoration: underline;
+}
+
+.application-details {
+  display: grid;
+  grid-template-columns: 180px 1fr;
+  gap: 12px 16px;
+  padding-top: 14px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.application-details label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  color: #334155;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.application-details input,
+.application-details textarea {
+  padding: 9px 11px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  font: inherit;
+  font-weight: 400;
+}
+
+.application-details .application-notes {
+  grid-column: 1 / -1;
+}
+
+.application-details textarea {
+  min-height: 90px;
+  resize: vertical;
+}
+
+.tracker-filters {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  max-width: 860px;
+  margin: 0 auto 18px;
+}
+
+.tracker-filters button {
+  width: auto;
+  padding: 8px 14px;
+  border: 1px solid #cbd5e1;
+  border-radius: 999px;
+  background: #ffffff;
+  color: #334155;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.tracker-filters button span {
+  margin-left: 4px;
+  color: #64748b;
+  font-weight: 500;
+}
+
+.tracker-filters button.active {
+  border-color: #2563eb;
+  background: #2563eb;
+  color: #ffffff;
+}
+
+.tracker-filters button.active span {
+  color: #dbeafe;
+}
+
+.tracker-setup-note {
+  max-width: 860px;
+  margin: 0 auto 18px;
+  padding: 12px 16px;
+  border-radius: 10px;
+  background: #fffbeb;
+  color: #92400e;
+  text-align: center;
+}
+
+.track-job-form {
+  max-width: 860px;
+  margin: 0 auto 24px;
+  padding: 22px;
+  border: 1px solid #bfdbfe;
+  border-radius: 16px;
+  background: #f8fbff;
+}
+
+.track-job-form h3 {
+  margin: 0;
+  color: #0f172a;
+}
+
+.track-job-form > p {
+  margin: 6px 0 16px;
+  color: #64748b;
+}
+
+.track-job-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px 16px;
+}
+
+.track-job-grid label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  color: #334155;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.track-job-grid label span {
+  color: #64748b;
+  font-weight: 400;
+}
+
+.track-job-grid input,
+.track-job-grid select {
+  padding: 10px 12px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  background: #ffffff;
+  font: inherit;
+  font-weight: 400;
+}
+
+.track-job-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.track-job-actions .primary-action-button,
+.track-job-actions .secondary-button {
+  width: auto;
+  margin: 0;
+  padding: 10px 18px;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
 }
 
 .application-card-actions .primary-action-button {
@@ -110,6 +326,7 @@
 }
 
 .application-delete {
+  width: auto;
   padding: 10px 14px;
   border: 1px solid #fecaca;
   border-radius: 10px;
@@ -140,8 +357,13 @@
 }
 
 @media (max-width: 640px) {
-  .application-card {
-    flex-wrap: wrap;
+  .application-card-row {
+    align-items: flex-start;
+  }
+
+  .application-details,
+  .track-job-grid {
+    grid-template-columns: 1fr;
   }
 
   .application-card-actions {
