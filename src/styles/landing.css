@@ -1496,3 +1496,27 @@
   cursor: not-allowed;
   transform: none;
 }
+
+/* "Log In" / "Log Out" next to the main button: a plain text link. */
+.landing-links button.landing-text-button,
+.mobile-menu button.landing-text-button {
+  background: transparent;
+  color: #334155;
+  box-shadow: none;
+  padding: 0 4px;
+}
+
+.landing-links button.landing-text-button:hover,
+.mobile-menu button.landing-text-button:hover {
+  color: #2563eb;
+}
+
+.mobile-menu button.landing-text-button {
+  border: 1px solid #cbd5e1;
+}
+
+/* Keep top-bar labels on one line. */
+.landing-links a,
+.landing-links button {
+  white-space: nowrap;
+}
