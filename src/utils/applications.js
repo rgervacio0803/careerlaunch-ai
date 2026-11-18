@@ -6,13 +6,20 @@ import { supabase } from "../supabaseClient";
 
 const TABLE = "applications";
 
+// Today's date in the user's own time zone, as YYYY-MM-DD.
+export function localToday() {
+  const d = new Date();
+  const pad = (n) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+}
+
 function friendlyError(error) {
   console.error("Saved applications:", error);
 
   if (
     error?.code === "PGRST205" ||
     error?.code === "42P01" ||
-    /could not find the table|does not exist/i.test(error?.message || "")
+    /could not find the table|relation .* does not exist/i.test(error?.message || "")
   ) {
     return new Error(
       "Saving isn't set up yet: the applications table is missing in Supabase.",
@@ -36,14 +43,35 @@ function toRow(snapshot) {
   };
 }
 
+const BASE_COLUMNS =
+  "id, job_title, company_name, ats_score, current_step, created_at, updated_at";
+const TRACKER_COLUMNS = `${BASE_COLUMNS}, status, applied_on, job_url, notes`;
+
+// Returns { rows, trackerReady }. trackerReady is false until the job tracker
+// columns exist (supabase/migrations/20261117_add_job_tracker.sql), so the
+// list keeps working before that setup step is done.
 export async function listApplications() {
-  const { data, error } = await supabase
+  const full = await supabase
     .from(TABLE)
-    .select("id, job_title, company_name, ats_score, current_step, created_at, updated_at")
+    .select(TRACKER_COLUMNS)
     .order("updated_at", { ascending: false });
 
-  if (error) throw friendlyError(error);
-  return data;
+  if (!full.error) return { rows: full.data, trackerReady: true };
+
+  const missingColumn =
+    full.error.code === "42703" ||
+    full.error.code === "PGRST204" ||
+    /column .* does not exist/i.test(full.error.message || "");
+
+  if (!missingColumn) throw friendlyError(full.error);
+
+  const basic = await supabase
+    .from(TABLE)
+    .select(BASE_COLUMNS)
+    .order("updated_at", { ascending: false });
+
+  if (basic.error) throw friendlyError(basic.error);
+  return { rows: basic.data, trackerReady: false };
 }
 
 export async function getApplication(id) {
@@ -70,6 +98,32 @@ export async function createApplication(snapshot) {
 
 export async function updateApplication(id, snapshot) {
   const { error } = await supabase.from(TABLE).update(toRow(snapshot)).eq("id", id);
+  if (error) throw friendlyError(error);
+}
+
+// Adds a job to the tracker without running the analysis yet.
+export async function createTrackedJob({ jobTitle, companyName, jobUrl, status }) {
+  const { data, error } = await supabase
+    .from(TABLE)
+    .insert({
+      job_title: jobTitle.trim(),
+      company_name: companyName.trim(),
+      job_url: jobUrl.trim(),
+      status,
+      applied_on: status === "saved" ? null : localToday(),
+      current_step: 1,
+      data: { jobTitle: jobTitle.trim(), companyName: companyName.trim() },
+    })
+    .select(TRACKER_COLUMNS)
+    .single();
+
+  if (error) throw friendlyError(error);
+  return data;
+}
+
+// Tracker fields only (status, applied_on, job_url, notes).
+export async function updateTracking(id, fields) {
+  const { error } = await supabase.from(TABLE).update(fields).eq("id", id);
   if (error) throw friendlyError(error);
 }
 
