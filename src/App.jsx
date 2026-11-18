@@ -18,6 +18,7 @@ import {
   downloadReportPdf,
   downloadResumePdf,
 } from "./utils/pdf";
+import { downloadCoverLetterDocx, downloadResumeDocx } from "./utils/docx";
 
 import "./App.css";
 import "./styles/base.css";
@@ -779,6 +780,11 @@ function App() {
                   downloadResumePdf(structuredResume, selectedTemplate),
                 )
               }
+              onDownloadWord={() =>
+                runDownload(() =>
+                  downloadResumeDocx(structuredResume, selectedTemplate),
+                )
+              }
               onContinue={() => handleCoverLetter()}
             />
           )}
@@ -798,6 +804,18 @@ function App() {
               onDownload={() =>
                 runDownload(() =>
                   downloadCoverLetterPdf({
+                    structuredResume,
+                    templateId: selectedTemplate,
+                    coverLetter,
+                    coverLetterDate,
+                    hiringManager,
+                    companyName,
+                  }),
+                )
+              }
+              onDownloadWord={() =>
+                runDownload(() =>
+                  downloadCoverLetterDocx({
                     structuredResume,
                     templateId: selectedTemplate,
                     coverLetter,

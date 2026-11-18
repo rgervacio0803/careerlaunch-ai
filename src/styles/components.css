@@ -324,3 +324,13 @@
     transform: scale(1);
   }
 }
+
+.download-word-btn {
+  margin-top: 20px;
+  margin-bottom: 20px;
+  background: #2b579a;
+}
+
+.download-word-btn:hover {
+  background: #1e3f73;
+}

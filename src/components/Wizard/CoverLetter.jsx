@@ -9,6 +9,7 @@ function CoverLetter({
 
   onCopy,
   onDownload,
+  onDownloadWord,
   onRegenerate,
   onContinue,
 
@@ -134,6 +135,14 @@ function CoverLetter({
                 onClick={onDownload}
               >
                 Download PDF
+              </button>
+
+              <button
+                type="button"
+                className="download-word-btn"
+                onClick={onDownloadWord}
+              >
+                Download Word
               </button>
             </div>
           </div>
