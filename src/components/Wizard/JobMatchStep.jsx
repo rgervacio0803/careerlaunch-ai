@@ -10,6 +10,7 @@ function JobMatchStep({
 
   loading,
   handleAnalyze,
+  onFindJobs,
 }) {
   return (
     <section className="wizard-step-page">
@@ -71,6 +72,15 @@ function JobMatchStep({
         >
           {loading ? "Analyzing Match..." : "Analyze Match →"}
         </button>
+
+        {onFindJobs && (
+          <p className="find-jobs-hint">
+            Don't have a job yet?{" "}
+            <button type="button" className="link-button" onClick={onFindJobs}>
+              Find jobs that match your resume →
+            </button>
+          </p>
+        )}
       </div>
     </section>
   );

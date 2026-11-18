@@ -103,7 +103,9 @@ function TrackJobForm({ onSaved, onCancel }) {
         </label>
 
         <label htmlFor="track-url">
-          Job Posting Link <span>(optional)</span>
+          <span className="field-label">
+            Job Posting Link <em>(optional)</em>
+          </span>
           <input
             id="track-url"
             type="text"
@@ -300,7 +302,7 @@ function ApplicationCard({ application, trackerReady, onOpen, onDelete, onChange
   );
 }
 
-function MyApplications({ onOpen, onNew, canReuseResume, autoStartWhenEmpty }) {
+function MyApplications({ onOpen, onNew, onFindJobs, canReuseResume, autoStartWhenEmpty }) {
   const [applications, setApplications] = useState(null);
   const [trackerReady, setTrackerReady] = useState(true);
   const [filter, setFilter] = useState("all");
@@ -411,6 +413,12 @@ function MyApplications({ onOpen, onNew, canReuseResume, autoStartWhenEmpty }) {
             onClick={() => onNew({ keepResume: true })}
           >
             New Application With My Current Resume
+          </button>
+        )}
+
+        {onFindJobs && (
+          <button type="button" className="secondary-button" onClick={onFindJobs}>
+            🔍 Find Matching Jobs
           </button>
         )}
 

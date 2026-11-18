@@ -374,3 +374,232 @@
     flex: 1;
   }
 }
+
+/* =========================================
+   FIND JOBS
+   ========================================= */
+
+.find-jobs-form {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px 16px;
+  align-items: end;
+  max-width: 860px;
+  margin: 0 auto 24px;
+  padding: 22px;
+  border: 1px solid #e5e7eb;
+  border-radius: 16px;
+  background: #ffffff;
+  box-shadow: 0 8px 22px rgba(15, 23, 42, 0.05);
+}
+
+.find-jobs-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  color: #334155;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.find-jobs-form label span {
+  color: #64748b;
+  font-weight: 400;
+}
+
+.find-jobs-form input[type="text"],
+.find-jobs-form input:not([type]) {
+  padding: 11px 12px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  font: inherit;
+  font-weight: 400;
+}
+
+.find-jobs-form input:disabled {
+  background: #f1f5f9;
+}
+
+.find-jobs-form .find-jobs-remote {
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+}
+
+.find-jobs-form .find-jobs-remote input {
+  width: 18px;
+  height: 18px;
+}
+
+.find-jobs-form .primary-action-button {
+  width: 100%;
+  margin: 0;
+}
+
+.find-jobs-summary {
+  max-width: 860px;
+  margin: 0 auto 14px;
+  color: #475569;
+}
+
+.job-match-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  max-width: 860px;
+  margin: 0 auto 20px;
+  padding: 0;
+  list-style: none;
+}
+
+.job-match-card {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 20px 22px;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 16px;
+  box-shadow: 0 8px 22px rgba(15, 23, 42, 0.05);
+}
+
+.job-match-top {
+  display: flex;
+  align-items: flex-start;
+  gap: 18px;
+}
+
+.job-match-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.job-match-main h3 {
+  margin: 0;
+  color: #0f172a;
+  font-size: 18px;
+}
+
+.job-match-score {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 68px;
+  width: 68px;
+  height: 68px;
+  border: 3px solid currentColor;
+  border-radius: 50%;
+}
+
+.job-match-score strong {
+  font-size: 18px;
+  line-height: 1;
+}
+
+.job-match-score span {
+  margin-top: 2px;
+  color: #64748b;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.job-match-score.high {
+  color: #16a34a;
+}
+
+.job-match-score.medium {
+  color: #d97706;
+}
+
+.job-match-score.low {
+  color: #94a3b8;
+}
+
+.job-match-reason {
+  margin: 0;
+  color: #166534;
+  font-size: 14px;
+}
+
+.job-match-gap {
+  margin: 0;
+  color: #92400e;
+  font-size: 14px;
+}
+
+.job-match-card .application-link {
+  margin-top: 0;
+}
+
+.upload-next-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+}
+
+.upload-next-actions .find-jobs-button {
+  width: auto;
+  padding: 0 22px;
+}
+
+.find-jobs-hint {
+  margin: 14px 0 0;
+  color: #64748b;
+  text-align: center;
+}
+
+.link-button {
+  width: auto;
+  padding: 0;
+  border: none;
+  background: none;
+  color: #2563eb;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.link-button:hover {
+  background: none;
+  text-decoration: underline;
+}
+
+@media (max-width: 640px) {
+  .find-jobs-form {
+    grid-template-columns: 1fr;
+  }
+}
+
+.field-label em {
+  color: #64748b;
+  font-style: normal;
+  font-weight: 400;
+}
+
+/* Top bar: let the buttons wrap on narrow screens. */
+.account-nav {
+  flex-wrap: wrap;
+  row-gap: 8px;
+}
+
+@media (max-width: 640px) {
+  .account-nav {
+    justify-content: center;
+  }
+
+  .account-nav .back-home-btn,
+  .account-nav .logout-btn {
+    padding: 8px 12px;
+    font-size: 13px;
+  }
+
+  .save-status {
+    width: 100%;
+    margin-left: 0;
+    text-align: center;
+  }
+}
