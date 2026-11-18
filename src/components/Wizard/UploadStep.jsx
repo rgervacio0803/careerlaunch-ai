@@ -7,6 +7,7 @@ function UploadStep({
   fileInputRef,
   onFileSelected,
   onContinue,
+  onFindJobs,
 }) {
   const [isDragging, setIsDragging] = useState(false);
 
@@ -84,14 +85,23 @@ function UploadStep({
         </div>
       </div>
 
-      <div className="analysis-actions">
+      <div className="analysis-actions upload-next-actions">
         <button
           type="button"
           className="interview-button"
           onClick={onContinue}
           disabled={!resumeText.trim()}
         >
-          Continue →
+          I Have a Job in Mind →
+        </button>
+
+        <button
+          type="button"
+          className="secondary-button find-jobs-button"
+          onClick={onFindJobs}
+          disabled={!resumeText.trim()}
+        >
+          🔍 Find Jobs for Me
         </button>
       </div>
     </section>

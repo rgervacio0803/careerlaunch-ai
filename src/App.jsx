@@ -3,8 +3,10 @@ import { openedFromPasswordReset, supabase } from "./supabaseClient";
 import { apiRequest } from "./api";
 import {
   createApplication,
+  createTrackedJob,
   getApplication,
   updateApplication,
+  updateTracking,
 } from "./utils/applications";
 import useSessionState, { clearSessionState } from "./hooks/useSessionState";
 import {
@@ -35,6 +37,7 @@ import Auth from "./components/Auth";
 import ResetPassword from "./components/ResetPassword";
 import Landing from "./components/Landing";
 import MyApplications from "./components/MyApplications";
+import FindJobs from "./components/FindJobs";
 import WizardHeader from "./components/Wizard/WizardHeader";
 import UploadStep from "./components/Wizard/UploadStep";
 import JobMatchStep from "./components/Wizard/JobMatchStep";
@@ -93,6 +96,10 @@ function App() {
     "jobDescription",
     "",
   );
+  // Link to the posting when the job came from Find Jobs.
+  const [jobUrl, setJobUrl] = useSessionState("jobUrl", "");
+  // Last job search and its results.
+  const [jobSearch, setJobSearch] = useSessionState("jobSearch", null);
   const [result, setResult] = useSessionState("result", null);
   const [resumeInsights, setResumeInsights] = useSessionState("insights", null);
   const [rewritePlan, setRewritePlan] = useSessionState("rewritePlan", null);
@@ -180,6 +187,7 @@ function App() {
     jobTitle,
     companyName,
     jobDescription,
+    jobUrl,
     result,
     resumeInsights,
     rewritePlan,
@@ -211,6 +219,10 @@ function App() {
           creatingApplication.current = true;
           const id = await createApplication(snapshot);
           setApplicationId(id);
+          // Keep the posting link in the tracker (needs the tracker update).
+          if (snapshot.jobUrl) {
+            updateTracking(id, { job_url: snapshot.jobUrl }).catch(() => {});
+          }
         }
 
         lastSavedSnapshot.current = snapshotJson;
@@ -257,7 +269,7 @@ function App() {
       .join("\n\n");
   }
 
-  async function parseResume({ file = null, text = "" }) {
+  async function parseResume({ file = null, text = "", next = "job" }) {
     setLoadingMessage("Please wait while CareerLaunch AI analyzes your resume.");
     setLoading(true);
     setError("");
@@ -273,7 +285,12 @@ function App() {
       setParsedResumeText(data.resumeText);
       setResumeFileName(file ? file.name : "");
       clearResults();
-      goToStep(2);
+      if (next === "find-jobs") {
+        setError("");
+        setView("jobs");
+      } else {
+        goToStep(2);
+      }
     } catch (requestError) {
       setError(requestError.message);
     } finally {
@@ -290,15 +307,58 @@ function App() {
     }
   }
 
-  function handleUploadContinue() {
+  function handleUploadContinue({ next = "job" } = {}) {
     const text = resumeText.trim();
     if (!text) return;
 
     if (text === parsedResumeText.trim()) {
-      goToStep(2);
+      if (next === "find-jobs") {
+        setError("");
+        setView("jobs");
+      } else {
+        goToStep(2);
+      }
     } else {
-      parseResume({ text });
+      parseResume({ text, next });
     }
+  }
+
+  function openFindJobs() {
+    setError("");
+    setView("jobs");
+  }
+
+  // "Tailor Resume" on a suggested job: a new application with the job
+  // details filled in, ready to analyze.
+  function startFromJob(job, resume) {
+    resetWizard({ keepResume: true });
+    if (!resumeText.trim() && resume) {
+      setResumeText(resume);
+      setParsedResumeText(resume);
+    }
+    setJobTitle(job.title);
+    setCompanyName(job.company);
+    setJobDescription(job.description);
+    setJobUrl(job.applyLink || "");
+    setCurrentStep(2);
+    setView("wizard");
+  }
+
+  // "Track for Later": saved to My Applications with everything needed to
+  // tailor the resume for it later.
+  function trackSuggestedJob(job, resume) {
+    return createTrackedJob({
+      jobTitle: job.title,
+      companyName: job.company,
+      jobUrl: job.applyLink || "",
+      status: "saved",
+      details: {
+        jobDescription: job.description,
+        resumeText: resume,
+        parsedResumeText: resume,
+        currentStep: 2,
+      },
+    });
   }
 
   async function handleAnalyze() {
@@ -513,6 +573,7 @@ function App() {
     setJobTitle("");
     setCompanyName("");
     setJobDescription("");
+    setJobUrl("");
     setHiringManager("");
     setCoverLetterDate(todayLabel());
     setSelectedTemplate("modern");
@@ -547,6 +608,7 @@ function App() {
       setJobTitle(saved.jobTitle || "");
       setCompanyName(saved.companyName || "");
       setJobDescription(saved.jobDescription || "");
+      setJobUrl(saved.jobUrl || "");
       setResult(saved.result || null);
       setResumeInsights(saved.resumeInsights || null);
       setRewritePlan(saved.rewritePlan || null);
@@ -666,7 +728,7 @@ function App() {
         >
           ← Back to Home
         </button>
-        {view === "wizard" && (
+        {view !== "applications" && (
           <button
             type="button"
             className="back-home-btn"
@@ -676,6 +738,11 @@ function App() {
             }}
           >
             My Applications
+          </button>
+        )}
+        {view !== "jobs" && (
+          <button type="button" className="back-home-btn" onClick={openFindJobs}>
+            Find Jobs
           </button>
         )}
         <button type="button" className="logout-btn" onClick={handleLogOut}>
@@ -691,7 +758,18 @@ function App() {
         <RewritePlanProgress currentStep={rewritePlanStep} />
       )}
 
-      {view === "applications" ? (
+      {view === "jobs" ? (
+        <main className="container">
+          <FindJobs
+            resumeText={resumeText.trim()}
+            search={jobSearch}
+            setSearch={setJobSearch}
+            onTailor={startFromJob}
+            onTrack={trackSuggestedJob}
+            onUploadResume={() => startNewApplication({ keepResume: false })}
+          />
+        </main>
+      ) : view === "applications" ? (
         <main className="container">
           {error && (
             <div className="error-message" role="alert">
@@ -702,6 +780,7 @@ function App() {
           <MyApplications
             onOpen={openApplication}
             onNew={startNewApplication}
+            onFindJobs={openFindJobs}
             canReuseResume={Boolean(resumeText.trim())}
             autoStartWhenEmpty={!resumeText.trim()}
           />
@@ -728,7 +807,8 @@ function App() {
               resumeFileName={resumeFileName}
               fileInputRef={fileInputRef}
               onFileSelected={handleResumeUpload}
-              onContinue={handleUploadContinue}
+              onContinue={() => handleUploadContinue()}
+              onFindJobs={() => handleUploadContinue({ next: "find-jobs" })}
             />
           )}
 
@@ -742,6 +822,7 @@ function App() {
               setJobDescription={setJobDescription}
               loading={loading}
               handleAnalyze={handleAnalyze}
+              onFindJobs={openFindJobs}
             />
           )}
 

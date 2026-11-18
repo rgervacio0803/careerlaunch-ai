@@ -20,6 +20,11 @@ const MAX_RESUME_CHARS = 30000;
 const MAX_JOB_CHARS = 20000;
 const AI_REQUESTS_PER_HOUR = Number(process.env.AI_REQUESTS_PER_HOUR || 60);
 const PAYMENTS_ENABLED = process.env.ENABLE_PAYMENTS === "true";
+// Job recommendations (optional): JSearch by OpenWeb Ninja.
+const JSEARCH_API_KEY = process.env.JSEARCH_API_KEY || "";
+const JSEARCH_API_URL =
+  process.env.JSEARCH_API_URL || "https://api.openwebninja.com/jsearch/search-v2";
+const JOB_SEARCHES_PER_DAY = Number(process.env.JOB_SEARCHES_PER_DAY || 10);
 
 const CLIENT_URLS = (process.env.CLIENT_URL || "http://localhost:5173")
   .split(",")
@@ -921,6 +926,210 @@ ${jobDescription}
 
   res.json({ coverLetter });
 });
+
+// ---------------------------------------------------------------------------
+// Job recommendations
+// ---------------------------------------------------------------------------
+
+const jobSearchLimiter = rateLimit({
+  windowMs: 24 * 60 * 60 * 1000,
+  limit: JOB_SEARCHES_PER_DAY,
+  keyGenerator: (req) => req.user.id,
+  standardHeaders: "draft-8",
+  legacyHeaders: false,
+  message: {
+    error: `You've reached today's limit of ${JOB_SEARCHES_PER_DAY} job searches. Please try again tomorrow.`,
+  },
+});
+
+function cleanText(value, max) {
+  return String(value || "").replace(/\s+/g, " ").trim().slice(0, max);
+}
+
+function jobLocation(job) {
+  if (job.job_location) return job.job_location;
+  return [job.job_city, job.job_state].filter(Boolean).join(", ");
+}
+
+function jobSalary(job) {
+  if (job.job_salary_string) return job.job_salary_string;
+  if (job.job_salary) return String(job.job_salary);
+  const { job_min_salary: min, job_max_salary: max, job_salary_period: period } = job;
+  if (!min && !max) return "";
+  const money = (n) => `$${Math.round(n).toLocaleString("en-US")}`;
+  const range = min && max ? `${money(min)}–${money(max)}` : money(min || max);
+  return period ? `${range} / ${String(period).toLowerCase()}` : range;
+}
+
+async function searchJsearch({ query, remote, page }) {
+  const url = new URL(JSEARCH_API_URL);
+  url.searchParams.set("query", query);
+  url.searchParams.set("country", "us");
+  url.searchParams.set("date_posted", "month");
+  url.searchParams.set("num_pages", "1");
+  url.searchParams.set("page", String(page));
+  if (remote) url.searchParams.set("work_from_home", "true");
+
+  let response;
+  try {
+    response = await fetch(url, {
+      headers: { "x-api-key": JSEARCH_API_KEY },
+      signal: AbortSignal.timeout(30000),
+    });
+  } catch (error) {
+    console.error("JSearch request failed:", error.message);
+    throw new HttpError(502, "The job search service didn't respond. Please try again.");
+  }
+
+  if (response.status === 401 || response.status === 403) {
+    console.error("JSearch rejected the API key. Check JSEARCH_API_KEY.");
+    throw new HttpError(503, "Job search is temporarily unavailable. Please try again later.");
+  }
+
+  if (response.status === 429) {
+    console.error("JSearch monthly or rate limit reached.");
+    throw new HttpError(503, "Job search is busy right now. Please try again later.");
+  }
+
+  if (!response.ok) {
+    console.error("JSearch error:", response.status, (await response.text()).slice(0, 300));
+    throw new HttpError(502, "The job search service had a problem. Please try again.");
+  }
+
+  const body = await response.json();
+  const list = Array.isArray(body.data) ? body.data : body.data?.jobs || [];
+
+  return list
+    .filter((job) => job && job.job_title && job.job_id)
+    .map((job) => ({
+      id: String(job.job_id),
+      title: cleanText(job.job_title, 200),
+      company: cleanText(job.employer_name, 200),
+      location: cleanText(jobLocation(job), 200),
+      remote: Boolean(job.job_is_remote),
+      postedAt: job.job_posted_at_datetime_utc || null,
+      postedText: cleanText(job.job_posted_at, 60),
+      salary: cleanText(jobSalary(job), 80),
+      applyLink: /^https?:\/\//i.test(job.job_apply_link || "") ? job.job_apply_link : "",
+      publisher: cleanText(job.job_publisher, 80),
+      description: String(job.job_description || "").trim().slice(0, MAX_JOB_CHARS),
+    }));
+}
+
+// Checked before the daily limit, so it doesn't use up anyone's searches.
+function requireJobSearchSetup(req, res, next) {
+  if (!JSEARCH_API_KEY) {
+    return res
+      .status(503)
+      .json({ error: "Job recommendations aren't set up yet. Please check back soon." });
+  }
+  next();
+}
+
+app.post(
+  "/job-matches",
+  requireUser,
+  requireJobSearchSetup,
+  jobSearchLimiter,
+  upload.none(),
+  async (req, res) => {
+    const resumeText = requireResume((req.body.resumeText || "").trim());
+    const remote = req.body.remote === "true";
+    const location = cleanText(req.body.location, 120);
+    const page = Math.min(Math.max(Number(req.body.page) || 1, 1), 10);
+    let searchTitle = cleanText(req.body.jobTitle, 120);
+
+    if (!location && !remote) {
+      throw new HttpError(400, "Please enter a location, or choose Remote.");
+    }
+
+    // Work out what to search for from the resume, unless the user typed it.
+    if (!searchTitle) {
+      const profile = await askJson(`
+You help job seekers search job boards.
+
+From the resume below, return ONLY valid JSON in this format:
+
+{ "searchTitle": "" }
+
+searchTitle is the single job title this person is most qualified for today, written the way employers title job postings (for example "Clinical Laboratory Scientist", "Registered Nurse", "Frontend Developer"). Keep it under 6 words. No seniority words unless the resume clearly supports them.
+
+${DATA_NOTE}
+
+<resume>
+${resumeText.slice(0, 12000)}
+</resume>
+`);
+      searchTitle = cleanText(profile.searchTitle, 120) || "Jobs";
+    }
+
+    const query = remote ? `${searchTitle} remote` : `${searchTitle} in ${location}`;
+    const jobs = await searchJsearch({ query, remote, page });
+
+    if (!jobs.length) {
+      return res.json({ searchTitle, query, jobs: [] });
+    }
+
+    const ranking = await askJson(`
+You are an experienced recruiter. Score how well this candidate fits each job.
+
+Return ONLY valid JSON in this format:
+
+{
+  "matches": [
+    { "id": "", "score": 0, "reason": "", "gap": "" }
+  ]
+}
+
+Rules:
+- Include every job id exactly as given.
+- score is a whole number from 0 to 100 for how well the resume fits the job's requirements.
+- reason: one short sentence (under 20 words) naming the specific experience or skills that match.
+- gap: one short phrase (under 12 words) naming the most important requirement the resume doesn't show, or "" if none.
+- Base everything only on the resume and the job text. Never invent experience.
+
+${DATA_NOTE}
+
+<resume>
+${resumeText.slice(0, 12000)}
+</resume>
+
+<jobs>
+${jobs
+  .map(
+    (job) => `ID: ${job.id}
+Title: ${job.title}
+Company: ${job.company}
+Location: ${job.remote ? "Remote" : job.location}
+Description: ${job.description.slice(0, 1500)}`,
+  )
+  .join("\n---\n")}
+</jobs>
+`);
+
+    const scores = new Map(
+      (Array.isArray(ranking.matches) ? ranking.matches : []).map((m) => [
+        String(m.id),
+        m,
+      ]),
+    );
+
+    const ranked = jobs
+      .map((job) => {
+        const match = scores.get(job.id) || {};
+        const score = Math.round(Number(match.score));
+        return {
+          ...job,
+          score: Number.isFinite(score) ? Math.min(100, Math.max(0, score)) : null,
+          reason: cleanText(match.reason, 200),
+          gap: cleanText(match.gap, 120),
+        };
+      })
+      .sort((a, b) => (b.score ?? -1) - (a.score ?? -1));
+
+    res.json({ searchTitle, query, jobs: ranked });
+  },
+);
 
 // ---------------------------------------------------------------------------
 // Errors

@@ -102,7 +102,13 @@ export async function updateApplication(id, snapshot) {
 }
 
 // Adds a job to the tracker without running the analysis yet.
-export async function createTrackedJob({ jobTitle, companyName, jobUrl, status }) {
+export async function createTrackedJob({
+  jobTitle,
+  companyName,
+  jobUrl,
+  status,
+  details = {},
+}) {
   const { data, error } = await supabase
     .from(TABLE)
     .insert({
@@ -111,8 +117,13 @@ export async function createTrackedJob({ jobTitle, companyName, jobUrl, status }
       job_url: jobUrl.trim(),
       status,
       applied_on: status === "saved" ? null : localToday(),
-      current_step: 1,
-      data: { jobTitle: jobTitle.trim(), companyName: companyName.trim() },
+      current_step: details.currentStep || 1,
+      data: {
+        ...details,
+        jobTitle: jobTitle.trim(),
+        companyName: companyName.trim(),
+        jobUrl: jobUrl.trim(),
+      },
     })
     .select(TRACKER_COLUMNS)
     .single();
