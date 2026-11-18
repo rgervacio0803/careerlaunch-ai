@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-function Landing({ onStart }) {
+function Landing({ onStart, isLoggedIn, onLogOut }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
@@ -15,7 +15,25 @@ function Landing({ onStart }) {
           <a href="#how-it-works">How It Works</a>
           <a href="#pricing">Pricing</a>
           <a href="#faq">FAQ</a>
-          <button onClick={onStart}>Get Started Free</button>
+          {isLoggedIn ? (
+            <>
+              <button type="button" className="landing-text-button" onClick={onLogOut}>
+                Log Out
+              </button>
+              <button type="button" onClick={onStart}>
+                My Applications
+              </button>
+            </>
+          ) : (
+            <>
+              <button type="button" className="landing-text-button" onClick={onStart}>
+                Log In
+              </button>
+              <button type="button" onClick={onStart}>
+                Get Started Free
+              </button>
+            </>
+          )}
         </div>
         <button
           className="mobile-menu-button"
@@ -45,14 +63,47 @@ function Landing({ onStart }) {
       FAQ
     </a>
 
-    <button
-      onClick={() => {
-        setMobileMenuOpen(false);
-        onStart();
-      }}
-    >
-      Get Started Free
-    </button>
+    {isLoggedIn ? (
+      <>
+        <button
+          onClick={() => {
+            setMobileMenuOpen(false);
+            onStart();
+          }}
+        >
+          My Applications
+        </button>
+        <button
+          className="landing-text-button"
+          onClick={() => {
+            setMobileMenuOpen(false);
+            onLogOut();
+          }}
+        >
+          Log Out
+        </button>
+      </>
+    ) : (
+      <>
+        <button
+          className="landing-text-button"
+          onClick={() => {
+            setMobileMenuOpen(false);
+            onStart();
+          }}
+        >
+          Log In
+        </button>
+        <button
+          onClick={() => {
+            setMobileMenuOpen(false);
+            onStart();
+          }}
+        >
+          Get Started Free
+        </button>
+      </>
+    )}
   </div>
 )}
 

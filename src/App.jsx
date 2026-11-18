@@ -631,7 +631,13 @@ function App() {
   }
 
   if (showLanding) {
-    return <Landing onStart={() => setShowLanding(false)} />;
+    return (
+      <Landing
+        isLoggedIn={Boolean(user)}
+        onStart={() => setShowLanding(false)}
+        onLogOut={handleLogOut}
+      />
+    );
   }
 
   if (!user) {
